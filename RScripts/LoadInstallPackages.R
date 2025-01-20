@@ -20,14 +20,12 @@
 
 #------- cran_packages ---------
 library(pacman)
-library(here)
-
 rm(list=ls())
 
 
 # Packages for importing, storing and manipulating data
 
-p_load(devtools,                 # Packages from git an others
+p_load(here, devtools,                 # Packages from git an others
        tidyverse,                # Tidyverse for data wrangling, ggplot2 etc.
        broom,                    # Broom for tidy methods
        lubridate,                # For Date-time formats
