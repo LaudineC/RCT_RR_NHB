@@ -38,10 +38,23 @@ MainDB <- read_csv(here("Data","MainDatabaseWithoutIds.csv")) %>%   mutate(
 BaselineCorrected <- read_csv(here("Data","BaselinePremiersPas_corrected.csv")) %>% 
   select(ResponseId, Income, FmlyIncome) # we select the variables we want
 
+
 # Import the variables of interest in the dataframe
 MainDB <- MainDB %>% left_join(BaselineCorrected, by = "ResponseId") %>% 
-  select(-c(FmlyIncomeBaseline,IncomeBaseline, FmilyEarnLessThan2500 )) # we remove the variables with mistakes
-
+  select(-c(FmlyIncomeBaseline,IncomeBaseline, FmilyEarnLessThan2500 )) %>%  # we remove the variables with mistakes
+  mutate(
+    FmilyEarnLessThan2500 = ifelse((FmlyIncome == "+8000" | FmlyIncome == "+8000" | FmlyIncome == "2500-3000"  
+                                    | FmlyIncome == "3000-4500" | FmlyIncome == "4500-5000" | FmlyIncome == "5000-6000"
+                                    |  FmlyIncome == "6000-7000" | FmlyIncome == "7000-8000" | FmlyIncome == "Ne veut pas répondre"), 
+                                   "No",
+                                   "Yes"), 
+    FmilyEarnLessThan2500 = as.factor(FmilyEarnLessThan2500), 
+    NumberOfChildren3 = ifelse(NumberChildren > 1, # recode for the balance table
+                               "2 or more", 
+                               as.character(NumberChildren)
+                               ), 
+    NumberOfChildren3 = as.factor(NumberOfChildren3) 
+  )
 
 # Descrtiptive statistics 
 

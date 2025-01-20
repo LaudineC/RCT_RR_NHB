@@ -789,7 +789,7 @@ DataPlot %>%
 #------ BalanceTable ----------
 
 ## This chunk construct the balance table of covariates at baseline for the appendix
-
+# We add more covariates for the second round, following the coments
 tabVar <- MainDB  %>% 
   mutate(
     SingleMum1or0 = ifelse(SingleMum == TRUE, 1, 0),
@@ -803,34 +803,35 @@ tabVar <- MainDB  %>%
     KnowsCrecheOnly1or0  = ifelse(KnowsCrecheOnly == TRUE, 1, 0),
     WorkPlanTo1or0 = ifelse(WorkPlanTo == TRUE, 1, 0), 
     BabyFemale = ifelse(BabyFemale == TRUE, 1, 0), 
-    Primipare1or0 = ifelse(Primipare == TRUE, 1, 0)
+    Primipare1or0 = ifelse(Primipare == TRUE, 1, 0), 
+    ComputerYes1or0 = ifelse(ComputerYN == "Oui", 1, 0)
   ) %>% 
   select(
     "Assignment" = Assignment,
-    "Single parent family" = SingleMum1or0,
+    "Single-parent family" = SingleMum1or0,
     #  "Couple cohabiting" = CoupleCohabiting1or0,
     "Age of the mother" = Age,
-    "Mother has no child" = Primipare1or0,
+    "Number of children in the household" = NumberOfChildren3,
     # "The mother has no child" = Primipare1or0,
-    "Mother is born in France" = BornFr1or0,
-    "Mother has attained post-secondary education (high-SES)" = Educ1or0,  # Strata: Educ: ≤ Bac or higher
-    
+    "The mother is born in France" = BornFr1or0,
+    "The mother has a post-secondary education (high-SES)" = Educ1or0,  # Strata: Educ: ≤ Bac or higher
     #  "The mothers is not born in MENAnorAsia" = BirthNotAsiaMENA1or0,
+    "The household earns less than €2,500 per month" = FmilyEarnLessThan2500,
+    "The mother is present orientated" = Discount501or0,
     "The mother is active at baseline" = Active1or0,
-    "Household earns less than €2,500 per month" = FmilyEarnLessThan2500,
-    #  "Has a computer" = ComputerYes1or0,
-    "Mother is present orientated" = Discount501or0,
-    "Mother wants to work after maternity leaves" = WorkPlanTo1or0,
+    "The mother wants to work after maternity leaves" = WorkPlanTo1or0,
     #"The mother did not smoke" = DidNotSmoke1or0,
     #"The mother wants to breastfeed" = BreastFeedIntend1or0, 
-    "Household has ever used early childcare" = EverUsedECS1or0,                  # Used: yes/no/ don't wanna answer
-    "Mother wants to use early childcare" = PlanToUseECS1or0,                 # Intend to use, block variable
+    "The household has ever used early childcare" = EverUsedECS1or0,                  # Used: yes/no/ don't wanna answer
+    "The mother wants to use early childcare" = PlanToUseECS1or0,  
+    "The household has access to a computer" = ComputerYes1or0,
+    # Intend to use, block variable
     #  "Knows early childcare is subsidised" = AffordSubsidies1or0,
     #  "Knows only daycare" = KnowsCrecheOnly1or0,
     #    "Value socialization" = ValSocialisation,
     #"Believe in returns to early childcare" = LikertReturnHK1or0,
     #"The mother trusts early childcare" = TrustCreche1or0,
-    "Mother lives in Paris" = DepParis1or0,
+    "The mother lives in Paris" = DepParis1or0,
     "Early childcare coverage is high" = HighECSCov1or0,
     "Child is a girl" = BabyFemale,
     #  StrataWave
