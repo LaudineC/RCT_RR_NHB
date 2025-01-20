@@ -1,0 +1,17 @@
+---
+title: "Analysis_Laudine_R&R"
+author: "Laudine Carbuccia"
+date: "2025-01-20"
+always_allow_html: true
+language:
+  label:
+    fig: 'Figure '
+    tab: 'Table '
+    eq: 'Equation '
+output: 
+    bookdown::word_document2: 
+      reference_docx: FormatRefWordFinal.docx
+      fig_caption: yes
+      toc: no
+    officedown::rdocx_document:
+---
