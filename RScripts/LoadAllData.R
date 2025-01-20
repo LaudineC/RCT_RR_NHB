@@ -20,7 +20,7 @@ BaselineFull <- read_csv(here("Data","BaselineWithRefusals.csv"))
 
 
 
-# Importthe main database with both baseline and endline information for all participants
+# Import the main database with both baseline and endline information for all participants
 MainDB <- read_csv(here("Data","MainDatabaseWithoutIds.csv")) %>%   mutate(
                             NormsBaseline=factor(NormsBaseline,
                                                  levels=c("Ne sait pas","Aucune","Une minorité","Moitié moitié","La plupart","Toutes"), ordered = TRUE # how many mothers in their surroundings use childcare 
@@ -28,6 +28,19 @@ MainDB <- read_csv(here("Data","MainDatabaseWithoutIds.csv")) %>%   mutate(
                             Dep = as.factor(Dep) 
 )
 
+# Between the submission and first round of reviews, the authors spotted two typos in the initial coding of 
+# - Mother's baseline income
+# - Family's baseline income
+# We correct here this typo by replacing the initial variables with the corrected ones
+
+# Import the file with the corrected variables
+
+BaselineCorrected <- read_csv(here("Data","BaselinePremiersPas_corrected.csv")) %>% 
+  select(ResponseId, Income, FmlyIncome) # we select the variables we want
+
+# Import the variables of interest in the dataframe
+MainDB <- MainDB %>% left_join(BaselineCorrected, by = "ResponseId") %>% 
+  select(-c(FmlyIncomeBaseline,IncomeBaseline, FmilyEarnLessThan2500 )) # we remove the variables with mistakes
 
 
 # Descrtiptive statistics 
@@ -210,12 +223,13 @@ SocDemo <-  model.matrix(~0+.,SocDemoId %>% select(-c(ResponseId,SubSampleStrata
 SocDemo.c <- SocDemo %>% bind_cols(.,SocDemoId %>% select(ResponseId,SubSampleStrata,SubSample)) %>% 
   group_by(SubSampleStrata)  %>% mutate_at(all_of(names(SocDemo)),~.x-mean(.))%>% ungroup()
 
-# FmlyIncomeBaseline, IncomeBaseline
+# FmlyIncome, Income at Baseline
+# the authors corrected a typo between the initial submission and the second version of the manuscript
 
 IncomesId <- StackedDB %>% select(ResponseId,SubSampleStrata,SubSample,
-                                  FmlyIncomeBaseline, IncomeBaseline) %>% 
-  mutate_at(vars(FmlyIncomeBaseline, IncomeBaseline),~as.character(.)) %>% 
-  replace_na(list(FmlyIncomeBaseline="NA", IncomeBaseline="NA"))
+                                  FmlyIncome, Income) %>% 
+  mutate_at(vars(FmlyIncome, Income),~as.character(.)) %>% 
+  replace_na(list(FmlyIncome="NA", Income="NA"))
 
 Incomes <-   model.matrix(~0+.,IncomesId %>% select(-c(ResponseId,SubSampleStrata,SubSample))) %>% as.data.frame()
 
@@ -297,3 +311,4 @@ rm(SocDemo, SocDemo.c, SocDemoId,
          DBResponse, PredVars, fit_basic, fit_basicStack,
          survey_trick, ps_fit
          ) 
+
