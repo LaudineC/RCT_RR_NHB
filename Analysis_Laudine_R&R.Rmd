@@ -15,3 +15,40 @@ output:
       toc: no
     officedown::rdocx_document:
 ---
+
+
+```{r LoadLibraries, include=FALSE}
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+# Comments from the reviewers
+
+## Reviewer 1
+
+### Comment 1
+"One thing I missed was additional descriptive information (in the supplementary file), in particular distributions of all variables by SES, migration background, baseline knowledge, temporal orientation, previous childcare usage, activity status, and by district."
+
+### Response
+
+#### Distribution of all variables by SES 
+
+#### Distribution of all variables by migration background
+
+#### Distribution of all variables by baseline knowledge
+
+#### Distribution of all variables by temporal orientation
+
+#### Distribution of all variables by previous childcare usage
+
+#### Distribution of all variables by activity status
+
+#### Distribution of all variables by district
+
