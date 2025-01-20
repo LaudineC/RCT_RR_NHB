@@ -29,6 +29,13 @@ source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
 source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
 ```
 
+
+
+```{r, include=FALSE, cache=FALSE}
+knitr::read_chunk(here("RScripts","MainAnalyses.R"))
+# This file contains all the chunks of codes to be called at the right place in the Rmarkdown document
+```
+
 # Comments from the reviewers
 
 ## Reviewer 1
@@ -39,6 +46,9 @@ source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
 ### Response
 
 #### Distribution of all variables by SES 
+```{r BalanceTable, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
 
 #### Distribution of all variables by migration background
 
