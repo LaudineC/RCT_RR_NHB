@@ -415,3 +415,46 @@ summary_baseline_variables_District_VDM %>%
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
+
+
+#---------------------- Correlation --------------------
+
+
+p_load(psych, corrplot)
+
+# Select the relevant variables
+variables <- MainDB[, c("Educ2", "FrenchYNBaseline", "InfoBaseline", 
+                        "PresentOrientated", "UsedECEC", "ActiveBaseline")]
+
+# Convert them into numerical variables
+variables_num <- data.frame(lapply(variables, function(x) {
+  if(is.factor(x)) as.numeric(x) - 1 else x
+}))
+
+# Remove variables with no variance (none but for some reason it creates a bug)
+vars_with_variance <- names(which(sapply(variables_num, var, na.rm=TRUE) > 0))
+variables_num_clean <- variables_num[, vars_with_variance]
+
+tetrachoric_matrix <- tetrachoric(variables_num_clean)$rho
+
+# Change the names so that they are prettier
+nouveaux_noms <- c("SES", "Migration background", "Knowledge", 
+                   "Temporal Orientation", "Previous early childcare use", "Activity")
+
+# Renames rows and cols
+colnames(tetrachoric_matrix) <- nouveaux_noms
+rownames(tetrachoric_matrix) <- nouveaux_noms
+
+# Plot the correlation matrix
+corrplot(tetrachoric_matrix, method="color", 
+         type="upper", 
+         addCoef.col = "black",
+         tl.col="black", tl.srt=45,  # tl.srt : orientation
+         tl.cex = 0.8,               # font size
+         diag=FALSE)
+
+# Then add the title
+title(main="Tetrachoric Correlation Coefficients of the Main Variables", 
+      line=1,    # Adjust the vertical position of the title
+      cex.main=1)  # Adjust the size of the title
+         
