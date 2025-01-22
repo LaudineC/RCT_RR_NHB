@@ -457,4 +457,101 @@ corrplot(tetrachoric_matrix, method="color",
 title(main="Tetrachoric Correlation Coefficients of the Main Variables", 
       line=1,    # Adjust the vertical position of the title
       cex.main=1)  # Adjust the size of the title
-         
+
+#----------- InteractionSESActive -----------
+Het.ITT.App.ActiveEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>% 
+                                                     mutate(ActiveEduc=interaction(ActiveBaseline,Educ2)),
+                                                   Outcome = "ECSApp",
+                                                   Heterogeneity = "ActiveEduc",
+                                                   ITT = TRUE,
+                                                   Weights = "WeightPS",
+                                                   clusters = "StrataWave")
+
+Het.ATT.App.ActiveEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%  
+                                                     mutate(ActiveEduc=interaction(ActiveBaseline,Educ2)),
+                                                   Outcome = "ECSApp",
+                                                   Heterogeneity = "ActiveEduc",
+                                                   ITT = FALSE,
+                                                   Weights = "WeightPS",
+                                                   clusters = "StrataWave")
+
+Het.ITT.Use.ActiveEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%
+                                                     mutate(ActiveEduc=interaction(ActiveBaseline,Educ2)),
+                                                   Outcome = "ECSUseYes",
+                                                   Heterogeneity = "ActiveEduc",
+                                                   ITT = TRUE,
+                                                   Weights = "WeightPS",
+                                                   clusters = "StrataWave")
+
+Het.ATT.Use.ActiveEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>%                                                   
+                                                     mutate(ActiveEduc=interaction(ActiveBaseline,Educ2)),
+                                                   Outcome = "ECSUseYes",
+                                                   Heterogeneity = "ActiveEduc",
+                                                   ITT = FALSE,
+                                                   Weights = "WeightPS",
+                                                   clusters = "StrataWave")
+
+# Separate the interaction terms
+Het.ITT.App.ActiveEduc$ModelSummary$tidy <- Het.ITT.App.ActiveEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Activity","SES"))
+
+Het.ITT.App.ActiveEduc$ModelSummary0$tidy <- Het.ITT.App.ActiveEduc$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Activity","SES"))
+
+Het.ATT.App.ActiveEduc$ModelSummary$tidy <- Het.ATT.App.ActiveEduc$ModelSummary$tidy %>%
+  separate(Group, into=c("Activity","SES"))
+
+Het.ITT.Use.ActiveEduc$ModelSummary$tidy <- Het.ITT.Use.ActiveEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Activity","SES"))
+
+Het.ITT.Use.ActiveEduc$ModelSummary0$tidy <- Het.ITT.Use.ActiveEduc$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Activity","SES"))
+
+Het.ATT.Use.ActiveEduc$ModelSummary$tidy <- Het.ATT.Use.ActiveEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Activity","SES"))
+
+# Coef Map for clear labels
+cm <- c('T2-C' = 'Information + Support vs Control')
+
+# Creating the table with the new interaction terms
+modelsummary(list("Early childcare application_Control mean" = Het.ITT.App.ActiveEduc$ModelSummary0,
+                  "Early childcare application_ITT" = Het.ITT.App.ActiveEduc$ModelSummary,
+                  "Early childcare application_ATT" = Het.ATT.App.ActiveEduc$ModelSummary,
+                  "Early childcare access_Control mean" = Het.ITT.Use.ActiveEduc$ModelSummary0,
+                  "Early childcare access_ITT" = Het.ITT.Use.ActiveEduc$ModelSummary,
+                  "Early childcare access_ATT" = Het.ATT.Use.ActiveEduc$ModelSummary),
+             shape = term + Activity + SES ~ model,
+             fmt=fmt_statistic(estimate=2, adj.p.value=3, std.error=2, conf.int=2, "Chi 2"=2, "P-value"=3), 
+             estimate = '{estimate}{stars} ({std.error})',
+             statistic = c("conf.int",
+                           "adj.p.val. = {adj.p.value}"),
+             stars = c('*' = .1, '**' = .05, '***' = .01),
+             coef_map = cm,
+             gof_map = c("Covariates", "Fixed effects", "Mean F-stat 1st stage", "Chi 2", "P-value",
+                         "nobs", "r.squared", "adj.r.squared"),
+             title = "Average effects on application and access to early childcare by level of education and employment status at baseline",
+             notes = paste("Sources:", SourcesStacked,
+                           "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference using themethod. 
+Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+             output = 'flextable') %>% 
+  theme_booktabs() |>
+  separate_header(split="_", opts = c("center-hspan")) |>
+  bold(i=1, part = "header") %>%
+  merge_at(j=3, part="header") |>
+  merge_at(j=2, part="header") |>
+  merge_at(j=1, part="header") |>
+  merge_v(j=1, part="body") |>
+  merge_v(j=2, part="body") |>
+  merge_v(j=3, part="body") |>
+  italic(i = c(1), part = "header") %>% 
+  italic(j = c(1), part = "body") %>% 
+  fontsize(size=9, part="footer") %>% 
+  fontsize(size=10, part="body") %>% 
+  align(part = "header", align = "center") |>
+  align(part = "body", align = "center") |>
+  width(j=c(5,6,8,9), width=2.4, unit = "cm") |>
+  width(j=c(2,3,4,7), width=2.2, unit = "cm") %>% 
+  hline(c(3,6,9, 12, 17), part="body")
