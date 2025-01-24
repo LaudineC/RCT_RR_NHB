@@ -555,3 +555,5 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j=c(5,6,8,9), width=2.4, unit = "cm") |>
   width(j=c(2,3,4,7), width=2.2, unit = "cm") %>% 
   hline(c(3,6,9, 12, 17), part="body")
+
+#---------------------- Norms --------------------
