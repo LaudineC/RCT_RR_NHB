@@ -557,3 +557,323 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   hline(c(3,6,9, 12, 17), part="body")
 
 #---------------------- Norms --------------------
+
+
+##Opposition to childcare
+# App itt              
+Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSApp",
+                                              Heterogeneity = "NormsOpposedYes", 
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.App.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                      Outcome = "AppCreche",
+                                                      Heterogeneity = "NormsOpposedYes",
+                                                      ITT = TRUE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity = "NormsOpposedYes",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.Use.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                      Outcome = "UseCreche",
+                                                      Heterogeneity = "NormsOpposedYes",
+                                                      ITT = TRUE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+# App Att
+Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "ECSApp",
+                                              Heterogeneity = "NormsOpposedYes",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ATT.App.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                      Outcome = "AppCreche",
+                                                      Heterogeneity = "NormsOpposedYes",
+                                                      ITT = FALSE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity = "NormsOpposedYes",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ATT.Use.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                      Outcome = "UseCreche",
+                                                      Heterogeneity = "NormsOpposedYes",
+                                                      ITT = FALSE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+cm <- c('T2-C'    = 'Information + Support vs Control')
+
+## EARLY CHILDCARE
+# filter only the T2-C term for the ITT and ATT
+Het.ITT.App.Norms$ModelSummary0$tidy= Het.ITT.App.Norms$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.App.Norms$ModelSummary$tidy= Het.ATT.App.Norms$ModelSummary$tidy %>% filter(term == "T2-C")
+Het.ITT.Use.Norms$ModelSummary0$tidy= Het.ITT.Use.Norms$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.Use.Norms$ModelSummary$tidy= Het.ATT.Use.Norms$ModelSummary$tidy %>% filter(term == "T2-C")
+
+modelsummary(list("Early childcare application_Control mean"  =Het.ITT.App.Norms$ModelSummary0,
+                  "Early childcare application_ITT"           =Het.ITT.App.Norms$ModelSummary,
+                  "Early childcare application_ATT"           =Het.ATT.App.Norms$ModelSummary,
+                  "Early childcare access_Control mean"          =Het.ITT.Use.Norms$ModelSummary0,
+                  "Early childcare access_ITT"                   =Het.ITT.Use.Norms$ModelSummary,
+                  "Early childcare access_ATT"                   =Het.ATT.Use.Norms$ModelSummary),
+             shape = term + Group ~ model,
+             fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2,"Chi 2"=2,"P-value"=3), 
+             estimate = '{estimate}{stars} ({std.error})',
+             statistic = c("conf.int",
+                           "adj.p.val. = {adj.p.value}"),
+             stars = c('*' = .1,'**' = .05, '***' = .01),
+             coef_map = cm,
+             gof_map = c(
+               "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
+               "nobs", "r.squared","adj.r.squared"),
+             title="Average effects on application and access to early childcare by whether the household expect friends and relatives to look at them askance if they are using early childcare",
+             notes=paste(
+                         "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference. 
+Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+             output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   
+  bold(i=1,  part = "header") %>%                
+  merge_at(j=2,part="header")|>
+  merge_at(j=1,part="header")|>
+  merge_v(j=1,part="body")|>
+  merge_v(j=2, part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                
+  align(part = "body", align = "center")|>                
+  width(j=c(4,5,7,8),width=2.4,unit = "cm")|>
+  width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
+  hline(c(6,3, 9),part="body")
+
+#---------------------- NormsDaycare --------------------
+
+## DAYCARE
+# filter only the T2-C term for the ITT and ATT
+Het.ITT.App.Norms.Daycare$ModelSummary0$tidy= Het.ITT.App.Norms.Daycare$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.App.Norms.Daycare$ModelSummary$tidy= Het.ATT.App.Norms.Daycare$ModelSummary$tidy %>% filter(term == "T2-C")
+Het.ITT.Use.Norms.Daycare$ModelSummary0$tidy= Het.ITT.Use.Norms.Daycare$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.Use.Norms.Daycare$ModelSummary$tidy= Het.ATT.Use.Norms.Daycare$ModelSummary$tidy %>% filter(term == "T2-C")
+
+modelsummary(list("Daycare application_Control mean"  =Het.ITT.App.Norms.Daycare$ModelSummary0,
+                  "Daycare application_ITT"           =Het.ITT.App.Norms.Daycare$ModelSummary,
+                  "Daycare application_ATT"           =Het.ATT.App.Norms.Daycare$ModelSummary,
+                  "Daycare access_Control mean"          =Het.ITT.Use.Norms.Daycare$ModelSummary0,
+                  "Daycare access_ITT"                   =Het.ITT.Use.Norms.Daycare$ModelSummary,
+                  "Daycare access_ATT"                   =Het.ATT.Use.Norms.Daycare$ModelSummary),
+             shape = term + Group ~ model,
+             fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2,"Chi 2"=2,"P-value"=3), 
+             estimate = '{estimate}{stars} ({std.error})',
+             statistic = c("conf.int",
+                           "adj.p.val. = {adj.p.value}"),
+             stars = c('*' = .1,'**' = .05, '***' = .01),
+             coef_map = cm,
+             gof_map = c(
+               "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
+               "nobs", "r.squared","adj.r.squared"),
+             title="Average effects on application and access to daycare by whether the household expect friends and relatives to look at them askance if they are using early childcare",
+             notes=paste(
+               "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference. 
+Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+             output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   
+  bold(i=1,  part = "header") %>%                
+  merge_at(j=2,part="header")|>
+  merge_at(j=1,part="header")|>
+  merge_v(j=1,part="body")|>
+  merge_v(j=2, part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                
+  align(part = "body", align = "center")|>                
+  width(j=c(4,5,7,8),width=2.4,unit = "cm")|>
+  width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
+  hline(c(6,3, 9),part="body")
+
+
+#---------------------- NormsDecriptive --------------------
+
+
+##Opposition to childcare
+# App itt              
+Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSApp",
+                                              Heterogeneity = "DescriptiveNorms", 
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+
+
+Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity = "DescriptiveNorms",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+
+# App Att
+Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "ECSApp",
+                                              Heterogeneity = "DescriptiveNorms",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity = "DescriptiveNorms",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+
+
+cm <- c('T2-C'    = 'Information + Support vs Control')
+
+## EARLY CHILDCARE
+# filter only the T2-C term for the ITT and ATT
+Het.ITT.App.Norms$ModelSummary0$tidy= Het.ITT.App.Norms$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.App.Norms$ModelSummary$tidy= Het.ATT.App.Norms$ModelSummary$tidy %>% filter(term == "T2-C")
+Het.ITT.Use.Norms$ModelSummary0$tidy= Het.ITT.Use.Norms$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.Use.Norms$ModelSummary$tidy= Het.ATT.Use.Norms$ModelSummary$tidy %>% filter(term == "T2-C")
+
+modelsummary(list("Early childcare application_Control mean"  =Het.ITT.App.Norms$ModelSummary0,
+                  "Early childcare application_ITT"           =Het.ITT.App.Norms$ModelSummary,
+                  "Early childcare application_ATT"           =Het.ATT.App.Norms$ModelSummary,
+                  "Early childcare access_Control mean"          =Het.ITT.Use.Norms$ModelSummary0,
+                  "Early childcare access_ITT"                   =Het.ITT.Use.Norms$ModelSummary,
+                  "Early childcare access_ATT"                   =Het.ATT.Use.Norms$ModelSummary),
+             shape = term + Group ~ model,
+             fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2,"Chi 2"=2,"P-value"=3), 
+             estimate = '{estimate}{stars} ({std.error})',
+             statistic = c("conf.int",
+                           "adj.p.val. = {adj.p.value}"),
+             stars = c('*' = .1,'**' = .05, '***' = .01),
+             coef_map = cm,
+             gof_map = c(
+               "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
+               "nobs", "r.squared","adj.r.squared"),
+             title="Average effects on application and access to early childcare by whether the household expect friends and relatives to look at them askance if they are using early childcare",
+             notes=paste(
+               "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference. 
+Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+             output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   
+  bold(i=1,  part = "header") %>%                
+  merge_at(j=2,part="header")|>
+  merge_at(j=1,part="header")|>
+  merge_v(j=1,part="body")|>
+  merge_v(j=2, part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                
+  align(part = "body", align = "center")|>                
+  width(j=c(4,5,7,8),width=2.4,unit = "cm")|>
+  width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
+  hline(c(6,3, 9),part="body")
+
+#---------------------- NormsDaycareDescriptive --------------------
+Het.ITT.App.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                      Outcome = "AppCreche",
+                                                      Heterogeneity = "DescriptiveNorms",
+                                                      ITT = TRUE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+Het.ITT.Use.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                      Outcome = "UseCreche",
+                                                      Heterogeneity = "DescriptiveNorms",
+                                                      ITT = TRUE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+Het.ATT.App.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                      Outcome = "AppCreche",
+                                                      Heterogeneity = "DescriptiveNorms",
+                                                      ITT = FALSE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+
+Het.ATT.Use.Norms.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                      Outcome = "UseCreche",
+                                                      Heterogeneity = "DescriptiveNorms",
+                                                      ITT = FALSE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+## DAYCARE
+# filter only the T2-C term for the ITT and ATT
+Het.ITT.App.Norms.Daycare$ModelSummary0$tidy= Het.ITT.App.Norms.Daycare$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.App.Norms.Daycare$ModelSummary$tidy= Het.ATT.App.Norms.Daycare$ModelSummary$tidy %>% filter(term == "T2-C")
+Het.ITT.Use.Norms.Daycare$ModelSummary0$tidy= Het.ITT.Use.Norms.Daycare$ModelSummary0$tidy %>% filter(term == "T2-C")
+Het.ATT.Use.Norms.Daycare$ModelSummary$tidy= Het.ATT.Use.Norms.Daycare$ModelSummary$tidy %>% filter(term == "T2-C")
+
+modelsummary(list("Daycare application_Control mean"  =Het.ITT.App.Norms.Daycare$ModelSummary0,
+                  "Daycare application_ITT"           =Het.ITT.App.Norms.Daycare$ModelSummary,
+                  "Daycare application_ATT"           =Het.ATT.App.Norms.Daycare$ModelSummary,
+                  "Daycare access_Control mean"          =Het.ITT.Use.Norms.Daycare$ModelSummary0,
+                  "Daycare access_ITT"                   =Het.ITT.Use.Norms.Daycare$ModelSummary,
+                  "Daycare access_ATT"                   =Het.ATT.Use.Norms.Daycare$ModelSummary),
+             shape = term + Group ~ model,
+             fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2,"Chi 2"=2,"P-value"=3), 
+             estimate = '{estimate}{stars} ({std.error})',
+             statistic = c("conf.int",
+                           "adj.p.val. = {adj.p.value}"),
+             stars = c('*' = .1,'**' = .05, '***' = .01),
+             coef_map = cm,
+             gof_map = c(
+               "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
+               "nobs", "r.squared","adj.r.squared"),
+             title="Average effects on application and access to daycare by whether majority of friends and relatives use early childcare",
+             notes=paste(
+               "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference. 
+Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+             output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   
+  bold(i=1,  part = "header") %>%                
+  merge_at(j=2,part="header")|>
+  merge_at(j=1,part="header")|>
+  merge_v(j=1,part="body")|>
+  merge_v(j=2, part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                
+  align(part = "body", align = "center")|>                
+  width(j=c(4,5,7,8),width=2.4,unit = "cm")|>
+  width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
+  hline(c(6,3, 9),part="body")
+
