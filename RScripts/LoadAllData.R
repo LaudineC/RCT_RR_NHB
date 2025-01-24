@@ -36,7 +36,7 @@ MainDB <- read_csv(here("Data","MainDatabaseWithoutIds.csv")) %>%   mutate(
 # Import the file with the corrected variables
 
 BaselineCorrected <- read_csv(here("Data","BaselinePremiersPas_corrected.csv")) %>% 
-  select(ResponseId, Income, FmlyIncome) # we select the variables we want
+  select(ResponseId, Income, FmlyIncome, NormsOpposedN) # we select the variables we want
 
 
 # Import the variables of interest in the dataframe
@@ -53,8 +53,21 @@ MainDB <- MainDB %>% left_join(BaselineCorrected, by = "ResponseId") %>%
                                "2 or more", 
                                as.character(NumberChildren)
                                ), 
-    NumberOfChildren3 = as.factor(NumberOfChildren3) 
+    NumberOfChildren3 = as.factor(NumberOfChildren3), 
+  NormsOpposedYes = ifelse(NormsOpposedN != 0, 
+                           "Yes", 
+                           "No"),
+  NormsOpposedYes = replace_na(NormsOpposedYes, "Don't know"),
+  DescriptiveNorms = ifelse((NormsBaseline == "Toutes" | NormsBaseline == "La plupart"),  
+                            "Yes", 
+                            "No"
   )
+  
+
+  )
+
+## For exploratory data analysis, we add more variables
+
 
 # Descrtiptive statistics 
 
