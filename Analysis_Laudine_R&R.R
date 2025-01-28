@@ -1299,7 +1299,7 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
   hline(c(6,3),part="body")
 
-#---------- For LikertReturnHK1or0 -------------------
+#----------  LikertReturnHK1or0 -------------------
 
 
 # App itt              
@@ -1310,12 +1310,7 @@ Het.ITT.App.Dev <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                            Weights = "WeightPS",
                                            clusters = "StrataWave")
 
-Het.ITT.App.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                   Outcome = "AppCreche",
-                                                   Heterogeneity = "LikertReturnHK1or0",
-                                                   ITT = TRUE,
-                                                   Weights = "WeightPS",
-                                                   clusters = "StrataWave")
+
 
 Het.ITT.Use.Dev <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                            Outcome = "ECSUseYes",
@@ -1324,12 +1319,6 @@ Het.ITT.Use.Dev <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                            Weights = "WeightPS",
                                            clusters = "StrataWave")
 
-Het.ITT.Use.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                   Outcome = "UseCreche",
-                                                   Heterogeneity = "LikertReturnHK1or0",
-                                                   ITT = TRUE,
-                                                   Weights = "WeightPS",
-                                                   clusters = "StrataWave")
 
 # App Att
 Het.ATT.App.Dev <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
@@ -1339,12 +1328,6 @@ Het.ATT.App.Dev <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                            Weights = "WeightPS",
                                            clusters = "StrataWave")
 
-Het.ATT.App.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                                   Outcome = "AppCreche",
-                                                   Heterogeneity = "LikertReturnHK1or0",
-                                                   ITT = FALSE,
-                                                   Weights = "WeightPS",
-                                                   clusters = "StrataWave")
 
 Het.ATT.Use.Dev <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                            Outcome = "ECSUseYes",
@@ -1353,18 +1336,12 @@ Het.ATT.Use.Dev <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                            Weights = "WeightPS",
                                            clusters = "StrataWave")
 
-Het.ATT.Use.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                                   Outcome = "UseCreche",
-                                                   Heterogeneity = "LikertReturnHK1or0",
-                                                   ITT = FALSE,
-                                                   Weights = "WeightPS",
-                                                   clusters = "StrataWave")
-
 # Early childcare table
 Het.ITT.App.Dev$ModelSummary0$tidy= Het.ITT.App.Dev$ModelSummary0$tidy %>% filter(term == "T2-C")
 Het.ATT.App.Dev$ModelSummary$tidy= Het.ATT.App.Dev$ModelSummary$tidy %>% filter(term == "T2-C")
 Het.ITT.Use.Dev$ModelSummary0$tidy= Het.ITT.Use.Dev$ModelSummary0$tidy %>% filter(term == "T2-C")
 Het.ATT.Use.Dev$ModelSummary$tidy= Het.ATT.Use.Dev$ModelSummary$tidy %>% filter(term == "T2-C")
+
 
 modelsummary(list("Early childcare application_Control mean"  =Het.ITT.App.Dev$ModelSummary0,
                   "Early childcare application_ITT"           =Het.ITT.App.Dev$ModelSummary,
@@ -1404,11 +1381,46 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
   hline(c(6,3),part="body")
 
+
+
+#-------------- BeliefsReturnDaycare
+
+Het.ATT.App.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                    Outcome = "AppCreche",
+                                                    Heterogeneity = "LikertReturnHK1or0",
+                                                    ITT = FALSE,
+                                                    Weights = "WeightPS",
+                                                    clusters = "StrataWave")
+
+Het.ITT.App.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                    Outcome = "AppCreche",
+                                                    Heterogeneity = "LikertReturnHK1or0",
+                                                    ITT = TRUE,
+                                                    Weights = "WeightPS",
+                                                    clusters = "StrataWave")
+Het.ITT.Use.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                    Outcome = "UseCreche",
+                                                    Heterogeneity = "LikertReturnHK1or0",
+                                                    ITT = TRUE,
+                                                    Weights = "WeightPS",
+                                                    clusters = "StrataWave")
+
+
+Het.ATT.Use.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                    Outcome = "UseCreche",
+                                                    Heterogeneity = "LikertReturnHK1or0",
+                                                    ITT = FALSE,
+                                                    Weights = "WeightPS",
+                                                    clusters = "StrataWave")
+
 # Daycare table 
 Het.ITT.App.Dev.Daycare$ModelSummary0$tidy= Het.ITT.App.Dev.Daycare$ModelSummary0$tidy %>% filter(term == "T2-C")
 Het.ATT.App.Dev.Daycare$ModelSummary$tidy= Het.ATT.App.Dev.Daycare$ModelSummary$tidy %>% filter(term == "T2-C")
 Het.ITT.Use.Dev.Daycare$ModelSummary0$tidy= Het.ITT.Use.Dev.Daycare$ModelSummary0$tidy %>% filter(term == "T2-C")
 Het.ATT.Use.Dev.Daycare$ModelSummary$tidy= Het.ATT.Use.Dev.Daycare$ModelSummary$tidy %>% filter(term == "T2-C")
+
+cm <- c('T2-C'    = 'Information + Support vs Control')
+
 
 modelsummary(list("Daycare application_Control mean"  =Het.ITT.App.Dev.Daycare$ModelSummary0,
                   "Daycare application_ITT"           =Het.ITT.App.Dev.Daycare$ModelSummary,
@@ -1448,7 +1460,7 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
   hline(c(6,3),part="body")
 
-#---------------- For TrustCreche1or0 ----------------
+#----------------  TrustCreche1or0 ----------------
 
 # App itt              
 Het.ITT.App.Trust <- GroupHeterogeneityFnCTRL(DB = PostDB,
@@ -1458,12 +1470,6 @@ Het.ITT.App.Trust <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                              Weights = "WeightPS",
                                              clusters = "StrataWave")
 
-Het.ITT.App.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                     Outcome = "AppCreche",
-                                                     Heterogeneity = "TrustCreche1or0",
-                                                     ITT = TRUE,
-                                                     Weights = "WeightPS",
-                                                     clusters = "StrataWave")
 
 Het.ITT.Use.Trust <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                              Outcome = "ECSUseYes",
@@ -1472,12 +1478,7 @@ Het.ITT.Use.Trust <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                              Weights = "WeightPS",
                                              clusters = "StrataWave")
 
-Het.ITT.Use.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                     Outcome = "UseCreche",
-                                                     Heterogeneity = "TrustCreche1or0",
-                                                     ITT = TRUE,
-                                                     Weights = "WeightPS",
-                                                     clusters = "StrataWave")
+
 
 # App Att
 Het.ATT.App.Trust <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
@@ -1487,12 +1488,7 @@ Het.ATT.App.Trust <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                              Weights = "WeightPS",
                                              clusters = "StrataWave")
 
-Het.ATT.App.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                                     Outcome = "AppCreche",
-                                                     Heterogeneity = "TrustCreche1or0",
-                                                     ITT = FALSE,
-                                                     Weights = "WeightPS",
-                                                     clusters = "StrataWave")
+
 
 Het.ATT.Use.Trust <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                              Outcome = "ECSUseYes",
@@ -1501,18 +1497,15 @@ Het.ATT.Use.Trust <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                              Weights = "WeightPS",
                                              clusters = "StrataWave")
 
-Het.ATT.Use.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                                     Outcome = "UseCreche",
-                                                     Heterogeneity = "TrustCreche1or0",
-                                                     ITT = FALSE,
-                                                     Weights = "WeightPS",
-                                                     clusters = "StrataWave")
+
 
 # Early childcare table
 Het.ITT.App.Trust$ModelSummary0$tidy= Het.ITT.App.Trust$ModelSummary0$tidy %>% filter(term == "T2-C")
 Het.ATT.App.Trust$ModelSummary$tidy= Het.ATT.App.Trust$ModelSummary$tidy %>% filter(term == "T2-C")
 Het.ITT.Use.Trust$ModelSummary0$tidy= Het.ITT.Use.Trust$ModelSummary0$tidy %>% filter(term == "T2-C")
 Het.ATT.Use.Trust$ModelSummary$tidy= Het.ATT.Use.Trust$ModelSummary$tidy %>% filter(term == "T2-C")
+
+cm <- c('T2-C'    = 'Information + Support vs Control')
 
 
 modelsummary(list("Early childcare application_Control mean"  =Het.ITT.App.Trust$ModelSummary0,
@@ -1553,6 +1546,36 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j=c(1,2,3,6),width=2,unit = "cm") %>% 
   hline(c(6,3),part="body")
 
+#--------------------- TrustDaycare
+
+Het.ITT.App.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                      Outcome = "AppCreche",
+                                                      Heterogeneity = "TrustCreche1or0",
+                                                      ITT = TRUE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+
+Het.ITT.Use.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                      Outcome = "UseCreche",
+                                                      Heterogeneity = "TrustCreche1or0",
+                                                      ITT = TRUE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+Het.ATT.App.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                      Outcome = "AppCreche",
+                                                      Heterogeneity = "TrustCreche1or0",
+                                                      ITT = FALSE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
+
+Het.ATT.Use.Trust.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                      Outcome = "UseCreche",
+                                                      Heterogeneity = "TrustCreche1or0",
+                                                      ITT = FALSE,
+                                                      Weights = "WeightPS",
+                                                      clusters = "StrataWave")
 # Daycare table 
 Het.ITT.App.Trust.Daycare$ModelSummary0$tidy= Het.ITT.App.Trust.Daycare$ModelSummary0$tidy %>% filter(term == "T2-C")
 Het.ATT.App.Trust.Daycare$ModelSummary$tidy= Het.ATT.App.Trust.Daycare$ModelSummary$tidy %>% filter(term == "T2-C")
@@ -1747,122 +1770,72 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   hline(c(6,3),part="body")
 
 
-#----------- InteractionSESAttitude -----------
+#----------- InteractionSESBeliefs -----------
 # For Early Childcare
-Het.ITT.App.AttitudeEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>% 
-                                                       mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
+Het.ITT.App.BeliefsEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>% 
+                                                       mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
                                                      Outcome = "ECSApp",
-                                                     Heterogeneity = "AttitudeEduc",
+                                                     Heterogeneity = "BeliefsEduc",
                                                      ITT = TRUE,
                                                      Weights = "WeightPS",
                                                      clusters = "StrataWave")
 
-Het.ATT.App.AttitudeEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%  
-                                                       mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
+Het.ATT.App.BeliefsEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%  
+                                                       mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
                                                      Outcome = "ECSApp",
-                                                     Heterogeneity = "AttitudeEduc",
+                                                     Heterogeneity = "BeliefsEduc",
                                                      ITT = FALSE,
                                                      Weights = "WeightPS",
                                                      clusters = "StrataWave")
 
-Het.ITT.Use.AttitudeEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%
-                                                       mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
+Het.ITT.Use.BeliefsEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%
+                                                       mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
                                                      Outcome = "ECSUseYes",
-                                                     Heterogeneity = "AttitudeEduc",
+                                                     Heterogeneity = "BeliefsEduc",
                                                      ITT = TRUE,
                                                      Weights = "WeightPS",
                                                      clusters = "StrataWave")
 
-Het.ATT.Use.AttitudeEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>%                                                   
-                                                       mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
+Het.ATT.Use.BeliefsEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>%                                                   
+                                                       mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
                                                      Outcome = "ECSUseYes",
-                                                     Heterogeneity = "AttitudeEduc",
+                                                     Heterogeneity = "BeliefsEduc",
                                                      ITT = FALSE,
                                                      Weights = "WeightPS",
                                                      clusters = "StrataWave")
 
-# For Daycare
-Het.ITT.App.AttitudeEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>% 
-                                                               mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
-                                                             Outcome = "AppCreche",
-                                                             Heterogeneity = "AttitudeEduc",
-                                                             ITT = TRUE,
-                                                             Weights = "WeightPS",
-                                                             clusters = "StrataWave")
-
-Het.ATT.App.AttitudeEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%  
-                                                               mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
-                                                             Outcome = "AppCreche",
-                                                             Heterogeneity = "AttitudeEduc",
-                                                             ITT = FALSE,
-                                                             Weights = "WeightPS",
-                                                             clusters = "StrataWave")
-
-Het.ITT.Use.AttitudeEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%
-                                                               mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
-                                                             Outcome = "UseCreche",
-                                                             Heterogeneity = "AttitudeEduc",
-                                                             ITT = TRUE,
-                                                             Weights = "WeightPS",
-                                                             clusters = "StrataWave")
-
-Het.ATT.Use.AttitudeEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>%                                                   
-                                                               mutate(AttitudeEduc=interaction(AttitudeScoreMoreThanMedian,Educ2)),
-                                                             Outcome = "UseCreche",
-                                                             Heterogeneity = "AttitudeEduc",
-                                                             ITT = FALSE,
-                                                             Weights = "WeightPS",
-                                                             clusters = "StrataWave")
 
 # Separate the interaction terms for Early Childcare
-Het.ITT.App.AttitudeEduc$ModelSummary$tidy <- Het.ITT.App.AttitudeEduc$ModelSummary$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
+Het.ITT.App.BeliefsEduc$ModelSummary$tidy <- Het.ITT.App.BeliefsEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
 
-Het.ITT.App.AttitudeEduc$ModelSummary0$tidy <- Het.ITT.App.AttitudeEduc$ModelSummary0$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
+Het.ITT.App.BeliefsEduc$ModelSummary0$tidy <- Het.ITT.App.BeliefsEduc$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
 
-Het.ATT.App.AttitudeEduc$ModelSummary$tidy <- Het.ATT.App.AttitudeEduc$ModelSummary$tidy %>%
-  separate(Group, into=c("Attitude","SES"))
+Het.ATT.App.BeliefsEduc$ModelSummary$tidy <- Het.ATT.App.BeliefsEduc$ModelSummary$tidy %>%
+  separate(Group, into=c("Beliefs","SES"))
 
-Het.ITT.Use.AttitudeEduc$ModelSummary$tidy <- Het.ITT.Use.AttitudeEduc$ModelSummary$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
+Het.ITT.Use.BeliefsEduc$ModelSummary$tidy <- Het.ITT.Use.BeliefsEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
 
-Het.ITT.Use.AttitudeEduc$ModelSummary0$tidy <- Het.ITT.Use.AttitudeEduc$ModelSummary0$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
+Het.ITT.Use.BeliefsEduc$ModelSummary0$tidy <- Het.ITT.Use.BeliefsEduc$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
 
-Het.ATT.Use.AttitudeEduc$ModelSummary$tidy <- Het.ATT.Use.AttitudeEduc$ModelSummary$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
+Het.ATT.Use.BeliefsEduc$ModelSummary$tidy <- Het.ATT.Use.BeliefsEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
 
-# Separate the interaction terms for Daycare
-Het.ITT.App.AttitudeEduc.Daycare$ModelSummary$tidy <- Het.ITT.App.AttitudeEduc.Daycare$ModelSummary$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
-
-Het.ITT.App.AttitudeEduc.Daycare$ModelSummary0$tidy <- Het.ITT.App.AttitudeEduc.Daycare$ModelSummary0$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
-
-Het.ATT.App.AttitudeEduc.Daycare$ModelSummary$tidy <- Het.ATT.App.AttitudeEduc.Daycare$ModelSummary$tidy %>%
-  separate(Group, into=c("Attitude","SES"))
-
-Het.ITT.Use.AttitudeEduc.Daycare$ModelSummary$tidy <- Het.ITT.Use.AttitudeEduc.Daycare$ModelSummary$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
-
-Het.ITT.Use.AttitudeEduc.Daycare$ModelSummary0$tidy <- Het.ITT.Use.AttitudeEduc.Daycare$ModelSummary0$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
-
-Het.ATT.Use.AttitudeEduc.Daycare$ModelSummary$tidy <- Het.ATT.Use.AttitudeEduc.Daycare$ModelSummary$tidy %>% 
-  separate(Group, into=c("Attitude","SES"))
 
 # Coef Map
 cm <- c('T2-C' = 'Information + Support vs Control')
 
 # Table for Early Childcare
-modelsummary(list("Early childcare application_Control mean" = Het.ITT.App.AttitudeEduc$ModelSummary0,
-                  "Early childcare application_ITT" = Het.ITT.App.AttitudeEduc$ModelSummary,
-                  "Early childcare application_ATT" = Het.ATT.App.AttitudeEduc$ModelSummary,
-                  "Early childcare access_Control mean" = Het.ITT.Use.AttitudeEduc$ModelSummary0,
-                  "Early childcare access_ITT" = Het.ITT.Use.AttitudeEduc$ModelSummary,
-                  "Early childcare access_ATT" = Het.ATT.Use.AttitudeEduc$ModelSummary),
-             shape = term + Attitude + SES ~ model,
+modelsummary(list("Early childcare application_Control mean" = Het.ITT.App.BeliefsEduc$ModelSummary0,
+                  "Early childcare application_ITT" = Het.ITT.App.BeliefsEduc$ModelSummary,
+                  "Early childcare application_ATT" = Het.ATT.App.BeliefsEduc$ModelSummary,
+                  "Early childcare access_Control mean" = Het.ITT.Use.BeliefsEduc$ModelSummary0,
+                  "Early childcare access_ITT" = Het.ITT.Use.BeliefsEduc$ModelSummary,
+                  "Early childcare access_ATT" = Het.ATT.Use.BeliefsEduc$ModelSummary),
+             shape = term + Beliefs + SES ~ model,
              fmt=fmt_statistic(estimate=2, adj.p.value=3, std.error=2, conf.int=2, "Chi 2"=2, "P-value"=3), 
              estimate = '{estimate}{stars} ({std.error})',
              statistic = c("conf.int", "adj.p.val. = {adj.p.value}"),
@@ -1870,7 +1843,7 @@ modelsummary(list("Early childcare application_Control mean" = Het.ITT.App.Attit
              coef_map = cm,
              gof_map = c("Covariates", "Fixed effects", "Mean F-stat 1st stage", "Chi 2", "P-value",
                          "nobs", "r.squared", "adj.r.squared"),
-             title = "Average effects on application and access to early childcare by level of education and attitudes towards early childcare",
+             title = "Average effects on application and access to early childcare by level of education and Beliefss towards early childcare",
              notes = paste("
 *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
@@ -1896,14 +1869,71 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j=c(2,3,4,7), width=2.2, unit = "cm") %>% 
   hline(c(3,6,9, 12, 17), part="body")
 
+#------------ InteractionBeliefEducDaycare ------------
+
+# For Daycare
+Het.ITT.App.BeliefsEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>% 
+                                                              mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
+                                                            Outcome = "AppCreche",
+                                                            Heterogeneity = "BeliefsEduc",
+                                                            ITT = TRUE,
+                                                            Weights = "WeightPS",
+                                                            clusters = "StrataWave")
+
+Het.ATT.App.BeliefsEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%  
+                                                              mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
+                                                            Outcome = "AppCreche",
+                                                            Heterogeneity = "BeliefsEduc",
+                                                            ITT = FALSE,
+                                                            Weights = "WeightPS",
+                                                            clusters = "StrataWave")
+
+Het.ITT.Use.BeliefsEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%
+                                                              mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
+                                                            Outcome = "UseCreche",
+                                                            Heterogeneity = "BeliefsEduc",
+                                                            ITT = TRUE,
+                                                            Weights = "WeightPS",
+                                                            clusters = "StrataWave")
+
+Het.ATT.Use.BeliefsEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>%                                                   
+                                                              mutate(BeliefsEduc=interaction(LikertReturnHK1or0,Educ2)),
+                                                            Outcome = "UseCreche",
+                                                            Heterogeneity = "BeliefsEduc",
+                                                            ITT = FALSE,
+                                                            Weights = "WeightPS",
+                                                            clusters = "StrataWave")
+
+# Separate the interaction terms for Daycare
+Het.ITT.App.BeliefsEduc.Daycare$ModelSummary$tidy <- Het.ITT.App.BeliefsEduc.Daycare$ModelSummary$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
+
+Het.ITT.App.BeliefsEduc.Daycare$ModelSummary0$tidy <- Het.ITT.App.BeliefsEduc.Daycare$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
+
+Het.ATT.App.BeliefsEduc.Daycare$ModelSummary$tidy <- Het.ATT.App.BeliefsEduc.Daycare$ModelSummary$tidy %>%
+  separate(Group, into=c("Beliefs","SES"))
+
+Het.ITT.Use.BeliefsEduc.Daycare$ModelSummary$tidy <- Het.ITT.Use.BeliefsEduc.Daycare$ModelSummary$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
+
+Het.ITT.Use.BeliefsEduc.Daycare$ModelSummary0$tidy <- Het.ITT.Use.BeliefsEduc.Daycare$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
+
+Het.ATT.Use.BeliefsEduc.Daycare$ModelSummary$tidy <- Het.ATT.Use.BeliefsEduc.Daycare$ModelSummary$tidy %>% 
+  separate(Group, into=c("Beliefs","SES"))
+
+# Coef Map
+cm <- c('T2-C' = 'Information + Support vs Control')
+
 # Table for Daycare
-modelsummary(list("Daycare application_Control mean" = Het.ITT.App.AttitudeEduc.Daycare$ModelSummary0,
-                  "Daycare application_ITT" = Het.ITT.App.AttitudeEduc.Daycare$ModelSummary,
-                  "Daycare application_ATT" = Het.ATT.App.AttitudeEduc.Daycare$ModelSummary,
-                  "Daycare access_Control mean" = Het.ITT.Use.AttitudeEduc.Daycare$ModelSummary0,
-                  "Daycare access_ITT" = Het.ITT.Use.AttitudeEduc.Daycare$ModelSummary,
-                  "Daycare access_ATT" = Het.ATT.Use.AttitudeEduc.Daycare$ModelSummary),
-             shape = term + Attitude + SES ~ model,
+modelsummary(list("Daycare application_Control mean" = Het.ITT.App.BeliefsEduc.Daycare$ModelSummary0,
+                  "Daycare application_ITT" = Het.ITT.App.BeliefsEduc.Daycare$ModelSummary,
+                  "Daycare application_ATT" = Het.ATT.App.BeliefsEduc.Daycare$ModelSummary,
+                  "Daycare access_Control mean" = Het.ITT.Use.BeliefsEduc.Daycare$ModelSummary0,
+                  "Daycare access_ITT" = Het.ITT.Use.BeliefsEduc.Daycare$ModelSummary,
+                  "Daycare access_ATT" = Het.ATT.Use.BeliefsEduc.Daycare$ModelSummary),
+             shape = term + Beliefs + SES ~ model,
              fmt=fmt_statistic(estimate=2, adj.p.value=3, std.error=2, conf.int=2, "Chi 2"=2, "P-value"=3), 
              estimate = '{estimate}{stars} ({std.error})',
              statistic = c("conf.int", "adj.p.val. = {adj.p.value}"),
@@ -1911,7 +1941,7 @@ modelsummary(list("Daycare application_Control mean" = Het.ITT.App.AttitudeEduc.
              coef_map = cm,
              gof_map = c("Covariates", "Fixed effects", "Mean F-stat 1st stage", "Chi 2", "P-value",
                          "nobs", "r.squared", "adj.r.squared"),
-             title = "Average effects on application and access to daycare by level of education and attitudes towards early childcare",
+             title = "Average effects on application and access to daycare by level of education and Beliefss towards early childcare",
              notes = paste("
 *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
@@ -1936,4 +1966,204 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j=c(5,6,8,9), width=2.4, unit = "cm") |>
   width(j=c(2,3,4,7), width=2.2, unit = "cm") %>% 
   hline(c(3,6,9, 12, 17), part="body")
+
+#----------- InteractionSESTrust -----------
+# For Early Childcare
+Het.ITT.App.TrustEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>% 
+                                                       mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                     Outcome = "ECSApp",
+                                                     Heterogeneity = "TrustEduc",
+                                                     ITT = TRUE,
+                                                     Weights = "WeightPS",
+                                                     clusters = "StrataWave")
+
+Het.ATT.App.TrustEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%  
+                                                       mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                     Outcome = "ECSApp",
+                                                     Heterogeneity = "TrustEduc",
+                                                     ITT = FALSE,
+                                                     Weights = "WeightPS",
+                                                     clusters = "StrataWave")
+
+Het.ITT.Use.TrustEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%
+                                                       mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                     Outcome = "ECSUseYes",
+                                                     Heterogeneity = "TrustEduc",
+                                                     ITT = TRUE,
+                                                     Weights = "WeightPS",
+                                                     clusters = "StrataWave")
+
+Het.ATT.Use.TrustEduc <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>%                                                   
+                                                       mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                     Outcome = "ECSUseYes",
+                                                     Heterogeneity = "TrustEduc",
+                                                     ITT = FALSE,
+                                                     Weights = "WeightPS",
+                                                     clusters = "StrataWave")
+
+
+
+# Separate the interaction terms for Early Childcare
+Het.ITT.App.TrustEduc$ModelSummary$tidy <- Het.ITT.App.TrustEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ITT.App.TrustEduc$ModelSummary0$tidy <- Het.ITT.App.TrustEduc$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ATT.App.TrustEduc$ModelSummary$tidy <- Het.ATT.App.TrustEduc$ModelSummary$tidy %>%
+  separate(Group, into=c("Trust","SES"))
+
+Het.ITT.Use.TrustEduc$ModelSummary$tidy <- Het.ITT.Use.TrustEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ITT.Use.TrustEduc$ModelSummary0$tidy <- Het.ITT.Use.TrustEduc$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ATT.Use.TrustEduc$ModelSummary$tidy <- Het.ATT.Use.TrustEduc$ModelSummary$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+
+# Coef Map
+cm <- c('T2-C' = 'Information + Support vs Control')
+
+# Table for Early Childcare
+modelsummary(list("Early childcare application_Control mean" = Het.ITT.App.TrustEduc$ModelSummary0,
+                  "Early childcare application_ITT" = Het.ITT.App.TrustEduc$ModelSummary,
+                  "Early childcare application_ATT" = Het.ATT.App.TrustEduc$ModelSummary,
+                  "Early childcare access_Control mean" = Het.ITT.Use.TrustEduc$ModelSummary0,
+                  "Early childcare access_ITT" = Het.ITT.Use.TrustEduc$ModelSummary,
+                  "Early childcare access_ATT" = Het.ATT.Use.TrustEduc$ModelSummary),
+             shape = term + Trust + SES ~ model,
+             fmt=fmt_statistic(estimate=2, adj.p.value=3, std.error=2, conf.int=2, "Chi 2"=2, "P-value"=3), 
+             estimate = '{estimate}{stars} ({std.error})',
+             statistic = c("conf.int", "adj.p.val. = {adj.p.value}"),
+             stars = c('*' = .1, '**' = .05, '***' = .01),
+             coef_map = cm,
+             gof_map = c("Covariates", "Fixed effects", "Mean F-stat 1st stage", "Chi 2", "P-value",
+                         "nobs", "r.squared", "adj.r.squared"),
+             title = "Average effects on application and access to early childcare by level of education and Trusts towards early childcare",
+             notes = paste("
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference using themethod. 
+Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+             output = 'flextable') %>% 
+  theme_booktabs() |>
+  separate_header(split="_", opts = c("center-hspan")) |>
+  bold(i=1, part = "header") %>%
+  merge_at(j=3, part="header") |>
+  merge_at(j=2, part="header") |>
+  merge_at(j=1, part="header") |>
+  merge_v(j=1, part="body") |>
+  merge_v(j=2, part="body") |>
+  merge_v(j=3, part="body") |>
+  italic(i = c(1), part = "header") %>% 
+  italic(j = c(1), part = "body") %>% 
+  fontsize(size=9, part="footer") %>% 
+  fontsize(size=10, part="body") %>% 
+  align(part = "header", align = "center") |>
+  align(part = "body", align = "center") |>
+  width(j=c(5,6,8,9), width=2.4, unit = "cm") |>
+  width(j=c(2,3,4,7), width=2.2, unit = "cm") %>% 
+  hline(c(3,6,9, 12, 17), part="body")
+
+
+#------------ InteractionTrustEducDaycare ------------
+
+# For Daycare
+Het.ITT.App.TrustEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>% 
+                                                            mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                          Outcome = "AppCreche",
+                                                          Heterogeneity = "TrustEduc",
+                                                          ITT = TRUE,
+                                                          Weights = "WeightPS",
+                                                          clusters = "StrataWave")
+
+Het.ATT.App.TrustEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%  
+                                                            mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                          Outcome = "AppCreche",
+                                                          Heterogeneity = "TrustEduc",
+                                                          ITT = FALSE,
+                                                          Weights = "WeightPS",
+                                                          clusters = "StrataWave")
+
+Het.ITT.Use.TrustEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2  %>%
+                                                            mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                          Outcome = "UseCreche",
+                                                          Heterogeneity = "TrustEduc",
+                                                          ITT = TRUE,
+                                                          Weights = "WeightPS",
+                                                          clusters = "StrataWave")
+
+Het.ATT.Use.TrustEduc.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>%                                                   
+                                                            mutate(TrustEduc=interaction(TrustCreche1or0,Educ2)),
+                                                          Outcome = "UseCreche",
+                                                          Heterogeneity = "TrustEduc",
+                                                          ITT = FALSE,
+                                                          Weights = "WeightPS",
+                                                          clusters = "StrataWave")
+
+# Separate the interaction terms for Daycare
+Het.ITT.App.TrustEduc.Daycare$ModelSummary$tidy <- Het.ITT.App.TrustEduc.Daycare$ModelSummary$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ITT.App.TrustEduc.Daycare$ModelSummary0$tidy <- Het.ITT.App.TrustEduc.Daycare$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ATT.App.TrustEduc.Daycare$ModelSummary$tidy <- Het.ATT.App.TrustEduc.Daycare$ModelSummary$tidy %>%
+  separate(Group, into=c("Trust","SES"))
+
+Het.ITT.Use.TrustEduc.Daycare$ModelSummary$tidy <- Het.ITT.Use.TrustEduc.Daycare$ModelSummary$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ITT.Use.TrustEduc.Daycare$ModelSummary0$tidy <- Het.ITT.Use.TrustEduc.Daycare$ModelSummary0$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+Het.ATT.Use.TrustEduc.Daycare$ModelSummary$tidy <- Het.ATT.Use.TrustEduc.Daycare$ModelSummary$tidy %>% 
+  separate(Group, into=c("Trust","SES"))
+
+# Coef Map
+cm <- c('T2-C' = 'Information + Support vs Control')
+
+# Table for Daycare
+modelsummary(list("Daycare application_Control mean" = Het.ITT.App.TrustEduc.Daycare$ModelSummary0,
+                  "Daycare application_ITT" = Het.ITT.App.TrustEduc.Daycare$ModelSummary,
+                  "Daycare application_ATT" = Het.ATT.App.TrustEduc.Daycare$ModelSummary,
+                  "Daycare access_Control mean" = Het.ITT.Use.TrustEduc.Daycare$ModelSummary0,
+                  "Daycare access_ITT" = Het.ITT.Use.TrustEduc.Daycare$ModelSummary,
+                  "Daycare access_ATT" = Het.ATT.Use.TrustEduc.Daycare$ModelSummary),
+             shape = term + Trust + SES ~ model,
+             fmt=fmt_statistic(estimate=2, adj.p.value=3, std.error=2, conf.int=2, "Chi 2"=2, "P-value"=3), 
+             estimate = '{estimate}{stars} ({std.error})',
+             statistic = c("conf.int", "adj.p.val. = {adj.p.value}"),
+             stars = c('*' = .1, '**' = .05, '***' = .01),
+             coef_map = cm,
+             gof_map = c("Covariates", "Fixed effects", "Mean F-stat 1st stage", "Chi 2", "P-value",
+                         "nobs", "r.squared", "adj.r.squared"),
+             title = "Average effects on application and access to daycare by level of education and Trusts towards early childcare",
+             notes = paste("
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference using themethod. 
+Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+             output = 'flextable') %>% 
+  theme_booktabs() |>
+  separate_header(split="_", opts = c("center-hspan")) |>
+  bold(i=1, part = "header") %>%
+  merge_at(j=3, part="header") |>
+  merge_at(j=2, part="header") |>
+  merge_at(j=1, part="header") |>
+  merge_v(j=1, part="body") |>
+  merge_v(j=2, part="body") |>
+  merge_v(j=3, part="body") |>
+  italic(i = c(1), part = "header") %>% 
+  italic(j = c(1), part = "body") %>% 
+  fontsize(size=9, part="footer") %>% 
+  fontsize(size=10, part="body") %>% 
+  align(part = "header", align = "center") |>
+  align(part = "body", align = "center") |>
+  width(j=c(5,6,8,9), width=2.4, unit = "cm") |>
+  width(j=c(2,3,4,7), width=2.2, unit = "cm") %>% 
+  hline(c(3,6,9, 12, 17), part="body")
+
 
