@@ -87,8 +87,9 @@ MainDB <- MainDB %>% left_join(Endline, by = "ResponseId") %>%
                                "Yes", 
                                "No"
       ),
+    
       LikertReturnHK1or0 = ifelse(
-        LikertReturnHK1or0 == 1, 
+        (LikertReturnHKBaseline == "Assez d’accord" | LikertReturnHKBaseline == "Très d’accord"), 
         "Yes", 
         "No"
       )
