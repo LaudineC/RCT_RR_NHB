@@ -1383,7 +1383,7 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
 
 
 
-#-------------- BeliefsReturnDaycare
+#-------------- BeliefsReturnDaycare --------------------------
 
 Het.ATT.App.Dev.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                     Outcome = "AppCreche",
@@ -1843,7 +1843,7 @@ modelsummary(list("Early childcare application_Control mean" = Het.ITT.App.Belie
              coef_map = cm,
              gof_map = c("Covariates", "Fixed effects", "Mean F-stat 1st stage", "Chi 2", "P-value",
                          "nobs", "r.squared", "adj.r.squared"),
-             title = "Average effects on application and access to early childcare by level of education and Beliefss towards early childcare",
+             title = "Average effects on application and access to early childcare by level of education and beliefs in the benefits of early childcare for child development",
              notes = paste("
 *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
