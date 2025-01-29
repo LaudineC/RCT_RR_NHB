@@ -62,9 +62,9 @@ MainDB <- MainDB %>% left_join(BaselineCorrected, by = "ResponseId") %>%
                             "Yes", 
                             "No"
   )
-
+  
+  
   )
-
 Endline <- read_csv(here("Data","PremiersPasWithNonRespondents112024.csv")) %>% 
   select(BabyBirthDate, ResponseId, TrustCreche1or0) %>% 
   mutate(BabyBornJanuary = ifelse(BabyBirthDate > "2022-12-31", 
@@ -76,6 +76,12 @@ Endline <- read_csv(here("Data","PremiersPasWithNonRespondents112024.csv")) %>%
 
 MainDB <- MainDB %>% left_join(Endline, by = "ResponseId") %>% 
   mutate(
+    
+    LikertReturnHK1or0 = ifelse(
+      (LikertReturnHKBaseline == "Assez d’accord" | LikertReturnHKBaseline == "Très d’accord"), 
+     1, 
+      0
+    ),
     # create a score of positive attitudes 
     AttitudesScore = (TrustCreche1or0 + LikertReturnHK1or0) / 2,
     AttitudeScoreMoreThanMedian = ifelse(AttitudesScore > median(AttitudesScore, na.rm = TRUE), 
@@ -86,14 +92,11 @@ MainDB <- MainDB %>% left_join(Endline, by = "ResponseId") %>%
       TrustCreche1or0 = ifelse(TrustCreche1or0 == 1, 
                                "Yes", 
                                "No"
-      ),
-    
-      LikertReturnHK1or0 = ifelse(
-        (LikertReturnHKBaseline == "Assez d’accord" | LikertReturnHKBaseline == "Très d’accord"), 
-        "Yes", 
-        "No"
+      ), 
+    LikertReturnHK1or0 = ifelse(LikertReturnHK1or0 == 1, 
+                               "Yes", 
+                               "No"
       )
-
 
   )
   ## For exploratory data analysis, we add more variables
