@@ -57,7 +57,7 @@ MainDB <- MainDB %>% left_join(BaselineCorrected, by = "ResponseId") %>%
   NormsOpposedYes = ifelse(NormsOpposedN != 0, 
                            "Yes", 
                            "No"),
-  NormsOpposedYes = replace_na(NormsOpposedYes, "Don't know"),
+  NormsOpposedYes = replace_na(NormsOpposedYes, "No"),
   DescriptiveNorms = ifelse((NormsBaseline == "Toutes" | NormsBaseline == "La plupart"),  
                             "Yes", 
                             "No"
@@ -135,7 +135,7 @@ MainDB <- MainDB %>% left_join(Endline_add, by = c("ResponseId" = "ExternalRefer
     is.na(ECSNoECSAppAnswer) ~ NA_character_,  # Keep NAs as NAs
     ECSNoECSAppAnswer == "Non, on attend encore" ~ "Still waiting/No Answer",
     ECSNoECSAppAnswer == "Oui, on a été rejetés" ~ "Rejected",
-    ECSNoECSAppAnswer == "Oui, on est sur la liste d'attente" ~ "Waiting list",
+    ECSNoECSAppAnswer == "Oui, on est sur la liste d’attente" ~ "Waiting list",
     ECSNoECSAppAnswer %in% c(
       "Oui,  on été acceptés dans au moins 1 mais il y a eu un problème",
       "Oui,  on été acceptés dans au moins 1 mais on a refusé (à cause d'un problème, etc.)",
@@ -145,15 +145,13 @@ MainDB <- MainDB %>% left_join(Endline_add, by = c("ResponseId" = "ExternalRefer
   ), 
   ECSNoECSAppAnswer_long = case_when(
     is.na(ECSNoECSAppAnswer) ~ NA_character_,  # Keep NAs as NAs
+    ECSNoECSAppAnswer == "Oui, on est sur la liste d’attente" ~ "Waiting list",
     ECSNoECSAppAnswer == "Non, on attend encore" ~ "Still waiting/No Answer",
     ECSNoECSAppAnswer == "Oui, on a été rejetés" ~ "Rejected",
-    ECSNoECSAppAnswer == "Oui, on est sur la liste d'attente" ~ "Waiting list",
     ECSNoECSAppAnswer == "Oui,  on été acceptés mais on a dû repousser à cause de problèmes (de santé)" ~ "Health issues",
     ECSNoECSAppAnswer == "Oui, on été acceptés, mais on a déménagé" ~ "Moved out",
-    ECSNoECSAppAnswer %in% c(
-      "Oui,  on été acceptés dans au moins 1 mais il y a eu un problème",
-      "Oui,  on été acceptés dans au moins 1 mais on a refusé (à cause d'un problème, etc.)"
-    ) ~ "Other"
+    ECSNoECSAppAnswer == "Oui,  on été acceptés dans au moins 1 mais il y a eu un problème" ~ "Issue with the application",
+    ECSNoECSAppAnswer == "Oui,  on été acceptés dans au moins 1 mais on a refusé (à cause d'un problème, etc.)" ~ "Declined because inadequate"
   ), 
   ECSIdealNotReason_recoded = case_when(
     (str_detect(ECSIdealNotReason_5_TEXT, "correspondaient pas") ==TRUE | 

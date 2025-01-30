@@ -18,9 +18,14 @@
 # These chunks are to be launched after running the package loading and data wrangling scripts.
 
 #------ DescriptiveAvgCoverageRate --------
+tauxCouv <- MainDB %>% 
+  select(c(Dep,Nom.commune, NationalAvgTauxCouv2021, 
+           Taux.de.couv.global, Taux.de.couv.EAJE...ensemble, 
+           Taux.de.couv.assistantes.maternelles)) %>% 
+  distinct(Nom.commune, .keep_all = TRUE)
 
 # Average coverage per department
-table <- MainDB %>% 
+table <- tauxCouv %>% 
   group_by(Dep) %>% 
   summarise(NationalAvgTauxCouv2021 = round(mean(NationalAvgTauxCouv2021, na.rm = TRUE), 1),
             AverageCoverage = round(mean(Taux.de.couv.global, na.rm = TRUE), 1),
@@ -84,7 +89,7 @@ EAJE_assmat_dept <- flextable(txcouv_EAJE_assmat_dept) %>%
 EAJE_assmat_dept 
 
 
-#------ DescriptiveCoverageRateDaycareChildmindersFrance --------
+²#------ DescriptiveCoverageRateDaycareChildmindersFrance --------
 
 
 # Total France in 2021

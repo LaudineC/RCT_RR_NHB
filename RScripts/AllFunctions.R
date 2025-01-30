@@ -1118,4 +1118,122 @@ ITTSimNoControl <- function(Y="UseCreche",
 }
 
 
+#
 
+
+
+#######################################################################################-
+#######################################################################################-
+
+#### Graphs Preferred Mode  ####
+
+#######################################################################################-
+#######################################################################################-
+
+library(stringr)
+
+
+# Function to count reasons by group
+count_reasons_by_group <- function(data_column, group_column) {
+  # Identify the unique levels
+  group_levels <- unique(group_column[!is.na(group_column)])
+  
+  # Filter NAs
+  valid_data <- data.frame(
+    response = data_column,
+    group = group_column
+  ) %>% filter(!is.na(response))
+  
+  # Count the reasons
+  count_reason <- function(data, patterns, group_value) {
+    mentions <- unlist(strsplit(data$response[data$group == group_value], ","))
+    if(length(mentions) == 0) return(0)
+    sum(sapply(mentions, function(x) any(sapply(patterns, function(p) str_detect(x, fixed(p))))))
+  }
+  
+  # List of patterns
+  reasons_patterns <- list(
+    "Too expensive" = c("Le mode de garde que je préférais coûtait trop cher", "Too expensive"),
+    "No slot available" = c("Je n'ai pas eu de place dans le mode de garde que je préférais", "Rejected", "Still waiting/No Answer"),
+    "Incompatible working hours" = c("Mes horaires de travail ne sont pas compatibles", "Incompatible working hours"),
+    "Health issues" = c("Mon bébé n'allait pas bien / les médecins m'ont déconseillés", "Health issues"),
+    "Lack of information" = c("Je pensais que je n'étais pas éligible", "Lack of information"),
+    "Gave up" = "Je me suis découragée",
+    "Applied too late" = "Applied too late",
+    "Inadequate" = "Inadequate",
+    "Father's disagreed" = "Father's disagreed",
+    "Moved out" = "Moved out",
+    "Paperwork too heavy" = "Paperwork too heavy",
+    "Timing" = "Timing",
+    "Too far away" = "Too far away"
+  )
+  
+  # Count of reasons per group
+  counts_list <- lapply(group_levels, function(level) {
+    sapply(reasons_patterns, function(patterns) count_reason(valid_data, patterns, level))
+  })
+  
+  # Create dataframe with results
+  result_df <- data.frame(
+    reason = rep(names(reasons_patterns), length(group_levels)),
+    count = unlist(counts_list),
+    group = rep(group_levels, each = length(reasons_patterns))
+  )
+  
+  # Calculate significance using chi-square test for each reason
+  significance_tests <- lapply(unique(result_df$reason), function(r) {
+    contingency <- matrix(
+      result_df$count[result_df$reason == r],
+      nrow = 2,
+      byrow = FALSE
+    )
+    test <- chisq.test(contingency)
+    data.frame(
+      reason = r,
+      p_value = test$p.value,
+      significance = case_when(
+        test$p.value < 0.001 ~ "***",
+        test$p.value < 0.01 ~ "**",
+        test$p.value < 0.05 ~ "*",
+        TRUE ~ ""
+      )
+    )
+  })
+  
+  significance_df <- do.call(rbind, significance_tests)
+  result_df <- merge(result_df, significance_df, by = "reason")
+  
+  # Calculate totals and order
+  totals <- aggregate(count ~ reason, result_df, sum)
+  result_df$reason <- factor(result_df$reason, 
+                             levels = totals$reason[order(totals$count)])
+  
+  return(result_df)
+}
+
+# Create plot function with significance stars
+create_reasons_plot <- function(results_df, title = "Reasons by Group") {
+  ggplot(results_df, aes(x = reason, y = count, fill = group)) +
+    geom_bar(stat = "identity", position = "dodge") +
+    scale_fill_manual(values = c("#EE6677", "#CCBB44")) +
+    theme_minimal() +
+    theme(
+      axis.text.x = element_text(angle = 45, hjust = 1),
+      legend.title = element_blank(),
+      legend.position = "bottom",
+      axis.text = element_text(size = 12),
+      plot.title = element_text(size = 13, face = "bold", hjust = 0.5),
+      axis.title = element_text(size = 12)
+    ) +
+    labs(
+      title = title,
+      x = "Reason",
+      y = "Count"
+    ) +
+    coord_flip() 
+  # Add significance stars
+  # +geom_text(aes(label = significance), 
+  #           position = position_dodge(width = 0.9),
+  #           vjust = -0.5, 
+  #           size = 4)
+}
