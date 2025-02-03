@@ -880,10 +880,19 @@ We report averages and standard deviations in parentheses for continuous variabl
 
 # Create a sf file with the Endline Data
 rct_shapebaseline <- MainDB %>% # tauxcouv_com: endline from 2021 caf data, TAUXCOUV_COM: Baseline based on 2019 data
-  select(NUMCOMBaseline, CodePostalBaseline, latitude, longitude, HighLowECECBaseline, TAUXCOUV_COM, tauxcouv_com, nbr_city_baseline) %>% filter(!is.na(longitude)) %>% 
+  #filter(!duplicated(NUMCOMBaseline)) %>%
+  select(NUMCOMBaseline, CodePostalBaseline, latitude, longitude, HighLowECECBaseline, 
+         TAUXCOUV_COM, tauxcouv_com, nbr_city_baseline, 
+         Nom.Département, Dep, Taux.de.couv.global) %>% 
+  filter(!is.na(longitude)) %>% 
+  mutate(Nom.Département = case_when(
+    Nom.Département == "PARIS" ~ "Paris",
+    Nom.Département == "SEINE SAINT DENIS" ~ "Seine-Saint-Denis",
+    Nom.Département == "VAL DE MARNE" ~ "Val-de-Marne"
+  )
+  ) %>% 
   mutate(NUMCOMBaseline = as.character(NUMCOMBaseline))
 # %>% st_as_sf(coords = c("longitude", "latitude"), crs = st_crs(gp_shape)) # Some zipcodes are not right, so I remove them for now
-
 
 
 # Perform a spatial join based on zip codes to have a file with the info we need
@@ -891,28 +900,58 @@ joined_sf_baseline <- gp_shape %>%
   mutate(c_cainsee.ch = as.character(c_cainsee)) %>% 
   left_join(rct_shapebaseline, by = c("c_cainsee.ch" = "NUMCOMBaseline")) 
 
-
 # Do the intersection of the 2 files to have only the cities where Endline participants live  
 common_zipcodes <- intersect(joined_sf_baseline$c_cainsee, rct_shapebaseline$NUMCOMBaseline)
 
 common_zipcodes_sf <- joined_sf_baseline[joined_sf_baseline$c_cainsee %in% common_zipcodes, ]
 
 
-smallsample  <- common_zipcodes_sf %>% filter(nbr_city_baseline > 40)
+#smallsample  <- common_zipcodes_sf %>% filter(nbr_city_baseline > 40)
 
-#plot: the cities in which our participants live at baseline with the ECS coverage rate 
-ggplot() + geom_sf(data = gp_shape) +   
-  geom_sf(data = common_zipcodes_sf, aes(fill = as.numeric(TAUXCOUV_COM))) +
+# D'abord, créer un objet pour les contours des départements
+departements_contours <- common_zipcodes_sf %>% 
+  group_by(Dep) %>% 
+  summarise(geometry = st_union(geometry) ,
+            Nom.Département) %>%
+  ungroup()
+
+departements_labels <- departements_contours %>%
+  mutate(centroid = st_centroid(geometry)) %>%
+  mutate(lon = st_coordinates(centroid)[,1],
+         lat = st_coordinates(centroid)[,2])  # Ajoute un décalage vertical de 2000 unités
+
+library("ggrepel")
+
+
+# Créer la carte avec les étiquettes
+ggplot() + 
+  geom_sf(data = gp_shape) +   
+  geom_sf(data = common_zipcodes_sf, aes(fill = as.numeric(Taux.de.couv.global))) +
+  geom_sf(data = departements_contours, 
+          fill = NA, 
+          color = "black", 
+          linewidth = 1) +
   stat_sf_coordinates(data = common_zipcodes_sf, aes(size = nbr_city_baseline)) +
-  
-  scale_fill_gradient(low = "#68a9cf", high = "#002060") +  # Dark blue to navy blue
-  theme_minimal()+xlab("")+ylab("")+
+  # Ajouter les étiquettes des départements
+  geom_label(data = departements_labels,
+             aes(x = lon, y = lat, label = Nom.Département),
+             fontface = "bold",  # texte en gras
+             size = 3,          # taille du texte
+             color = "black") +  # couleur du texte
+  scale_fill_gradientn(
+    colors = c( "#A84268","#FCB97D","#9DBF9E" , "limegreen"))+
+  theme_minimal() +
+  xlab("") +
+  ylab("") +
   labs(
     fill = "Early childcare coverage rate",
     size = "Number of participants by city"
-  )+theme(legend.box="vertical", legend.position = "bottom")
-
-
+  ) +
+  theme(
+    legend.box = "vertical", 
+    legend.position = "bottom",
+    axis.text = element_blank()
+  )
 
 
 #------- EXTENDED DATA ------------
