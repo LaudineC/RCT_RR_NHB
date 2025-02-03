@@ -6,20 +6,20 @@ tabDes_temp <- MainDB  %>%
     # Variables catégorielles maintenues comme facteurs
     SingleMum = as.factor(ifelse(SingleMum == TRUE, "Yes", "No")),
     Active = as.factor(ifelse(Act3 == "Active", "Yes", "No")),
-    Educ = as.factor(ifelse(Educ == "Sup", "Post-secondary", "≤ Secondary")),
-    BornFr = as.factor(ifelse(FrenchYNBaseline == "France", "Born in France", "Migration background")),
+    Educ = as.factor(ifelse(Educ == "Sup", "Yes", "No")),
+    BornFr = as.factor(ifelse(FrenchYNBaseline == "France", "No", "Yes")),
     EverUsedECS = as.factor(ifelse(UsedECEC == "Yes", "Yes", "No")),
     PlanToUseECS = as.factor(ifelse(ECSPlanToBaseline == TRUE, "Yes", "No")),
-    HighECSCov = as.factor(ifelse(HighLowECECBaseline == "High ECEC covering", "High coverage", "Low coverage")),
+    HighECSCov = as.factor(ifelse(HighLowECECBaseline == "High ECEC covering", "Yes", "No")),
     DepParis = as.factor(ifelse(Dep == "75", "Paris", "Other")),
     WorkPlanTo = as.factor(ifelse(WorkPlanTo == TRUE, "Yes", "No")),
-    BabyFemale = as.factor(ifelse(BabyFemale == TRUE, "Girl", "Boy")),
+    BabyFemale = as.factor(ifelse(BabyFemale == TRUE, "Yes", "No")),
     Primipare = as.factor(ifelse(Primipare == TRUE, "Yes", "No")),
     ComputerAccess = as.factor(ifelse(ComputerYN == "Oui", "Yes", "No")),
     Age = Age,  # Garde numérique
     NumberOfChildren = as.numeric(NumberChildren),  # Garde numérique
-    InfoBaseline = as.factor(ifelse(InfoBaseline == "Low knowledge", "Low knowledge", "High knowledge")),
-    FmilyEarnLessThan2500 = as.factor(ifelse(FmilyEarnLessThan2500 == TRUE, "Yes", "No")),
+    InfoBaseline = as.factor(ifelse(InfoBaseline == "Low knowledge", "Yes", "No")),
+    FmilyEarnLessThan2500 = as.factor(ifelse(FmilyEarnLessThan2500 == "Yes", "Yes", "No")),
     DescriptiveNorms = as.factor(ifelse(DescriptiveNorms == "Yes", "Yes", "No")),
     NormsOpposedYes = as.factor(ifelse(NormsOpposedYes == "Yes", "Yes", "No")),
     LikertReturnHK = as.factor(ifelse(LikertReturnHK1or0 == "Yes", "Yes", "No")),
@@ -29,10 +29,7 @@ tabDes_temp <- MainDB  %>%
     AppCreche = as.factor(ifelse(AppCreche == 1, "Yes", "No")),
     ECSUseYes = as.factor(ifelse(ECSUseYes == 1, "Yes", "No")),
     UseCreche = as.factor(ifelse(UseCreche == 1, "Yes", "No"))
-  )
-
-# Création du tableau descriptif
-tbl_summary <- tabDes_temp %>%
+  ) %>%
   select(
     Educ, SingleMum, Age, Primipare, NumberOfChildren, BornFr,
     FmilyEarnLessThan2500, Discount50, InfoBaseline, Active,
@@ -40,7 +37,10 @@ tbl_summary <- tabDes_temp %>%
     LikertReturnHK, TrustCreche, DescriptiveNorms, NormsOpposedYes,
     DepParis, HighECSCov, BabyFemale, ECSApp, AppCreche,
     ECSUseYes, UseCreche
-  ) %>%
+  )
+
+# Création du tableau descriptif
+tbl_summary <- tabDes_temp  %>%
   tbl_summary(
     type = list(
       Age ~ "continuous2",
@@ -56,10 +56,10 @@ tbl_summary <- tabDes_temp %>%
     ),
     missing = "ifany",
     label = list(
-      Educ ~ "High-SES",
+      Educ ~ "The mother is high-SES (Post-secondary education)",
       SingleMum ~ "Single-parent family",
       Age ~ "Age of the mother",
-      Primipare ~ "The houshold is primiparous",
+      Primipare ~ "The household is primiparous",
       NumberOfChildren ~ "Number of children in the household",
       BornFr ~ "The mother has a migration background",
       FmilyEarnLessThan2500 ~ "The household earns less than €2,500 per month",
@@ -67,7 +67,7 @@ tbl_summary <- tabDes_temp %>%
       InfoBaseline ~ "The mother has low knowledge about early childcare",
       Active ~ "The mother is active at baseline",
       WorkPlanTo ~ "The mother wants to work after maternity leaves",
-      EverUsedECS ~ "The household aldready accesed early childcare in the past",
+      EverUsedECS ~ "The household already accessed early childcare in the past",
       PlanToUseECS ~ "The mother wants to use early childcare",
       ComputerAccess ~ "The household has access to a computer",
       LikertReturnHK ~ "The mother believe in early childcare benefits",
@@ -123,7 +123,7 @@ tabVarEduc <- MainDB  %>%
     "High-SES" = Educ1or0,
     "Single-parent family" = SingleMum1or0,
     "Age of the mother" = Age,
-    "The houshold is primiparous" = Primipare1or0,
+    "The household is primiparous" = Primipare1or0,
     "Number of children in the household" = NumberOfChildren,
     "The mother has a migration background" = BornFr1or0,
    # "The mother has a post-secondary education (high-SES)" = Educ1or0,  # Strata: Educ: ≤ Bac or higher
@@ -267,8 +267,8 @@ summary_baseline_variables_TimeOrientation <- tabVarEduc %>%
   add_difference() %>%
   modify_header(label ~ "**Variable**",
                 stat_0 ~ "Overall",
-                stat_1 ~ "Future oriented",  # Changé ici
-                stat_2 ~ "Present oriented") %>%  # Changé ici
+                stat_1 ~ "Future orientated",  # Changé ici
+                stat_2 ~ "Present orientated") %>%  # Changé ici
   modify_spanning_header(c("stat_1", "stat_2") ~ "**Temporal Orientation**") %>%  # Changé ici
   add_significance_stars(thresholds = c(0.01, 0.05, 0.1))
 
@@ -376,7 +376,7 @@ tabVarDep <- MainDB  %>%
          "High-SES" = Educ1or0,
          "Single-parent family" = SingleMum1or0,
          "Age of the mother" = Age,
-         "The houshold is primiparous" = Primipare1or0,
+         "The household is primiparous" = Primipare1or0,
          "Number of children in the household" = NumberOfChildren,
          "The mother has a migration background" = BornFr1or0,
          # "The mother has a post-secondary education (high-SES)" = Educ1or0,  # Strata: Educ: ≤ Bac or higher
@@ -1129,7 +1129,7 @@ modelsummary(list("Early childcare application_Control mean"  =Het.ITT.App.Norms
              gof_map = c(
                "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
                "nobs", "r.squared","adj.r.squared"),
-             title="Average effects on application and access to early childcare by whether more than half of firends and relatives use early chilcare",
+             title="Average effects on application and access to early childcare by whether more than half of friends and relatives use early childcare",
              notes=paste(
                "
 *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
@@ -1195,7 +1195,7 @@ modelsummary(list("Early childcare application_Control mean"  =Het.ITT.App.Norms
              gof_map = c(
                "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
                "nobs", "r.squared","adj.r.squared"),
-             title="Average effects on application and access to early childcare by whether more than half of firends and relatives use early chilcare",
+             title="Average effects on application and access to early childcare by whether more than half of friends and relatives use early childcare",
              notes=paste(
                "
 *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
@@ -1272,7 +1272,7 @@ modelsummary(list("Daycare application_Control mean"  =Het.ITT.App.Norms.Daycare
              gof_map = c(
                "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
                "nobs", "r.squared","adj.r.squared"),
-             title="Average effects on application and access to daycare by  whether more than half of firends and relatives use early chilcare",
+             title="Average effects on application and access to daycare by  whether more than half of friends and relatives use early childcare",
              notes=paste(
                "
 *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
@@ -1331,7 +1331,7 @@ modelsummary(list("Daycare application_Control mean"  =Het.ITT.App.Norms.Daycare
              gof_map = c(
                "Covariates","Fixed effects","Mean F-stat 1st stage","Chi 2","P-value",
                "nobs", "r.squared","adj.r.squared"),
-             title="Average effects on application and access to daycare by  whether more than half of firends and relatives use early chilcare",
+             title="Average effects on application and access to daycare by  whether more than half of friends and relatives use early childcare",
              notes=paste(
                "
 *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
