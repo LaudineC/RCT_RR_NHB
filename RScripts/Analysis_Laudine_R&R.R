@@ -2601,3 +2601,4 @@ ggplot(results,
   geom_text(aes(label = sprintf("%.1f%%", percentage)), 
             hjust = -0.2,
             size = 4)  # Increase percentage labels size
+
