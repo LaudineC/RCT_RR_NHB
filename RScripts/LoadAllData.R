@@ -28,7 +28,13 @@ MainDB <- read_csv(here("Data","MainDatabase.csv")) %>%   mutate(
   FmilyEarnLessThan2500 = as.factor(FmilyEarnLessThan2500), 
   NumberOfChildren3 = as.factor(NumberOfChildren3), 
   NormsOpposedYes = as.factor(NormsOpposedYes),
-  DescriptiveNorms = as.factor(DescriptiveNorms)
+  DescriptiveNorms = as.factor(DescriptiveNorms), 
+  MigrationBackground = ifelse(
+    FrenchYNBaseline == "Abroad", 
+    "Yes", 
+    "No"
+  ),
+  MigrationBackground = as.factor(MigrationBackground)
   
 )  %>% mutate_if(is.character, as.factor) 
 

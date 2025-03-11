@@ -73,8 +73,9 @@ Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 
 Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            ,
                                             Outcome = "ECSApp",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -86,9 +87,10 @@ Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                ITT = FALSE,
                                                Weights = "WeightPS",
                                                clusters = "StrataWave")
-Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+
+Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
                                             Outcome = "ECSApp",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -136,7 +138,7 @@ Het.ITT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                             Outcome = "ECSUseYes",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -152,7 +154,7 @@ Het.ATT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                             Outcome = "ECSUseYes",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -190,7 +192,7 @@ DataPlotUse <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
 
 Data.Het.EducMig <- bind_rows(DataPlot,DataPlotUse)
 
-ggplot(Data.Het.EducMig)+
+ ggplot(Data.Het.EducMig)+
   geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
                        x=interaction(Het,Heterogeneity,sep="!"),
                       y=estimate,
@@ -428,7 +430,7 @@ Het.ITT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 Het.ITT.AppCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                             Outcome = "AppCreche",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -442,7 +444,7 @@ Het.ATT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                clusters = "StrataWave")
 Het.ATT.AppCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                             Outcome = "AppCreche",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -490,7 +492,7 @@ Het.ITT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 Het.ITT.UseCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                             Outcome = "UseCreche",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -506,7 +508,7 @@ Het.ATT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 Het.ATT.UseCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                             Outcome = "UseCreche",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
@@ -777,8 +779,7 @@ of pairwise comarisons and subgroups using the Westfall-Young method.",
 ## ITT App
 
 
-Het.ITT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Used ECS","Never used ECS")),
+Het.ITT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSApp",
   Heterogeneity = "UsedECEC",
   ITT = TRUE,
@@ -796,8 +797,8 @@ Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 
 
-Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Friends use ECS","Friends don't use ECS")),
+Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
   Outcome = "ECSApp",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
@@ -810,8 +811,7 @@ Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
 ## ATT
 
 
-Het.ATT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Used ECS","Never used ECS")),
+Het.ATT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "ECSApp",
   Heterogeneity = "UsedECEC",
   ITT = FALSE,
@@ -830,7 +830,7 @@ Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
 
 
 Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Friends use ECS","Friends don't use ECS")),
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
   Outcome = "ECSApp",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
@@ -842,7 +842,7 @@ Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
 
 # Define the factors
 term_levels <- c("T2-C")
-heterogeneity_levels <- c("Level of \nknowledge", "Used ECS","Descriptive norms")
+heterogeneity_levels <- c("Level of \nknowledge", "Used Early \nChildcare before","Share of people \nusing Early Childcare \naround")
 panel_levels <- c("Control group", "ITT", "ATT")
 
 
@@ -854,17 +854,17 @@ panel_levels <- c("Control group", "ITT", "ATT")
 DataPlot_ITT <- bind_rows(
   Het.ITT.App.Info$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.App.Info$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.UsedECEC$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Used ECS", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.UsedECEC$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Used ECS", Type = "ITT") %>% filter(term %in% term_levels),
-    Het.ITT.App.Norms$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Descriptive norms", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Norms$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Descriptive norms", Type = "ITT") %>% filter(term %in% term_levels)
+  Het.ITT.App.UsedECEC$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.UsedECEC$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels),
+    Het.ITT.App.Norms$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.Norms$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels)
 )
 
 # Merge ATTs in one DataFrame with the correct fator levels
 DataPlot_ATT <- bind_rows(
   Het.ATT.App.Info$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Level of \nknowledge", Type = "ATT") %>% filter(term %in% term_levels),
-   Het.ATT.App.UsedECEC$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Used ECS", Type = "ATT") %>% filter(term %in% term_levels),
-      Het.ATT.App.Norms$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Descriptive norms", Type = "ATT") %>% filter(term %in% term_levels)
+   Het.ATT.App.UsedECEC$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Used Early \nChildcare before", Type = "ATT") %>% filter(term %in% term_levels),
+      Het.ATT.App.Norms$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ATT") %>% filter(term %in% term_levels)
 )
 
 # Combine both data frames
@@ -879,8 +879,7 @@ DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
 ## ECS Use
 
 
-Het.ITT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Used ECS","Never used ECS")),
+Het.ITT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSUseYes",
   Heterogeneity = "UsedECEC",
   ITT = TRUE,
@@ -898,8 +897,8 @@ Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 
 
-Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Friends use ECS","Friends don't use ECS")),
+Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
   Outcome = "ECSUseYes",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
@@ -912,8 +911,7 @@ Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
 ## ATT
 
 
-Het.ATT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Used ECS","Never used ECS")),
+Het.ATT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "ECSUseYes",
   Heterogeneity = "UsedECEC",
   ITT = FALSE,
@@ -931,8 +929,8 @@ Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
 
 
 
-Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Friends use ECS","Friends don't use ECS")),
+Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
   Outcome = "ECSUseYes",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
@@ -948,18 +946,18 @@ term_levels <- c("T2-C")
 DataPlot_ITT <- bind_rows(
   Het.ITT.Use.Info$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.Use.Info$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Norms$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Descriptive norms", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Norms$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Descriptive norms", Type = "ITT") %>% filter(term %in% term_levels),
-Het.ITT.Use.UsedECEC$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Used ECS", Type = "ITT") %>% filter(term %in% term_levels),
-Het.ITT.Use.UsedECEC$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Used ECS", Type = "ITT") %>% filter(term %in% term_levels)
+  Het.ITT.Use.Norms$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Norms$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels),
+Het.ITT.Use.UsedECEC$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels),
+Het.ITT.Use.UsedECEC$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels)
 
 )
 
 # Merge ATTs in one DataFrame with the correct factor levels
 DataPlot_ATT <- bind_rows(
   Het.ATT.Use.Info$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Level of \nknowledge", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.Use.Norms$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Descriptive norms", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.Use.UsedECEC$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Used ECS", Type = "ATT") %>% filter(term %in% term_levels)
+  Het.ATT.Use.Norms$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.Use.UsedECEC$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Used Early \nChildcare before", Type = "ATT") %>% filter(term %in% term_levels)
 
 )
 
@@ -1269,7 +1267,7 @@ of pairwise comarisons and subgroups using the Westfall-Young method.",
 
 ```{r MainHetPsy, out.width='100%', results='asis', fig.height=8, cache=TRUE}
 
-#present bias trust et active pour psychological costs
+#Present biased trust et active pour psychological costs
 
 
 #PresentOrientated 
@@ -1278,7 +1276,7 @@ of pairwise comarisons and subgroups using the Westfall-Young method.",
 
 
 Het.ITT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  PresentOrientated=ifelse(PresentOrientated == 1,"Present orientated","Futur oriented")),
+  PresentOrientated=ifelse(PresentOrientated == 1,"Yes","No")),
   Outcome = "ECSApp",
   Heterogeneity = "PresentOrientated",
   ITT = TRUE,
@@ -1310,7 +1308,7 @@ Het.ITT.App.ActiveBaseline <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 
 Het.ATT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  PresentOrientated=ifelse(PresentOrientated == 1,"Present orientated","Futur oriented")),
+  PresentOrientated=ifelse(PresentOrientated == 1,"Yes","No")),
   Outcome = "ECSApp",
   Heterogeneity = "PresentOrientated",
   ITT = FALSE,
@@ -1340,7 +1338,7 @@ Het.ATT.App.ActiveBaseline <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 # Define the factors
 term_levels <- c("T2-C")
-heterogeneity_levels <- c("Temporal orientation", "Trust","Activity")
+heterogeneity_levels <- c("Present biased", "Trust","Activity")
 panel_levels <- c("Control group", "ITT", "ATT")
 
 
@@ -1352,8 +1350,8 @@ panel_levels <- c("Control group", "ITT", "ATT")
 DataPlot_ITT <- bind_rows(
   Het.ITT.App.TrustCreche1or0$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Trust", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.App.TrustCreche1or0$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Trust", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.PresentOrientated$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Temporal orientation", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.PresentOrientated$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Temporal orientation", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.PresentOrientated$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.PresentOrientated$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels),
     Het.ITT.App.ActiveBaseline$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.App.ActiveBaseline$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels)
 )
@@ -1361,7 +1359,7 @@ DataPlot_ITT <- bind_rows(
 # Merge ATTs in one DataFrame with the correct fator levels
 DataPlot_ATT <- bind_rows(
   Het.ATT.App.TrustCreche1or0$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Trust", Type = "ATT") %>% filter(term %in% term_levels),
-   Het.ATT.App.PresentOrientated$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Temporal orientation", Type = "ATT") %>% filter(term %in% term_levels),
+   Het.ATT.App.PresentOrientated$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Present biased", Type = "ATT") %>% filter(term %in% term_levels),
       Het.ATT.App.ActiveBaseline$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Activity", Type = "ATT") %>% filter(term %in% term_levels)
 )
 
@@ -1378,7 +1376,7 @@ DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
 
 
 Het.ITT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  PresentOrientated=ifelse(PresentOrientated == 1,"Present orientated","Futur oriented")),
+  PresentOrientated=ifelse(PresentOrientated == 1,"Yes","No")),
   Outcome = "ECSUseYes",
   Heterogeneity = "PresentOrientated",
   ITT = TRUE,
@@ -1410,7 +1408,7 @@ Het.ITT.Use.ActiveBaseline <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 
 Het.ATT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  PresentOrientated=ifelse(PresentOrientated == 1,"Present orientated","Futur oriented")),
+  PresentOrientated=ifelse(PresentOrientated == 1, "Yes","No")),
   Outcome = "ECSUseYes",
   Heterogeneity = "PresentOrientated",
   ITT = FALSE,
@@ -1446,8 +1444,8 @@ DataPlot_ITT <- bind_rows(
   Het.ITT.Use.TrustCreche1or0$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Trust", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.Use.ActiveBaseline$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.Use.ActiveBaseline$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels),
-Het.ITT.Use.PresentOrientated$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Temporal orientation", Type = "ITT") %>% filter(term %in% term_levels),
-Het.ITT.Use.PresentOrientated$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Temporal orientation", Type = "ITT") %>% filter(term %in% term_levels)
+Het.ITT.Use.PresentOrientated$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels),
+Het.ITT.Use.PresentOrientated$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels)
 
 )
 
@@ -1455,7 +1453,7 @@ Het.ITT.Use.PresentOrientated$Tidy %>% mutate(Y = "Access early childcare", pane
 DataPlot_ATT <- bind_rows(
   Het.ATT.Use.TrustCreche1or0$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Trust", Type = "ATT") %>% filter(term %in% term_levels),
   Het.ATT.Use.ActiveBaseline$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Activity", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.Use.PresentOrientated$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Temporal orientation", Type = "ATT") %>% filter(term %in% term_levels)
+  Het.ATT.Use.PresentOrientated$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Present biased", Type = "ATT") %>% filter(term %in% term_levels)
 
 )
 
