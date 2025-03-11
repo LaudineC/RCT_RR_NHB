@@ -27,13 +27,13 @@ output:
 
 # Heterogeneous effects of the information-only treatment on early childcare applications and access
 
-```{r T1AccessApplicationGraph,echo=FALSE,results='asis',  fig.width = 9, fig.height = 11,cache=TRUE, out.width='100%', fig.cap="Heterogeneous effects of the information-only treatment on early childcare applications and access - Intention-to-treat estimates (ITT) estimates."}
+```{r HetT1ITTATT,echo=FALSE,results='asis',  fig.width = 9, fig.height = 11,cache=TRUE, out.width='100%', fig.cap="Heterogeneous effects of the information-only treatment on early childcare applications and access - Intention-to-treat estimates (ITT) estimates."}
 ```
 
 
 # Heterogeneous effects of the information + support treatment on early childcare applications and access 
 
-```{r TableInfoSupportITTATT,echo=FALSE,out.width='100%', results='asis',message =FALSE, cache=TRUE, fig.cap="Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-treat estimates (ITT) estimates."}
+```{r HetT2table,echo=FALSE,out.width='100%', results='asis',message =FALSE, cache=TRUE, fig.cap="Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-treat estimates (ITT) estimates."}
 ```
 
 Table \@ref(tab:TableInfoSupportITTATT) presents the heterogeneous treatment effects on the treated and the intention to treat estimates for application and access to early childcare according to our four dimensions of heterogeneity.
@@ -55,7 +55,7 @@ Table \@ref(tab:TableInfoSupportITTATT) presents the heterogeneous treatment eff
 
 # Heterogeneous effects of the information + support treatment on daycare applications and access
 
-```{r DaycareTableInfoSupportITTATT,echo=FALSE,out.width='100%', results='asis',message =FALSE, cache=TRUE, fig.cap="Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-treat estimates (ITT) estimates."}
+```{r HetT2tableDaycare,echo=FALSE,out.width='100%', results='asis',message =FALSE, cache=TRUE, fig.cap="Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-treat estimates (ITT) estimates."}
 ```
 
 

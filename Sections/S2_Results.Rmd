@@ -37,16 +37,11 @@ In line with analyses in the general population, we did not find any statistical
 
 #### Early childcare applications
 
-```{r HetT2ApplicationITTATT, out.width='100%',fig.cap="Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-treat estimates (ITT) and Average Treatment effects on the Treated (ATT)."}
+```{r HetT2ITTATT, out.width='100%',fig.cap="Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-treat estimates (ITT) and Average Treatment effects on the Treated (ATT)."}
 ```
 
 The information + support treatment increased the probability that households apply for early childcare across all dimensions of heterogeneity, as shown in Figure \@ref(fig:HetT2ApplicationITTATT). The average treatment effects on the treated were substantial. Indeed, this intervention nearly closed the application gap for all dimensions. For instance, as shown in Extended Data Table 4, we found a 17 percentage point increase in the probability that low-SES households apply for early childcare (average counterfactual = 0.60; ß = 0.17; SE = 0.08; 95% SCI, (0.00, 0.034); P = 0.024; adjusted p-value = 0.043), and a 42 percentage point increase in the probability that households with low baseline knowledge of early childcare apply for it (average counterfactual = 0.36; ß = 0.42;  SE = 0.20; 95% SCI, (-0.02, 0.86); P = 0.034; adjusted p-value = 0.061).
 
-
-#### Early childcare access
-
-```{r HetT2AccessITTATT, out.width='100%',fig.cap="Heterogeneous effects of the information + support treatment on early childcare access - Intention-to-treat estimates (ITT) and Average Treatment effects on the Treated (ATT)."}
-```
 
 However, as shown in Figure \@ref(fig:HetT2AccessITTATT) and Extended Data Table 4, effects on access to early childcare remained limited, with significant improvements observed only among households with low baseline knowledge of early childcare. Their probability of accessing early childcare increased by 48 percentage points (average counterfactual = 0.05; ß = 0.48; SE = 0.11; 95% SCI, (0.22, 0.73); P = 0.000; adjusted p-value = 0.000). This suggests that additional barriers hinder low-SES households and households with a migration background from accessing early childcare slots, even after submitting applications.
 
@@ -55,17 +50,20 @@ However, as shown in Figure \@ref(fig:HetT2AccessITTATT) and Extended Data Table
 
 We investigated heterogeneous impacts of the treatments for daycare access. In line with our overall findings, there was no effect of the information-only treatment on application and access to daycare centres (see Extended Data Figure 2 and Supplementary Table 2.2).
 
-```{r GraphAccessDaycare,  echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```{r HetT2Daycare,  echo=FALSE,out.width='100%', results='asis', cache=TRUE}
 ```
 As shown in Extended Data Table 6, the information + support intervention increased the probability of applying for daycare for both low- and high-SES households, by 18 and 14 percentage points respectively, which corresponds to a 38% and a 21% increase (average counterfactual Low-SES = 0.47; ß = 0.18; SE = 0.06; 95% SCI, (0.02, 0.34); P = 0.015; adjusted p-value = 0.025; average counterfactual High-SES = 0.66; ß = 0.14; SE = 0.07; 95% SCI, (0.00, 0.28); P = 0.032; adjusted p-value = 0.056). However, the impacts on access were limited to high-SES households, which experienced a 16-percentage point increase (average counterfactual High-SES = 0.23; ß = 0.16; SE = 0.05; 95% SCI, (0.04, 0.28); P = 0.005; adjusted p-value = 0.007), as depicted in Figure \@ref(fig:GraphAccessDaycare) and shown in Extended Data Table 6. This increase in daycare access was associated with a 68% reduction in the probability that mothers in these households would decrease their activity levels (average counterfactual = 0.38; ß = -0.23; SE = 0.07; 95% SCI, (-0.38, -0.09); P = 0.0007; Extended Data Table 7).  Furthermore, as observed for early childcare generally, this intervention also led to a 36-percentage point increase in the probability that households with low baseline knowledge accessed daycare specifically (average counterfactual = 0.03; ß = 0.36; SE = 0.10; 95% SCI, (0.13, 0.50); P = 0.0008; adjusted p-value = 0.001).
 
 
 ## Mechanisms: knowledge of the system, feeling of legitimacy, and admission criteria
 
-```{r Mechanisms, echo=FALSE,out.width='100%', results='asis', cache=TRUE, fig.cap= "Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-Treat estimates (ITT) and Average Treatment Effects on the Treated (ATT)." }
+```{r MechanismsInfo, echo=FALSE,out.width='100%', results='asis', cache=TRUE, fig.cap= "Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-Treat estimates (ITT) and Average Treatment Effects on the Treated (ATT)." }
 ```
 
 The effects of the information + support treatment on early childcare applications, and specifically on daycare applications, were stronger among households that had not previously accessed early childcare (Figure \@ref(fig:Mechanisms) and Extended Data Table 8). For this group, the information + support treatment increased the probability of applying for any early childcare option by 21% (average counterfactual = 0.69; β = 0.16; SE = 0.05; 95% SCI (0.05, 0.28); P = 0.001; adjusted p-value = 0.003), and the probability of applying for daycare specifically by 37% (average counterfactual = 0.59; β = 0.22; SE = 0.05; 95% SCI, (0.1, 0.33); P = 0.000; adjusted p-value = 0.000). These findings suggest that participants who were new to the system and received support were helped in learning “the rules of the game" and navigating the early childcare system. However, we did not observe any effect of the treatment on knowledge of the early childcare system (e.g. the different types of early childcare), as shown in Supplementary Table 3.1.
+
+```{r MechanismsPsych, echo=FALSE,out.width='100%', results='asis', cache=TRUE, fig.cap= "Heterogeneous effects of the information + support treatment on early childcare applications - Intention-to-Treat estimates (ITT) and Average Treatment Effects on the Treated (ATT)." }
+```
 
 Mothers who were inactive at baseline also applied more. For this subgroup, the information + support treatment increased the probability of applying for any early childcare by 80% (Figure \@ref(fig:Mechanisms), average counterfactual = 0.4; ß = 0.32; SE = 0.1; 95% CI, (0.09, 0.54); P = 0.001; adjusted p-value = 0.004). For daycare, additional analyses in Extended Data Table 9 showed a similar pattern, regardless of their SES (average counterfactual Inactive & Low-SES = 0.33; ß = 0.25; SE = 0.011; 95% SCI, (-0.01, 0.50); P = 0.025; and average counterfactual Inactive & High-SES= 0.36; ß = 0.48; SE = 0.25; 95% SCI, (-0.08, 0.99); P = 0.036). However, the effects on access to daycare were concentrated among high-SES households in which the mother was active at baseline (average counterfactual = 0.27; ß = 0.16; SE = 0.07; 95% SCI, (0.00, 0.31); P = 0.027; adjusted p-value = 0.045). 
 
