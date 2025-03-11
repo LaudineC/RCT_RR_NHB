@@ -1,0 +1,237 @@
+---
+title: "Analysis_Laudine_R&R"
+author: "Laudine Carbuccia"
+date: "2025-01-20"
+always_allow_html: true
+language:
+  label:
+    fig: 'Figure '
+    tab: 'Table '
+    eq: 'Equation '
+output: 
+    bookdown::word_document2: 
+      reference_docx: FormatRefWordFinal.docx
+      fig_caption: yes
+      toc: no
+    officedown::rdocx_document:
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE,fig.width = 8,fig.height = 5,fig.pos = "H" #, 
+#cache.lazy = FALSE)
+)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+```
+
+```{r LoadLibraries, include=FALSE}
+library(here)
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+
+
+```{r, include=FALSE, cache=FALSE}
+knitr::read_chunk(here("RScripts","Analysis_Laudine_R&R.R"))
+# This file contains all the chunks of codes to be called at the right place in the Rmarkdown document
+```
+
+# Comments from the reviewers
+
+## Reviewer 1
+
+### Comment 1  - Descriptive tables
+"One thing I missed was additional descriptive information (in the supplementary file), in particular distributions of all variables by SES, migration background, baseline knowledge, temporal orientation, previous childcare usage, activity status, and by district."
+
+### Response
+
+#### Distribution of the variables
+```{r Descriptive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Distribution of all variables by SES 
+```{r DiffEduc, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Distribution of all variables by migration background
+```{r DiffMig, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by baseline knowledge
+```{r DiffInfo, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by temporal orientation
+```{r DiffPresentBias, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by previous childcare usage
+```{r DiffUse, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by activity status
+```{r DiffActive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by district
+To perform the equality tests, we break down the comparison across districts in three parts: Paris vs. other districts, Seine-Saint-Denis vs. other districts, and Val de Marne. 
+
+##### Paris vs. other districts
+```{r DiffParis, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Seine-Saint-Denis
+```{r DiffSSD, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Val de Marne
+```{r DiffVDM, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+### Comment 2 - Correlation matrix
+
+Furthermore, we know from previous research that SES, migration background, baseline knowledge, temporal orientation, previous childcare usage and activity status are correlated. It would be very useful to provide information to which degree this was the case to get a better understanding of the relevance of the different indicators of inequalities under view.
+
+This plot shows the tetrachoric correlation coefficients of the different variables. We see that in any case we find perfect correlation.
+```{r correlation, echo=FALSE,out.width='100%', cache=TRUE}
+```
+
+The strongest correlations were found between migration background and knowledge (-0.57), followed by knowledge and previous early childcare use (-0.55). This suggests that individuals with a migration background tend to exhibit lower baseline knowledge, while those who have previously utilized early childcare services demonstrate a higher level of knowledge.
+
+Moderate correlations were observed between migration background and temporal orientation (-0.49), migration background and activity (-0.48), and between socioeconomic status (SES) and knowledge (0.47). SES also exhibited moderate positive correlations with activity (0.43) and temporal orientation (0.33), while displaying a negative correlation with migration background (-0.32).
+
+### Comment 4 - Interaction effects Active SES
+ “The increase in applications was primarily driven by households in which the mother was inactive at the start of the study”.
+
+```{r InteractionSESActive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+### R1 page 9 - Norms
+
+"A potential lack of the study is the fact that gender/mothering/cultural norms were not studied as mechanism that might explain SES gaps – despite the factor that the authors themselves state in the introduction that it is exactly these norms that might explain SES-based differences in childcare usage. If possible, this would be a mechanism worth to be analyzed empirically. For a recent study that analyzed to which degree differences in mothers’ preferences can explain SES gaps in early childcare usage, cf. Steinberg & Kleinert, 2021."
+
+#### Prescriptive norms
+
+#### Information only early childcare
+
+```{r NormsT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Information + Support early childcare
+
+```{r Norms, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Information only daycare
+
+```{r NormsDaycareT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Information + support daycare
+
+```{r NormsDaycare, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Interaction SES Prescriptive Norms
+```{r InteractionSESNorms, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Descriptive norms
+
+
+#### Information only early childcare
+
+```{r NormsDecriptiveT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Information + Support early childcare
+
+```{r NormsDecriptive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Information only daycare
+
+```{r DescriptiveDaycareT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Information + support daycare
+
+```{r NormsDaycareDescriptive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+##### Interaction SES Descriptive Norms
+```{r InteractionSESDescriptiveNorms, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+### T1 page 10: Attitudes & SES
+
+Furthermore, it would be extremely interesting to test whether the shown effects are limited to low SES groups with positive attitudes to early childcare and with economic activity at baseline, if possible.
+
+#### Beliefs about the benefits of early childcare
+
+##### Early childcare
+
+```{r LikertReturnHK1or0, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Daycare
+
+```{r BeliefsReturnDaycare, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Interaction SES and beliefs
+
+```{r InteractionSESBeliefs, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Trust in early childcare facilities
+
+##### Early childcare
+
+```{r TrustCreche1or0, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Daycare
+
+```{r TrustDaycare, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+##### Interaction SES and trust
+
+```{r InteractionSESTrust, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+## Reviewer 2
+
+"I also wonder whether it wasn’t possible to ask a bit more in the endline survey on the perceived reasons why families who applied for childcare did not actually access it? I noticed there is a question in the endline survey (p. 90) on the reason why people did not use their preferred mode of childcare. Could that information be used in an analysis to shed more light on the reasons why people who have applied but not used childcare, i.e. structural barriers?"
+
+
+#### Reasons why they did not access any early childcare facility 
+```{r GraphReasonsNoECS, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Reasons why people did not use their preferred mode of childcare by SES
+
+```{r GraphReasonIdealSES, echo=FALSE,out.width='100%', results='asis', cache=TRUE} 
+```
+
+#### Reasons why people did not use their preferred mode of childcare by migration background
+
+```{r GraphReasonIdealMigration, echo=FALSE,out.width='100%', results='asis', cache=TRUE} 
+```

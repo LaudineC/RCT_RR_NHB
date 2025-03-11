@@ -1,0 +1,139 @@
+---
+title: "Toward a formal model and clean computation"
+output: html_notebook
+---
+
+
+
+At baseline, we observe a sample of $N_b$ pregnant mothers we call *individuals* indexed $i \in \{1:N_b\}$. This sample has a nested structure by maternity ward and lottery. Individuals $i$ recruited in a given ward and subject to a given lottery belong to a *wave*  $w \in \{1:W\}$ ^[There were 7 waves. Every two weeks, we proceed to random assignment.]. We note $W_i$ the wave of individual $i$. We collect a lot of information on each mothers, some of which have a specific role in our research strategy.
+
+
+First, we define blocks of individuals based on the cross product of three variables:
+
+- **Education** $E$ ("tertiary"/"secondary or lower") 
+- **Intention to use ECS** $I$ ("no"/"yes but never has"/"yes and already has")
+- **Supply** $S$ ECS coverage rate higher/lower than the average in the department.
+
+Let $b_i \in \{1:B\}$ denotes the block of individual $i$ defined as the product set of the blocking variables and waves $(E_i,I_i,S_i,W_i)$. 
+Let $B_i=\one{b_i=b}$ denotes block-dummies and $\mathbf{B}$ the matrix of blocks. 
+
+Block-randomization serves two purposes. 
+
+1) We want to reduce noise in our estimations and 
+2) be able to compare treatment effects across subgroups.
+
+Our choice is guided by the discussion in section \ref{sec:motivations} which gives a simple rationale: parents' level of education is strongly associated with childcare use, parents who intend to use ECS are more likely to apply, but this may be more or less effective depending of the ECS coverage rate. Education is linked to intention to use and parents strategy may be different by education groups if supply is high or low.
+Therefore accounting for these interacted characteristics is expected to reduce the residual variance thus, improving precision of our treatment effect estimators. 
+Since one of our main research questions is about treatment effect heterogeneity between high and low SES, blocking also ensures balance between groups and independence between education and treatment.
+Furthermore, treatment effect heterogeneity across different sets of blocks can be informative about mechanisms. 
+<!-- Last, intention to use also has an additional special role in the interpretation of our results. We discuss that after introducing all notations. -->
+
+
+All variables measured at baseline constitute a set of attributes bundled in a matrix $\mathbf{A}$ of size $(N_b,A)$.  Attributes may vary with time but their measurement at baseline are informative of the parents situation at that time. This matrix includes $E_i$, $I_i$, $S_i$, $W_i$ and $B_i$ and other variables, among which we select $\mathbf{X} \subset \mathbf{A}$, a set of relevant attributes for each analysis. The method for choosing variables in $\mathbf{X}$ depend on the problem. 
+We observe individuals $i$ again in the endline survey with $N_p \leq B_b$ observations. 
+Note that the difference between the two sample size must be investigated and may require statistical adjustment in case of differential attrition (See section \ref{sec:attrition} below).
+
+This survey generates the set of outcome variables. In our general presentation, we follow the usual conventions and denote an outcome as a random variable $Y$. $Y$ follows different definitions across sets of outcomes (intermediary, proximate and final) and  which measurement of the outcome is used. We only assume that all distributions have finite first moments and that each observation $Y_i$ is a realization of the random variable $Y$ drawn from the same data generating process. We denote $\mathbf{Y}$ the matrix of outcomes. 
+Some outcomes variables are related and we denote $\mathbf{Y}^f\subset \mathbf{Y}$ for a *family* of outcomes.
+We abuse of notations and also denote $\mathcal{H}^f \in \mathcal{H}$ a family of hypotheses with associated statistical tests to define the sets over which we adjust the Family-wise error rate.
+
+
+
+
+
+
+<!-- search link RMSE and R 2 -->
+
+
+<!-- basic initial power computation but well done. -->
+
+<!-- IV formula model -->
+
+Ex post analysis :
+
+Use control group to retrieve better estimates
+plug estimates in formula
+
+
+use declare design with the same strategy we use
+
+```{r}
+
+library(pacman)
+
+p_load(tidyverse,
+       dagitty,
+       tidygraph,
+       ggdag,
+       ggrpah)
+
+DagPosaje <- dagitty('dag {
+bb="0,0,1,1"
+"Administrative support" [exposure,pos="0.406,0.189"]
+"Latent compliance" [pos="0.598,0.074"]
+"Observed attributes" [adjusted,pos="0.496,0.574"]
+"Offer support" [pos="0.251,0.088"]
+"Information" [pos="0.251,0.288"]
+"Access" [pos="0.814,0.374"]
+"Application" [outcome,pos="0.626,0.376"]
+"Intention" [pos="0.407,0.376"]
+"Unobserved" [latent,pos="0.738,0.178"]
+"Administrative support" -> Application
+"Latent compliance" -> "Administrative support"
+"Latent compliance" -> Intention
+"Observed attributes" -> "Administrative support"
+"Observed attributes" -> Access
+"Observed attributes" -> Application
+"Observed attributes" -> Intention
+"Offer support" -> "Administrative support"
+"Information" -> "Application"
+"Application" -> Access
+"Intention" -> "Application"
+"Intention" -> "Administrative support"
+"Administrative support" -> "Access"
+"Unobserved" -> "Administrative support"
+"Unobserved" -> "Latent compliance"
+"Unobserved" -> "Access"
+"Unobserved" -> "Application"
+"Unobserved" -> "Intention"
+}')
+
+
+TidyThisDag <- tidy_dagitty(DagPosaje)
+
+TidyThisDag$data <- TidyThisDag$data %>% mutate(Type=case_when(
+                name %in% c("Observed attributes","Intention")~"Adjusted",
+                name == c("Offer support","Information")~"Instrument",
+                name == "Administrative support"~"Exposure",
+                name %in% c("Latent compliance","Unobserved")~"Latent factors",
+                name%in% c("Application","Access")~ "Outcome"))
+
+ggplot(TidyThisDag,
+       aes(x = x, y = y, xend = xend, yend = yend,linetype = direction,shape = Type, fill = Type,color=Type,textcolor=Type)) +
+  geom_dag_point(alpha=.2) +
+  geom_dag_text() +
+  geom_dag_edges()+theme_dag_blank() +
+  scale_color_viridis_d(option="A",end=.7)+
+  scale_fill_viridis_d(option="A",end=.7)+
+  theme(legend.position="bottom",
+        legend.key.size = unit(.1, 'cm'))
+
+
+
+
+
+```
+
+
+
+
+
+<!-- Our main models for intention to treat estimations are pairwise comparisons of treatment arms. -->
+
+<!-- $$ -->
+<!-- Y_{ib}=\beta_t Z^t_{ib}+\upsilon_{bt}+\varepsilon_{it} -->
+<!-- $$ -->
+
+<!-- where t index which treatment is active. -->
+
+<!-- By design, $E(Z^t_{ib})=.5)$ and is independent of -->

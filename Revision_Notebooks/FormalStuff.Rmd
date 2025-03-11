@@ -1,0 +1,766 @@
+---
+title: "Formal stuff POSAJE"
+author: "Arthur Heim"
+date: "2025-01-31"
+output: 
+  bookdown::pdf_document2: 
+    latex_engine: xelatex
+    fig_height: 6
+    fontsize: 12
+    citation_package: natbib
+    fig_caption: yes
+    toc: no
+    toc_depth: 3
+    keep_tex: yes
+    highlight: tango
+    number_sections: yes
+    extra_dependencies: ["flafter"]
+    includes:
+      in_header: XeLaTex_Preamble.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE,fig.width = 8,fig.height = 5,fig.pos = "H" #, 
+#cache.lazy = FALSE)
+)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+library(pacman)
+p_load(here)
+#here()
+```
+
+
+```{r LoadLibraries, include=FALSE}
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+
+```{r, include=FALSE, cache=FALSE}
+knitr::read_chunk(here("RScripts","MainAnalyses.R"))
+# This file contains all the chunks of codes to be called at the right place in the Rmarkdown document
+```
+
+
+
+
+<!-- # Chatgpt  -->
+<!-- # Conceptual Framework -->
+
+<!-- ## Overview -->
+We model the decision to apply for childcare as a function of perceived eligibility, transaction costs, and potential benefits. Households face uncertainty regarding their eligibility and the costs associated with the application process. The intervention aims to reduce these frictions through information provision and administrative support.
+
+
+We consider a sequential decision process where at the first period (baseline), 
+a pregnant woman has *ex-ante* unobserved **preference profile** $\theta_0$ with regard to future childcare options. We observe a set of attributes $\mathbf{X}$ and intention to use $I_0$. Among $\mathbf{X}$, there are social group metrics ($G$) such as SES status (based on education), migration background, and rough metrics of temporal preferences $\rho$ and knowledge of childcare $\mathcal{I}$. There are also cognitive and structural factor that may hinder decisions. Let $\mathcal{C}$ denote the subjective application costs.
+In the absence of intervention, the decision to apply can be defined as a threshold function over a latent intention to use:
+
+\begin{equation}
+I_0^*=\mu_w(\mathbf{X})-theta_I(\mathcal{I},\mathcal{C}),\quad I_0=1 ~ if ~I^*_0\geq 0,\quad I^*_0=0~otherwise
+\end{equation}
+
+Where $U_I$ is an unobserved private valuation of information sets, preference types and subjective costs of application. 
+
+# Application 
+
+Application to childcare is an action $A_j$
+
+```{r}
+library(DeclareDesign)
+library(tidyverse)
+
+# Define population and sampling
+population <- declare_population(
+  N = 1850,
+  wave = rep(1:7, length.out = 1850),
+  ses = complete_ra(N = 1850, prob = 0.5),  # High/Low SES
+  local_supply = complete_ra(N = 1850, prob = 0.5),  # High/Low supply
+  intention = sample(
+    c("yes_has", "yes_never", "no"), 
+    size = 1850, 
+    replace = TRUE, 
+    prob = c(0.33, 0.33, 0.34)
+  )
+)
+
+# Define potential outcomes
+potential_outcomes <- declare_potential_outcomes(
+  Y_Z_T1 = 0.15 + 0.1,  # Assumed effect of T1
+  Y_Z_T2 = 0.15 + 0.2 * rbinom(N, 1, 0.52),  # Effect of T2 with 52% compliance
+  Y_Z_C = 0.15  # Baseline application rate
+)
+
+# Define assignment: block randomization within waves and strata
+assignment <- 
+declare_assignment(Z = conduct_ra(N = N, blocks = c(wave, ses, local_supply, intention), conditions = c("C", "T1", "T2")))
+
+# Define estimator (difference in means)
+estimator <- declare_estimator(
+  Y ~ Z,
+  model = difference_in_means,
+  term = c("Z_T1", "Z_T2")
+)
+
+# Declare full design
+design <-population+
+  potential_outcomes+
+  assignment+
+  reveal_outcomes(outcome_variable = "Y")+
+  estimator
+
+# Calculate power for various effect sizes
+diagnosis <- diagnose_design(
+  design,
+  sims = 500,
+  bootstrap_sims = 50
+)
+
+# Adjust for attrition
+attrition_rate <- 1 - (1650/1850)
+diagnosis_with_attrition <- diagnosis
+diagnosis_with_attrition$diagnosands$power <- 
+  diagnosis_with_attrition$diagnosands$power * (1 - attrition_rate)
+
+# Print results
+print(diagnosis_with_attrition)
+```
+
+
+
+
+Without loss of generality, let $\mathbf{Z}$ denote the set of observable $\mathbf{X}$ supplemented with random shocks such as treatments. 
+
+
+
+<!-- We assume that $\mathbf{Z}\perp U_I$ -->
+## Intention gap by social groups
+
+
+Formally, the gap between two sets of values of covariates $\mathbf{x}$ $\mathbf{x^\prime}$ in intention to use at baseline is:
+
+\begin{equation}
+\Delta_{x,x'}(I_{0}) = \espb{I_{0i}|\mathbf{X}=\mathbf{x}}-\espb{I_{0i}|\mathbf{X}=\mathbf{x^\prime}}
+\end{equation}
+
+With a random sample, these conditional differences in reported intention to use childcare can be estimated using OLS and heteroskedasticity robust standard errors (Linear probability model) or by first estimating a model with parametric restrictions on $I_0^*$ (such as logit or probit) and computing marginal effects.
+
+However, these parameters and sample analogues are only descriptive difference in means between two groups who also differs in observable characteristics and latent $U_I$. 
+
+
+ 
+
+
+We assume that the sampling process of our baseline sample is randomly drawn from the superpopulation 
+These difference in probabiliry
+
+<!-- ## Setup -->
+<!-- Consider a household deciding whether to apply for a childcare slot. The utility of applying ($U_A$) versus not applying ($U_N$) is determined by: -->
+
+<!-- \[ -->
+<!-- U_A = pB - C + \varepsilon_A, -->
+<!-- \] -->
+<!-- \[ -->
+<!-- U_N = \varepsilon_N. -->
+<!-- \] -->
+
+<!-- where: -->
+<!-- - $p$ is the household’s perceived probability of acceptance, -->
+<!-- - $B$ is the benefit from obtaining childcare, -->
+<!-- - $C$ is the transaction cost of applying (e.g., paperwork, time, effort), -->
+<!-- - $\varepsilon_A$ and $\varepsilon_N$ are idiosyncratic preference shocks. -->
+
+<!-- A household applies if $U_A > U_N$, which simplifies to: -->
+<!-- \[ -->
+<!-- pB - C > \varepsilon_N - \varepsilon_A. -->
+<!-- \] -->
+
+<!-- ## Impact of the Interventions -->
+
+<!-- ### Information Treatment -->
+<!-- Providing information ($I$) about eligibility and expected benefits affects perceived probability $p$ but does not directly reduce transaction costs $C$. Households update their belief about $p$ using: -->
+
+<!-- \[ -->
+<!-- p' = p + \Delta p, -->
+<!-- \] -->
+<!-- where $\Delta p > 0$ if the information clarifies eligibility and increases optimism about acceptance. -->
+
+<!-- Thus, more households satisfy $p' B - C > \varepsilon_N - \varepsilon_A$, leading to an increase in applications. -->
+
+<!-- ### Information + Administrative Support Treatment -->
+
+<!-- Administrative support ($S$) reduces transaction costs by $\Delta C$, where $\Delta C > 0$. Since support is taken up by only 50% of households, the expected cost reduction is $0.5 \Delta C$ in the treatment group. -->
+
+<!-- The new decision condition for supported households becomes: -->
+<!-- \[ -->
+<!-- pB - (C - \Delta C) > \varepsilon_N - \varepsilon_A. -->
+<!-- \] -->
+
+<!-- Given that $\Delta C$ reduces the threshold for application, this treatment should have a stronger impact than information alone. -->
+
+<!-- ## Predictions -->
+<!-- 1. **Information alone ($I$)** increases application rates by improving perceived eligibility ($p$). -->
+<!-- 2. **Information + support ($I+S$)** has a stronger effect by also reducing transaction costs. -->
+<!-- 3. **Take-up of support ($S$) matters**: if fewer than 50% use it, the impact is weaker than full take-up scenarios. -->
+
+<!-- ## Conclusion -->
+<!-- This framework suggests that administrative costs are a key barrier to childcare applications. Information can help, but facilitating application processes through support has the highest potential to increase access. -->
+
+
+Idée générale :
+Present oriented --> future benefits and costs
+Utility of with or without childcare - cost of childcare + subjective costs
+
+How reducing friction costs may affect different people (choice function)
+
+
+## Adaptation of Castell et al. (2024)
+
+
+Pregnant woman must decide in the future whether they want childcare. Let b be the probability of receiving childcare (i.e. successful application).
+Application is an action $A \in \{0,1\}$ equals to 1 if the access probability perceived with some error $\epsilon$ exceeds application costs $c$.
+
+\begin{equation}
+A =\one{b+\epsilon-c>0}
+\end{equation}
+
+A mother may not apply if she lack information or underestimate her chance of access (\epsilon<0), she may face transaction costs $c$ which are non-monetary costs going through application process such as complexity, delays, and so on. 
+
+
+### Information
+
+Each individual is characterized by the  value of the cost $c$ and the error $ε$ they make in the perception of the probability of access. We denote with $F (x) = P (b < x)$ the cumulative distribution function of  benefits b given $c$ and $\epsilon$. The probability to apply is:
+
+
+\begin{equation}
+P(A=1) =P(b>c-\epsilon)=1-F(c-\epsilon)
+\end{equation}
+
+Providing full information on application likelihood has the following effect on application:
+
+\begin{equation}
+\Delta(c,\epsilon)=P(b>c)-P(b>c-\epsilon)=F(c-\epsilon)-F(c)
+\end{equation}
+
+The effect of the information treatment is thus positive for agents who underestimate their  access probability $(\epsilon < 0)$ and negative otherwise. The ITT effect sums $\Delta(c,\epsilon)$ over the joint distribution of $(c,\epsilon)$.
+
+Therefore, providing information increases application if,  under imperfect information, there are more individuals who would benefit from applying but do not apply because they underestimate their eligibility than individuals  whose net benefit is negative but who apply because they overestimate their eligibility.
+
+Given our empirical results, it is useful to consider the reasons for why providing  information may have no or very small effects on applications. First, it could be that  on average agents have accurate beliefs, even though many of them are wrong about  their own eligibility. Second, it could be that the effect of erroneous beliefs is small  as compared to that of transaction costs, such that for most people with $F (c − \epsilon) = 1$  (no take-up), we also have $F (c) = 1$. Finally, it could simply be that $\epsilon$ is uniformly  zero, i.e. that there are no information frictions.
+
+## Administrative support
+
+Application costs. We next investigate the impact of reducing application costs.  We define $c_0$, as the application cost one faces when supported by a caseworker, i.e. when one receives treatment T2.
+
+On their own (untreated), agents face a larger cost $c \in\left[c_0, \infty\left[\right.\right.$ that is distributed in the population. Given our empirical results, let us consider a situation where imperfect information can be neglected $(\varepsilon=0)$. Then, the effect of this treatment for any agent of type $c$ is:
+
+$$
+\Delta(c)=P\left(b>c_0\right)-P(b>c)=F(c)-F\left(c_0\right) \geq 0
+$$
+
+
+The population effect sums $\Delta(c)$ over the marginal distribution of $c$, and is positive. Note that in this case, the probability to apply and the probability to access are identical; the latter is more easily observable. The effect is stronger on agents that face higher transaction costs in the absence of treatment:
+
+$$
+\frac{\partial \Delta(c)}{\partial c}=f(c)>0
+$$
+
+
+To understand the effect of application costs on access, we also consider the treatment effect on access by the average claimant:
+
+$$
+\Delta^b(c)=E\left(b \mid b>c_0\right)-E(b \mid b>c)=\frac{\int_{c_0}^{\infty} b f(b) d b}{1-F\left(c_0\right)}-\frac{\int_c^{\infty} b f(b) d b}{1-F(c)}
+$$
+
+
+For any agent of type $c$ this quantity is negative if $c>c_0$ and zero otherwise. Integrating over $c$ yields:
+
+$$
+\Delta^b=\int_0^{\infty} \Delta^b(c) g(c) d c
+$$
+
+
+If b and c are uncorrelated in the population, then $\Delta^b$ is negative: lowering application costs extends access to people with lower claims. This corresponds to the idea that application costs are ordeals mechanisms that improve targeting (Kleven and Kopczuk, 2011; Alatas et al., 2016). If b and c are sufficiently positively correlated however, i.e. if those most likely to get access also have higher costs, then $\Delta^b$ can be positive. In that case lowering application costs can attract more parents who are more likely to access childcare (Deshpande and Li, 2019; Gupta, 2017).
+
+## Compliance
+
+In practice, the intervention is a phone call to which potentially eligible people may not answer or refuse the administrative support. In addition to the decision to apply to childcare, we need to model the decision to comply with the administrative support treatment as we can only identify treatment impact on compliers. Let us assume that mothers decide to take support by comparing the anticipated reduced cost of application $\left(b-c_0\right)$ with nuisance from the intervention which we denote with $\kappa>0$. An agent complies with the invitation if:
+
+$$
+b>c_0+\kappa
+$$
+
+
+In our analysis, we are interested not only in the average treatment effect, but also in the shape of the marginal treatment effect as a function of the cost of participation $\kappa$, following Heckman (2010). We define the marginal treatment effect (MTE) as the effect of the treatment on the compliers, conditional on a value of the cost of administrative support, $\kappa$, for any individual with application cost $c$. The MTE is:
+
+$$
+\begin{aligned}
+\operatorname{MTE}(\kappa ; c) & =P\left(b>c_0 \mid b>c_0+\kappa ; c\right)-P\left(b>c \mid b>c_0+\kappa ; c\right) \\
+& =1-\frac{1-F(c)}{1-F\left(c_0+\kappa\right)}
+\end{aligned}
+$$
+
+if $\kappa<c-c_0$ and zero otherwise. Conditional on $c$, we have:
+
+$$
+\frac{\partial M T E(\kappa ; c)}{\partial \kappa} \leq 0
+$$
+
+
+As $\kappa$ grows, compliers are more and more selected towards higher chance of access $b$; they find value in attending the meeting because it reduces their administrative burden, but the share that would apply even in the absence of the treatment grows, so that the treatment effect decreases. This is true for a given $c$. We take the integral over $c$ to obtain the MTE for the whole population:
+
+$$
+\operatorname{MTE}(\kappa)=\int_{c_0}^{\infty} M T E(\kappa ; c) g(c \mid \kappa) d c
+$$
+
+
+When $\kappa$ increases, every $\operatorname{MTE}(\kappa ; c)$ in the integral decreases. If $c$ and $\kappa$ are uncorrelated, then $\operatorname{MTE}(\kappa)$ will also be a decreasing function of $\kappa$. But if $c$ and $\kappa$ are positively correlated, the MTE can be increasing in $\kappa$, since the large $\operatorname{MTE}(\kappa ; c)$ with large $c$ receive a higher weight $g(c \mid \kappa)$. Claimants who face large transaction costs and would benefit the most from administrative support also face large costs of accepting it.
+
+# Setting
+
+## Baseline
+
+Pregnant woman $i$ at time $t_0$ have a set of observable attributes bundled in a matrix $\mathbf{A}_0$ and an unobservable set of information $\mathcal{I}$.  In addition, Let $\mathbf{X} \subset \mathbf{A}$ denote fixed attributes
+(e.g. measures of social groups) and let $\mathbf{K}\subset \mathbf{A}\backslash X$ some observed metrics for preferences, knowledge, norms, values, and so on.
+In particular, we observe women intention to use childcare and their most favourite childcare arrangement.
+
+$\mathbf{X}$ and $\mathbf{K}$ may be correlated as unobserved factor determine both observed characteristics such as social groups and preferences, norms, intention to use childcare...
+
+
+### Ex-ante preference profiles
+
+Woman must choose whether she applies to formal childcare and more precisely which childcare types.
+Assume for simplicity that the choice set is sparse such that she can choose to apply to Daycare $D$, Childminder $C$ and if she doesn't apply to one of the two, the default is parental care $P$. 
+Woman $i$ has $ex-ante$ preference order over childcare solutions we denote $\succeq_i$ which can be:
+
+\begin{equation}
+    \succ_i \equiv 
+      \left\{ 
+          \begin{aligned}
+            \left. 
+              \begin{matrix}
+                a:=D\succeq_iC\succeq_iP    \\
+                b:=C\succeq_iD\succeq_iP    \\
+              \end{matrix} 
+            \} \right. & 
+                \text{childcare enthusiasts} ~~;    \\
+            \left. 
+              \begin{matrix}
+                c:=D\succeq_iP\succeq_iC\\
+                d:=C\succeq_iP\succeq_iD\\
+              \end{matrix}
+            \} \right. & 
+                  \text{Selective parents} ~~;    \\
+            \left. 
+              \begin{matrix}
+                e:=P\succeq_iC\succeq_iD\\
+                f:=P\succeq_iD\succeq_iC\\
+              \end{matrix} 
+            \}\right. & 
+                  \text{Parental care } ~~;  \\
+          \end{aligned} 
+    \right.
+\end{equation}
+
+We can also bundle preference profiles by "daycare enthusiasts", "childminder enthusiasts".  
+
+\begin{equation}
+    \succ_i \equiv 
+      \left\{ 
+          \begin{aligned}
+            \left. 
+              \begin{matrix}
+                a:=D\succeq_iC\succeq_iP    \\
+                c:=D\succeq_iP\succeq_iC\\
+              \end{matrix} 
+            \} \right. & 
+                \text{Daycare enthusiasts} ~~;    \\
+            \left. 
+              \begin{matrix}
+                d:=C\succeq_iP\succeq_iD\\
+                b:=C\succeq_iD\succeq_iP    \\
+              \end{matrix}
+            \} \right. & 
+                  \text{Childminder enthusiasts} ~~;    \\
+            \left. 
+              \begin{matrix}
+                e:=P\succeq_iC\succeq_iD\\
+                f:=P\succeq_iD\succeq_iC\\
+              \end{matrix} 
+            \}\right. & 
+                  \text{Parental care} ~~;  \\
+          \end{aligned} 
+    \right.
+\end{equation}
+
+
+At $t_0$, childcare enthusiasts and selective parents reveal their intention to use and most preferred childcare.  therefore, we observe the following preference types in the data. Let $W$ denote intention to use.
+
+- those who intend to use childcare and prefer daycare have preference types $\succeq_i\in\{a,c\}$ : the daycare enthusiasts 
+- those who intend to use childcare and prefer childminders have preference types $\succeq_i\in\{b,d\}$: the childminder enthusiasts
+- Those who do not intend to use childcare have preference types $\succeq_i\in\{e,f\}$: those who would rather care for their children themselves.
+
+If we knew if the parent would accept another childcare and assume strict preference order, we could classify parents of all 6 preference types at baseline. But we don't. Therefore, these types are unknown.
+
+Moreover, these preference types evolve over time as parents' situation, information sets, needs etc. change.
+There are also cognitive and structural factor that may hinder decisions. Let $\mathcal{C}$ denote the subjective application costs.
+
+In the absence of intervention, the decision to apply can define a latent propensity to apply:
+
+\begin{equation}
+W^*(0)=\mu_w(\mathbf{Z})-U_w(\mathcal{I},\succeq,\mathcal{C}),\quad W=1 ~ if ~W^*\geq 0,\quad W=0~otherwise
+\end{equation}
+
+Where $\mathbf{Z}$ is a set of observables and $U_w$ is unobserved and depend on information sets, preference types and subjective costs of application.
+
+
+
+<!-- In a generalized Roy Model *à la* @HeckmanVytlacil2005, $U_w$ depends on latent -->
+
+
+<!-- In word, the propensity to apply is the expected difference of the probability of accessing childcare and its subjective cost over the support of preference types and information sets. -->
+<!-- Then $W_i=\one{W^*\geq 0}$, where $W^*$ is a random variable measurable with respect to $\mathcal{I}$.  -->
+
+
+
+
+## Endline data
+
+The endline survey includes the different sets of outcomes including some metrics of knowledges, application behaviours and access to formal childcare. We leave attrition issues for now and focus on application behaviours. We come back to these points later.
+
+Let $\tilde{Y_i}=\one{\text{applied to any childcare}}$ be the endline measure of application behaviours which derive from:
+$$
+\tilde{Y}_{i}=\underbrace{\one{\text{applied for childminders}}}_{Y^c}+\underbrace{\one{\text{applied for daycare}}}_{Y^d}\\
+$$
+In practice, $\tilde{Y}$ also include other childcare arrangement.
+
+The relationships between the observed variables from Baseline and Endline can be represented using Directed Acyclic Graphs such as Figure \ref{fig:DagIntention}. This model is not identified. No causal relationship can be inferred.
+
+
+```{r DagIntention, fig.cap="How observed baseline characteristics relate with the main outcome."}
+
+p_load(tidyverse,
+       dagitty,
+       tidygraph,
+       ggdag,
+       ggrpah)
+
+DagIntention <- dagitty('dag {
+                              bb="0,0,1,1"
+                              "Information set" [latent,pos="0.519,0.181"]
+                              "Intention to use" [adjusted,pos="0.566,0.265"]
+                              "Observable social group X" [exposure,pos="0.261,0.395"]
+                              "Past experience" [latent,pos="0.240,0.242"]
+                              "Preference profile K" [adjusted,pos="0.443,0.267"]
+                              Apply [outcome,pos="0.711,0.255"]
+                              "Information set" -> "Intention to use"
+                              "Information set" -> "Preference profile K"
+                              "Information set" -> Apply
+                              "Intention to use" -> Apply
+                              "Observable social group X" -> "Information set"
+                              "Observable social group X" -> "Intention to use"
+                              "Observable social group X" -> "Preference profile"
+                              "Observable social group X" -> Apply
+                              "Observable social group X" <-> "Past experience"
+                              "Past experience" -> "Information set"
+                              "Past experience" -> "Intention to use"
+                              "Past experience" -> "Preference profile K"
+                              "Preference profile K" -> "Intention to use"
+                              }
+                    ')
+
+
+TidyDagIntention <- tidy_dagitty(DagIntention)
+
+TidyDagIntention$data <- TidyDagIntention$data %>% 
+  mutate(Type=case_when(
+                        name %in% c("Information set","Past experience")~"Latent factors",
+                        name == "Apply"~ "Outcome",
+                        name %in% c("Intention to use","Preference profile K","Observable social group X")~"Adjusted"))
+  
+ggplot(TidyDagIntention$data,
+       aes(x = x, y = y, xend = xend, yend = yend,shape = Type, fill = Type,color=Type,textcolor=Type,linetype = direction)) +
+  geom_dag_point(alpha=.2) +
+  geom_dag_text(size=3) +
+  geom_dag_edges()+theme_dag_blank() +
+  scale_color_viridis_d(option="A",end=.7)+
+  scale_fill_viridis_d(option="A",end=.7)+
+  theme(legend.position="bottom",
+        legend.key.size = unit(.3, 'cm'))
+  #theme_dag() #+
+  #xlim(c(-0.5,2.5)) +
+ # ylim(c(-1.5,1.5))
+
+```
+
+
+## Intention to action gap
+
+We analyse the intention-to-action gap between different social groups (High/low SES, migration background) ($\mathbf{X}$) and subjective attributes (Information, temporal orientation) ($\mathbf{K}$).
+
+Formally, the gap between two sets of values of covariates $\mathbf{x}$ $\mathbf{x^\prime}$ in intention to use at baseline is:
+
+\begin{equation}
+\Delta_{x,x'}(W_i) = \espb{W_i|\mathbf{X}=\mathbf{x}}-\espb{W_i|\mathbf{X}=\mathbf{x^\prime}}
+\end{equation}
+
+The application gap is :
+
+\begin{equation}
+\Delta_{x,x'}(\tilde{Y}_i) = \espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}}
+\end{equation}
+
+Denoting $\tilde{Y^*}$ the variable for access to formal childcare, The access gap is :
+
+\begin{equation}
+\Delta_{x,x'}(\tilde{Y*}_i) = \espb{\tilde{Y^*}_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y^*}_i|\mathbf{X}=\mathbf{x^\prime}}
+\end{equation}
+
+In our setting, the covariates are discrete. These three parameters can therefore be estimated from the control group by regressing the outcome on group dummies using OLS and heterokedasticity robust standard errors, or by computing marginal effects from a logit or probit model. 
+OLS estimates are reported in Figure \ref{fig:AttentionAction}.
+
+
+```{r AttentionAction, echo=FALSE,out.width='100%', results='asis', fig.height=8, cache=TRUE, fig.cap=" The intention-to-action gap in early childcare application and access in the control group across four dimensions of heterogeneity. Intention to use early childcare is measured at the baseline survey during pregnancy. Early childcare application and early childcare access are measured at the endline survey one year after."}
+```
+
+```{r}
+# checking how maternity ward change things:
+# First let's residualise ECSPlanToBaseline & ECSAPpp with Maternity ward FE:
+test <- MainDB %>% filter(Assignment=="Control") %>%
+  mutate(ECSPlanToBaseline = ifelse(ECSPlanToBaseline == TRUE, 1, 0),
+         LowSES = ifelse(Educ2=="Low-SES",1,0))
+
+
+MWFE <- feols(ECSPlanToBaseline~0+MaternityWardBaseline,test,
+                      #weights = ~WeightBalance,
+                      se="hetero")
+# Or equivalently : 
+# MWFE <- feols(ECSPlanToBaseline~1|MaternityWardBaseline,test,
+#                       #weights = ~WeightBalance,
+#                       se="hetero")
+
+# get the residuals
+test$resECsplanto <-MWFE$residuals
+
+# now let's do that with education :
+MWFE2 <- feols(LowSES~0+MaternityWardBaseline,test,se="hetero")
+
+test$resEduc <-MWFE2$residuals
+
+# Now gap by groups:
+DiffControlsMW <- feols(resECsplanto~resEduc,test,se="hetero")
+# or directly with FE
+DiffControlsFE <- feols(ECSPlanToBaseline~LowSES|MaternityWardBaseline,test,se="hetero")
+
+
+DiffControls <- feols(c(ECSPlanToBaseline)~Educ2,
+                      MainDB %>% filter(Assignment=="Control") %>%mutate(ECSPlanToBaseline = ifelse(ECSPlanToBaseline == TRUE, 1, 0)),
+                      #weights = ~WeightBalance,
+                      se="hetero")
+
+
+modelsummary(list("Simple dif"=DiffControls,"Residualised MW" = DiffControlsMW,"Fixed Effect" = DiffControlsFE))
+
+
+# 
+
+# 
+# DiffControls <- feols(c(ECSPlanToBaseline,ECSApp,ECSUseYes)~Educ2,
+#                       MainDB %>% filter(Assignment=="Control") %>%mutate(ECSPlanToBaseline = ifelse(ECSPlanToBaseline == TRUE, 1, 0)),
+#                       #weights = ~WeightBalance,
+#                       se="hetero")
+
+```
+
+
+
+If one think that because sampling was done in different maternity wards which may be used by different mothers such that there are intra-maternity ward correlation of outcomes, inference should rely on cluster-robust standard errors adjusted at the maternity ward level. Controlling for maternity ward dummies would remove the correlation with the social group variable and the between maternity ward difference in outcomes (by the FWL theorem). 
+
+Another parameter of interest is the intention to action gap, and differences between social groups.
+We can compute 
+
+1) the share of parents who applied by baseline intention 
+2) the shares of parents who applied by baseline intention and SES group
+
+
+
+```{r}
+m1 <- feols(ECSApp~0+factor(ECSPlanToBaseline),test,se="hetero")
+m2 <- feols(ECSApp~0+i(ECSPlanToBaseline,Educ2),test,se="hetero")
+m3 <- feols(ECSApp~0+i(Educ2,ECSPlanToBaseline,ref = "High-SES")+ECSPlanToBaseline+Educ2,test,se="hetero")
+
+modelsummary(list(m1,m2,m3))
+
+```
+
+
+The first one shows how many parents switch preference types by moving from intention to no application and vice versa.
+There are `r round(m1$coefficients[1],2)*100`% who didn't want childcare but did apply ; and `r round(m1$coefficients[2],2)*100`% who intended to use but didn't apply.
+
+The second column separate these averages by SES group. Interestingly, Low SES groups who did not intend to use are `r round(m2$coefficients[2],2)*100`% to apply while High SES groups are `r round(m2$coefficients[1],2)*100`% to switch.
+However, `r round(m2$coefficients[3],2)*100`% High SES group who intended to use did apply while only `r round(m2$coefficients[4],2)*100`% of Low SES did.
+High SES parents who already intended to apply are more likely to commit to this intention and those who didn't intend to use are more likely to have changed their mind.
+On the contrary, Low-SES who intended to use daycare are less likely to commit to their choice and those who didn't intend to use are less likely to change their mind.
+
+
+
+ 
+
+
+\begin{align}
+\Delta_{x,x'}(\tilde{Y}_i-W_i) &=& \espb{\tilde{Y}_i-W_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i-W_i|\mathbf{X}=\mathbf{x^\prime}}\\
+&=&  \underbrace{\espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}}}_{\Delta_{x,x'}(\tilde{Y}_i)}-\underbrace{\left(\espb{W_i|\mathbf{X}=\mathbf{x}}-\espb{W_i|\mathbf{X}=\mathbf{x^\prime}}\right)}_{\Delta_{x,x'}(W_i)}
+\end{align}
+
+This parameter can be estimated either by regressing the difference between application and intention on social group dummies or by:
+
+1) stacking baseline and endline databases
+2) defining an outcome $Y$ which equals $W$ in the baseline and $\tilde{Y}$ in the endline.
+3) regressing Y on an endline dummy, an interaction with the group indicator and mother fixed effects and clustered SE
+
+The coefficient of the interaction is an estimate of $\Delta_{x,x'}(\tilde{Y}_i-W_i)$.
+
+The following table show these estimates by high/low education. 
+
+```{r}
+test <- MainDB %>% filter(Assignment=="Control") %>% mutate(W=ifelse(IntendUse=="Else",0,1),YminusW=ECSApp-W)
+
+bindedtest <- bind_rows(test %>% mutate(Baseline=0,Y=W),
+                        test %>% mutate(Baseline=1,Y=ECSApp))
+
+m1 <- feols(YminusW~Educ2,test,se = "hetero") # dif Intention to action gap by SES
+m1b <- feols(YminusW~0+Educ2,test,se="hetero") # level Intention to action gap by SES
+m2 <- feols(Y~Baseline:Educ2+Baseline|ResponseId,bindedtest,cluster = ~ResponseId) #dif in dif to check they are the same
+
+
+modelsummary(list("Group average"=m1b,"OLS"=m1,"DID"=m2),
+             title="Intention to application gap by SES status",
+             caption="OLS regresions, control group only.
+             DID include individual fixed effects and clustered SE at the individual level.
+             ",
+              stars = c('*' = .1,'**' = .05, '***' = .01),
+      gof_map = c(
+        "nobs", "r.squared","adj.r.squared"),
+             )
+
+# Note Laudine que le modèle m1bis <- feols(ECSApp~W*High_SES,test,se = "hetero") qui est le modèle qui contrôle par W et interagit ne donne pas les mêmes résultats. 
+
+
+```
+
+
+# The interventions 
+
+
+We denote $Z^g$ the random variable that maps treatment assignment status such that: 
+$$
+g=\left\{
+\begin{aligned}
+2 ~&:=\text{({\bf T2}): } Offered assistance\\
+1 ~&:=\text{({\bf T1+T2}): } Offered information\\
+0 ~&:=\text{({\bf T0}): } Offered placebo
+\end{aligned}
+\right.
+$$
+
+and $Z_i^g=\one{g_i=g}, g  \in \{0,1,2\}$ denote treatment offered to individual $i$. These variables do not define treatment arms but which intervention they receive. Therefore, those in T2 have both $Z_i^2=Z_i^1=1$.
+
+We also note $\bar{Z}^g=\one{g_i\neq g}$ to note groups who did *not* receive treatment $g$ and conveniently restrict subsamples using this notation.
+
+Our intervention use intention to use and SES among the blocking variable. They are interacted together and with cover rate and randomisation waves.
+
+
+
+## The information treatment
+
+We consider the average intention-to-treat effect of information:
+
+\begin{equation}
+ITT(1)=\espb{\tilde{Y}(1)|Z_i=1\mathbf{B}}-\espb{\tilde{Y}(0)|Z_i=0\mathbf{B}}
+\end{equation}
+
+We estimate this model running an OLS of application on a dummy for $Z=1$, block x wave fixed effects and clustered SE at the block w wave level.
+adding an interaction of the treatment with a group variable $X$ (where X is also in the B fixed effects) 
+We can also run a similar model for the
+
+```{r}
+test2 <- MainDB %>% filter(Assignment!="T2") %>% mutate(W=ifelse(IntendUse=="Else",0,1),YminusW=ECSApp-W,Z=ifelse(Assignment=="T1",1,0))
+
+m1 <- feols(ECSApp~Z|StrataWave,test2,cluster=~StrataWave)
+
+m1b <- feols(ECSApp~Z+Z:High_SES|StrataWave,test2)
+
+
+modelsummary(list("ITT"=m1,"Interaction"=m1b),
+             title="Intention to application gap by SES status",
+             caption="OLS regresions, control group only.
+             DID include individual fixed effects and clustered SE at the individual level.
+             ",
+              stars = c('*' = .1,'**' = .05, '***' = .01),
+      gof_map = c(
+        "nobs", "r.squared","adj.r.squared","rmse"),
+             )
+ 
+
+
+```
+
+
+
+
+
+
+<!-- ## Intervention -->
+
+<!-- We randomly assign a discrete variable $Z$ such that $Z = 2$ denotes information + offering support, $Z=1$ denotes information treatment and $Z=0$ is the control group. Let $\tilde{z}$ denotes the value in the control group and $z$ any treatment arm. denoting $k$ the support offer, -->
+<!-- Following @HeckmanEtAl2008,  -->
+
+<!-- $\Delta_{k_{,} \mathcal{J} \backslash k}^{L / T E}(x, z, \tilde{z})$ denotes the effect of chosing support compared to the option that would have beend chosen if support was not available, among those who would have received  -->
+
+
+<!-- $\Delta_{\mathcal{K}, \mathcal{L}}^{L A T E}(x, z, \tilde{z})$ -->
+
+
+
+<!-- $$ -->
+<!-- \Delta_{\mathcal{K}, \mathcal{L}}^{L A T E}(x, z, \tilde{z})=E\left(\Delta_{\mathcal{K}, \mathcal{C}} \mid X=x, Z=z, R_{\mathcal{K}}(\tilde{z}) \geq R_{\mathcal{C}}(\tilde{z}) \geq R_{\mathcal{K}}(z)\right) -->
+<!-- $$ -->
+
+<!-- since $R_{\mathcal{C}}(z)=R_{\mathcal{C}}(\tilde{\boldsymbol{z}})$ in this special case. -->
+<!-- As a concrete example, return to the case of a randomized trial with imperfect compliance. Suppose $Z$ is a discrete variable denoting whether funding is provided for classroom training, or for job search assistance, or no funding is provided. Let $\tilde{\boldsymbol{z}}$ denote the value that funding is provided for classroom training, and $z$ denotes the value that no funding is provided for any form of training. Let $k$ denote classroom training. Then $\Delta_{k_{,} \mathcal{J} \backslash k}^{L / T E}(x, z, \tilde{z})$ denotes the effect of choosing classroom training compared to the option that would have been chosen if classroom training was not available, among those who would have received classroom training if they received funding for it but not otherwise. -->
+<!-- We have defined each of these parameters as conditional not only on $X$ but also on the "instruments" $Z$. In general, the parameters depend on the $Z$ evaluation point. For example, $\Delta_{\mathcal{K}, \mathcal{L}}^{A T E}(x, z)$ generally depends on the $z$ evaluation point. To see this, note that $Y_{\mathcal{K}}=\sum_{k \in \mathcal{K}} D_{\mathcal{K}, k} Y_k$, and $Y_{\mathcal{L}}=\sum_{l \in \mathcal{C}} D_{\mathcal{C}, l} Y_l$. Even if we assume that $Z \Perp\left\{Y_j\right\}_{j \in \mathcal{J}} \mid X$, but $D_{\kappa, k}$ and $D_{C_\lambda, l}$ depend on $Z$ conditional on $X$ and thus $Y_{\mathcal{K}}-Y_{\mathcal{L}}$ in general is dependent on $Z$ conditional on $X{ }^{11}$ In other words, even though $\mathcal{Z}$ is conditionally independent of each individual potential outcome, it is correlated with which choice is optimal within the sets $\mathcal{K}$ and $\mathcal{L}$ and thus is related -->
+
+
+<!-- xample, return to the case of a randomized trial with imperfect compliance. Suppose is a discrete variable denoting whether funding is provided for classroom training, or for job search assistance, or no funding is provided. Let denote the value that funding is provided for classroom training, and denotes the value that no funding is provided for any form of training. Let k denote class  room training. Then t^j\k (x, z, z) denotes the effect of choosing classroom train  ing compared to the option that would have been chosen if classroom training was not available, among those who would have receive -->
+
+
+
+
+
+<!-- ## Modeling preference types : -->
+
+<!-- Assume that woman $i$ first decide if she intend to use childcare or not and then between daycare or childminder. -->
+
+<!-- The probability of woman $i$ being of type $j$ at $t_0$, $Pr(y_i = j)$, is equal to the product of the probability to intend to use some childcare solutions in the nest of choices $B(j), Pr\left (Y_i \in B(j)\right)$, and the conditional probability to prefer exactly alternative -->
+<!-- $j$ given some alternative in the same nest $B(j)$: $Pr\left(y_i = j|y_i \in B(j)\right)$; that is, -->
+<!-- \begin{equation} -->
+<!-- P_j = Pr(y = j) = Pr\left(y = j|y \in B(j)\right) \times Pr\left(y \in B(j)\right) -->
+<!-- \end{equation} -->
+
+<!-- (individual subscript $i$ is dropped for clarity) -->
+
+<!-- In particular, the probability of intentind to use daycare is  -->
+<!-- $$ -->
+<!-- P_D = Pr\left(y = D|y \in B(c,d)\right) \times Pr\left(y \in B(c,d)\right) -->
+<!-- $$ -->
+
+
+
+
