@@ -84,27 +84,31 @@ Intend.Gap.plot
 set.seed(999)
 
 
-ITT.UseCreche <- ITTSimultaneous(Y="UseCreche",
-                                 treat="Z",
-                                 DB=PostDB,
-                                 Correction="Westfall",
-                                 weights="WeightPS")
-ITT.ECSUseYes <- ITTSimultaneous(Y="ECSUseYes",
-                                 treat="Z",
-                                 DB=PostDB,
-                                 Correction="Westfall",
-                                 weights="WeightPS")
 ITT.ECSApp <- ITTSimultaneous(Y="ECSApp",
                               treat="Z",
                               DB=PostDB,
                               Correction="Westfall",
                               weights="WeightPS")
+
 ITT.ECSAppCreche <- ITTSimultaneous(Y="AppCreche",
                                     treat="Z",
                                     DB=PostDB,
                                     Correction="Westfall",
                                     weights="WeightPS")
 
+
+
+ITT.UseCreche <- ITTSimultaneous(Y="UseCreche",
+                                 treat="Z",
+                                 DB=PostDB,
+                                 Correction="Westfall",
+                                 weights="WeightPS")
+
+ITT.ECSUseYes <- ITTSimultaneous(Y="ECSUseYes",
+                                 treat="Z",
+                                 DB=PostDB,
+                                 Correction="Westfall",
+                                 weights="WeightPS")
 #Coef Map for clear labels
 cm <- c('T1-C'    = 'Information-only vs Control ',
         'T2-C'    = 'Information + Support vs Control',
@@ -1633,32 +1637,32 @@ Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 # Stack control for application - only SES and Migration background
 StackedControlApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.App.Educ2C$ModelSummary0$glance
 )
 class(StackedControlApp) <- "modelsummary_list"   # define the class
 
 # Stack ITT for application - only SES and Migration background
 StackedITTApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.App.Educ2C$ModelSummary$glance
 )
 class(StackedITTApp) <- "modelsummary_list"   # define the class
 
 # Stack control for use - only SES and Migration background
 StackedControlUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.Use.Educ2C$ModelSummary0$glance
 )
 class(StackedControlUse) <- "modelsummary_list"   # define the class
 
 # Stack ITT for use - only SES and Migration background
 StackedITTUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.Use.Educ2C$ModelSummary$glance
 )
 class(StackedITTUse) <- "modelsummary_list"   # define the class
@@ -1697,16 +1701,16 @@ Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 # Stack ATT for application - only SES and Migration background
 StackedATTApp <- list(
-  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ATT.App.Educ2C$ModelSummary$glance
 )
 class(StackedATTApp) <- "modelsummary_list"   # define the class
 
 # Stack ATT for use - only SES and Migration background
 StackedATTUse <- list(
-  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ATT.Use.Educ2C$ModelSummary$glance
 )
 class(StackedATTUse) <- "modelsummary_list"   # define the class
@@ -1735,11 +1739,11 @@ names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
 cmT2C <- c('T2-C' = 'Information + support vs control')
 
 # Title for modelsummary
-TheTitle = "Average gaps and heterogeneous treatment effects by SES and migration background (Yes = Migration background, No = Without migration background)"
+TheTitle = "Average gaps and heterogeneous treatment effects by SES and migration background"
 
 # Now the infamous model summary 
 ModelT2C <- modelsummary(TheModelsATT,
-                         shape=Group ~ model,
+                         shape= Variable + Group ~ model,
                          fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
                          estimate = '{estimate}{stars} ({std.error})',
                          statistic = c("conf.int",
@@ -1761,15 +1765,17 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=2,part="header")|>
   merge_at(j=1,part="header")|>
-  #merge_v(j=1,part="body")|>
-  italic(i = c(1),  part = "header") %>% 
+  merge_v(j=1,part="body")|>
+  merge_v(j=2,part="body")|>
+  merge_v(j=3,part="body")|>
+    italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
   align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
-  width(j=c(4,5,7, 8),width=2.4,unit = "cm")|>
-  width(j=c(1,2, 3, 6),width=2.2,unit = "cm") %>% 
-  hline(c(3*c(1:4)),c(3:8),part="body") %>% 
-  hline(c(6*c(1:2)),c(1:8),part="body") 
+  width(j=c(4,5,7, 8),width=2.3,unit = "cm")|>
+  width(j=c(1,2, 3,4, 7),width=2.1,unit = "cm") %>% 
+  hline(c(3*c(1:4)),c(3:9),part="body") %>% 
+  hline(c(6*c(1:2)),c(1:9),part="body") 
 #hline(c(3*c(1:24)),part="body")
 
 ModelT2C
@@ -1988,32 +1994,32 @@ Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 # Stack control for application - only SES and Migration background
 StackedControlApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.App.Educ2C$ModelSummary0$glance
 )
 class(StackedControlApp) <- "modelsummary_list"   # define the class
 
 # Stack ITT for application - only SES and Migration background
 StackedITTApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.App.Educ2C$ModelSummary$glance
 )
 class(StackedITTApp) <- "modelsummary_list"   # define the class
 
 # Stack control for use - only SES and Migration background
 StackedControlUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.Use.Educ2C$ModelSummary0$glance
 )
 class(StackedControlUse) <- "modelsummary_list"   # define the class
 
 # Stack ITT for use - only SES and Migration background
 StackedITTUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.Use.Educ2C$ModelSummary$glance
 )
 class(StackedITTUse) <- "modelsummary_list"   # define the class
@@ -2052,16 +2058,16 @@ Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 # Stack ATT for application - only SES and Migration background
 StackedATTApp <- list(
-  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ATT.App.Educ2C$ModelSummary$glance
 )
 class(StackedATTApp) <- "modelsummary_list"   # define the class
 
 # Stack ATT for use - only SES and Migration background
 StackedATTUse <- list(
-  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var="Migration background")),
+  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ATT.Use.Educ2C$ModelSummary$glance
 )
 class(StackedATTUse) <- "modelsummary_list"   # define the class
@@ -2092,9 +2098,10 @@ cmT2C <- c('T2-C' = 'Information + support vs control')
 # Title for modelsummary
 TheTitle = "Average gaps and heterogeneous treatment effects by SES and migration background (Yes = Migration background, No = Without migration background)"
 
+
 # Now the infamous model summary 
 ModelT2C <- modelsummary(TheModelsATT,
-                         shape=Group ~ model,
+                         shape= Variable + Group ~ model,
                          fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
                          estimate = '{estimate}{stars} ({std.error})',
                          statistic = c("conf.int",
@@ -2116,18 +2123,21 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=2,part="header")|>
   merge_at(j=1,part="header")|>
-  #merge_v(j=1,part="body")|>
+  merge_v(j=1,part="body")|>
+  merge_v(j=2,part="body")|>
+  merge_v(j=3,part="body")|>
   italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
   align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
-  width(j=c(4,5,7, 8),width=2.4,unit = "cm")|>
-  width(j=c(1,2, 3, 6),width=2.2,unit = "cm") %>% 
-  hline(c(3*c(1:4)),c(3:8),part="body") %>% 
-  hline(c(6*c(1:2)),c(1:8),part="body") 
+  width(j=c(4,5,7, 8),width=2.3,unit = "cm")|>
+  width(j=c(1,2, 3,4, 7),width=2.1,unit = "cm") %>% 
+  hline(c(3*c(1:4)),c(3:9),part="body") %>% 
+  hline(c(6*c(1:2)),c(1:9),part="body") 
 #hline(c(3*c(1:24)),part="body")
 
 ModelT2C
+
 #------ ActivityReduction ------------
 
 
@@ -2882,308 +2892,6 @@ CombineAppAccess <- annotate_figure(CombineAppAccess,
 CombineAppAccess
 
 
-#---------JUNKTableT2HET ----------
-#------ TableInfoSupportITTATT -------------
-# Heterogeneous effects of the information + support treatment on early childcare applications 
-
-
-# Step 1 : estimate the conditional ITTs of interest using the function
-## First etimate the ITT for applications
-Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                               Outcome = "ECSApp",
-                                               Heterogeneity = "Educ2",
-                                               ITT = TRUE,
-                                               Weights = "WeightPS",
-                                               clusters = "StrataWave")
-
-
-Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                            Outcome = "ECSApp",
-                                            Heterogeneity= "MigrationBackground",
-                                            ITT = TRUE,
-                                            Weights = "WeightPS",
-                                            clusters = "StrataWave")
-
-
-
-Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSApp",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ITT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSApp",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-### Now let's get the models for the use
-
-Het.ITT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                               Outcome = "ECSUseYes",
-                                               Heterogeneity = "Educ2",
-                                               ITT = TRUE,
-                                               Weights = "WeightPS",
-                                               clusters = "StrataWave")
-Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                            Outcome = "ECSUseYes",
-                                            Heterogeneity = "MigrationBackground",
-                                            ITT = TRUE,
-                                            Weights = "WeightPS",
-                                            clusters = "StrataWave")
-
-
-Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-Het.ITT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-# We get many results in each function:
-# - ModelSummary0 - prepare a modelsummary table for the control group, basic table : modelsummary(NAME$ModelSummary0,shape=term+Group~model)
-# - `Model 0` is the raw model presented in ModelSummary0
-# - Estimation - gets the main estimates (ITTs or LATEs)
-# - modelsummary prepare a modelsummary table for the main estimates, basic table : modelsummary(NAME$ModelSummary,shape=term+Group~model)
-# - Tidy : the tidy version with both models
-
-
-#From there, we want to :
-# Keep only one comparison arm (à voir)
-# make a list of 
-# 1) stacked control group means over all pair of heterogeneity dimensions for applications
-# 2) stacked ITTs over all pair of heterogeneity dimensions for use
-# 3) stacked control group means over all pair of heterogeneity dimensions for use
-# 4) stacked ITTs over all pair of heterogeneity dimensions for use
-
-# make a nice modelsummary out of this.
-
-# Stack control for application
-StackedControlApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background"),
-                   Het.ITT.App.Info$ModelSummary0$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.App.Discount$ModelSummary0$tidy) %>% select(-model)%>% mutate(Var="Temporal orientation"),
-  glance = Het.ITT.App.Educ2C$ModelSummary0$glance
-)
-class(StackedControlApp) <- "modelsummary_list"   # define the class
-
-
-
-# Stack Itt for application
-StackedITTApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ITT.App.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.App.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ITT.App.Educ2C$ModelSummary$glance)
-
-class(StackedITTApp) <- "modelsummary_list"   # define the class
-
-
-# Stack control for use
-StackedControlUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background"),
-                   Het.ITT.Use.Info$ModelSummary0$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.Use.Discount$ModelSummary0$tidy) %>% select(-model)%>% mutate(Var="Temporal orientation"),
-  glance = Het.ITT.Use.Educ2C$ModelSummary0$glance
-)
-class(StackedControlUse) <- "modelsummary_list"   # define the class
-
-# Stack ITT for use
-StackedITTUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ITT.Use.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.Use.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ITT.Use.Educ2C$ModelSummary$glance)
-
-class(StackedITTUse) <- "modelsummary_list"   # define the class
-
-
-
-
-# Step 2 : estimate the conditional ATTs of interest using the function
-## First etimate the ITT for applications
-Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                               Outcome = "ECSApp",
-                                               Heterogeneity = "Educ2",
-                                               ITT = FALSE,
-                                               Weights = "WeightPS",
-                                               clusters = "StrataWave")
-
-
-Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                            Outcome = "ECSApp",
-                                            Heterogeneity= "MigrationBackground",
-                                            ITT = FALSE,
-                                            Weights = "WeightPS",
-                                            clusters = "StrataWave")
-
-
-
-Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSApp",
-  Heterogeneity = "InfoBaseline",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ATT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSApp",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-### Now let's get the models for the use
-
-Het.ATT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                               Outcome = "ECSUseYes",
-                                               Heterogeneity = "Educ2",
-                                               ITT = FALSE,
-                                               Weights = "WeightPS",
-                                               clusters = "StrataWave")
-Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                            Outcome = "ECSUseYes",
-                                            Heterogeneity = "MigrationBackground",
-                                            ITT = FALSE,
-                                            Weights = "WeightPS",
-                                            clusters = "StrataWave")
-
-
-Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "InfoBaseline",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-Het.ATT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-
-# Stack Itt for application
-StackedATTApp <- list(
-  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ATT.App.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ATT.App.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ATT.App.Educ2C$ModelSummary$glance)
-
-class(StackedATTApp) <- "modelsummary_list"   # define the class
-
-
-# Stack ITT for use
-StackedATTUse <- list(
-  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ATT.Use.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ATT.Use.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ATT.Use.Educ2C$ModelSummary$glance)
-
-class(StackedATTUse) <- "modelsummary_list"   # define the class
-
-
-
-
-# Put that in a list
-TheModelsATT <-   list(StackedControlApp,
-                       StackedITTApp,
-                       StackedATTApp,
-                       StackedControlUse,
-                       StackedITTUse,
-                       StackedATTUse
-)
-
-# Define labels
-OutcomeLabel <- c("Early childcare application", "Early childcare access")
-
-# Define the name of the models with it with an underscore to separate them after
-names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
-                         paste(OutcomeLabel[c(1)],"Conditional ITT",sep="_"),
-                         paste(OutcomeLabel[c(1)],"Conditional ATT",sep="_"),
-                         paste(OutcomeLabel[c(2)],"Avg. control",sep="_"),
-                         paste(OutcomeLabel[c(2)],"Conditional ITT",sep="_"),
-                         paste(OutcomeLabel[c(2)],"Conditional ATT",sep="_"))
-
-
-
-# Now T2 angainst C
-cmT2C <- c('T2-C'    = 'Information + support vs control')
-
-# Title for modelsummary
-TheTitle = "Average gaps and heterogeneous treatment effects"
-
-# Now the infamous model summary 
-ModelT2C <- modelsummary(TheModelsATT,
-                         shape=Group ~ model,
-                         fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
-                         estimate = '{estimate}{stars} ({std.error})',
-                         statistic = c("conf.int",
-                                       "adj.p.val. = {adj.p.value}"),
-                         stars = c('*' = .1,'**' = .05, '***' = .01),
-                         coef_map = cmT2C,
-                         gof_map = c('Fixed effects',"N"),
-                         title=TheTitle,
-                         notes=paste("Sources:", SourcesStacked,
-                                     "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
-Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
-Models are jointly estimating conditional averages in each pair of treatment arm.
-Adjusted p-value and confidence intervals account for simultaneous inference across treatment arms.
-                         " 
-                         ),output = 'flextable') %>% 
-  theme_booktabs()|>
-  separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
-  bold(i=1,  part = "header") %>%                # Variable labels bold
-  merge_at(j=2,part="header")|>
-  merge_at(j=1,part="header")|>
-  #merge_v(j=1,part="body")|>
-  italic(i = c(1),  part = "header") %>% 
-  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
-  align(part = "header", align = "center")|>                # center
-  align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
-  width(j=c(4,5,7, 8),width=2.4,unit = "cm")|>
-  width(j=c(1,2, 3, 6),width=2.2,unit = "cm") %>% 
-  hline(c(3*c(1:8)),c(3:8),part="body") %>% 
-  hline(c(6*c(1:4)),c(1:8),part="body") 
-#hline(c(3*c(1:24)),part="body")
-
-
-
-
-ModelT2C
 
 
 
