@@ -176,10 +176,6 @@ This plot shows the tetrachoric correlation coefficients of the different variab
 ```{r MechanismsGenericKnowledgeSubsidies,echo=FALSE,out.width='120%', results='asis', cache=TRUE}
 ```
 
-## Average effects of the information + support treatment on daycare application and access by activity of the mother at baseline
-
-```{r MechanismsActive,  echo=FALSE,out.width='100%', results='asis', cache=TRUE}
-```
 
 ## Psychological and social costs
 
@@ -318,7 +314,7 @@ The effectiveness of our interventions varies substantially according to the loc
 ```
 
 
-# Part 6: Robustness checks
+# Part 5: Robustness checks
 
 ## Sensitivity analysis of the main results: SES measurment
 To ensure the robustness of the findings, we tested alternative definitions of socioeconomic status. Specifically, we considered mother's occupation using the International Socio-Economic Index of Occupational Status (ISEI) and a composite SES score that accounts for the highest occupation score and the highest education level in the household. As depicted below, the patterns of results remain constant with these definitions of SES.
