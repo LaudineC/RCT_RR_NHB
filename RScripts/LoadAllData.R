@@ -34,7 +34,8 @@ MainDB <- read_csv(here("Data","MainDatabase.csv")) %>%   mutate(
     "Yes", 
     "No"
   ),
-  MigrationBackground = as.factor(MigrationBackground)
+  MigrationBackground = as.factor(MigrationBackground), 
+  GenderChild = as.factor(ifelse(BabyFemale == TRUE, "Girl", "Boy"))
   
 )  %>% mutate_if(is.character, as.factor) 
 
