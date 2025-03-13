@@ -822,8 +822,7 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=1,part="header")|>
   merge_at(j=2,part="header")|>
-  merge_v(j=1,part="body")|>
-  merge_v(j=2,part="body")|>
+  merge_v(j=1:3,part="body")|>
   italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
@@ -1076,8 +1075,7 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=1,part="header")|>
   merge_at(j=2,part="header")|>
-  merge_v(j=1,part="body")|>
-  merge_v(j=2,part="body")|>
+  merge_v(j=1:3,part="body")|>
   italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
@@ -1316,8 +1314,7 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=1,part="header")|>
   merge_at(j=2,part="header")|>
-  merge_v(j=1,part="body")|>
-  merge_v(j=2,part="body")|>
+  merge_v(j=1:3,part="body")|>
   italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
@@ -1557,8 +1554,7 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=1,part="header")|>
   merge_at(j=2,part="header")|>
-  merge_v(j=1,part="body")|>
-  merge_v(j=2,part="body")|>
+  merge_v(j=1:3,part="body")|>
   italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
