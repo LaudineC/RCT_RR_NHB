@@ -54,7 +54,7 @@ knitr::read_chunk(here("RScripts","Appendix.R"))
 
 # Part 1: Early childcare in France and in our supply in the areas
 
-The average coverage rate in our sample is `r mean(MainDB$Taux.de.couv.global_2021, na.rm = TRUE)` slots for 100 children aged 0-3 years. The average coverage rate in each district, including only the cities included in our sample, can be seen in Table \@ref(tab:DescriptiveAvgCoverageRate. The coverage rate is the number of available slot in a given area for 100 children aged 0-3 years.
+The average coverage rate in our sample is `r round(mean(MainDB$Taux.de.couv.global_2021, na.rm = TRUE),1)` slots for 100 children aged 0-3 years. The average coverage rate in each district, including only the cities included in our sample, can be seen in Table \@ref(tab:DescriptiveAvgCoverageRate). The coverage rate is the number of available slot in a given area for 100 children aged 0-3 years.
 The highest coverage rate is found in Paris, with 71.6 slots in 2021, and the lowest in Seine-Saint-Denis, with 38.5 slots. The average coverage rate in France in 2021 is 59.1 slots per 100 children aged 0-3 years.
 In each district, the coverage rate is higher for daycare than for private childminders, with varying proportions in each districts. 
 
@@ -67,7 +67,7 @@ This data can be compared to the average coverage rate in the whole districts in
 ```{r DescriptiveCoverageRateDaycareChildmindersDept,echo=FALSE,results='asis', cache=TRUE,out.width='100%'}
 ```
 
-The average coverage rate in our sample is `r mean(MainDB$Taux.de.couv.global_2021, na.rm = TRUE)` slots for 100 children aged 0-3 years, which is slightly lower than the national rate, displayed in Table \@ref(tab:DescriptiveCoverageRateDaycareChildmindersFrance). The national coverage rates in daycare and private childminders can also be found in Table \@ref(tab:DescriptiveCoverageRateDaycareChildmindersFrance). Our districts have a higher coverage rate in daycare than the national average, but a lower coverage rate in private childminders. Unlike in the districts included in our sample, the most available early childcare option in France is private childminders, with 27.3 slots per 100 children aged 0-3 years in 2021, compared to 26 slots in daycare. 
+The average coverage rate in our sample is `r round(mean(MainDB$Taux.de.couv.global_2021, na.rm = TRUE),1)` slots for 100 children aged 0-3 years, which is slightly lower than the national rate, displayed in Table \@ref(tab:DescriptiveCoverageRateDaycareChildmindersFrance). The national coverage rates in daycare and private childminders can also be found in Table \@ref(tab:DescriptiveCoverageRateDaycareChildmindersFrance). Our districts have a higher coverage rate in daycare than the national average, but a lower coverage rate in private childminders. Unlike in the districts included in our sample, the most available early childcare option in France is private childminders, with 27.3 slots per 100 children aged 0-3 years in 2021, compared to 26 slots in daycare. 
 
 
 ```{r DescriptiveCoverageRateDaycareChildmindersFrance,echo=FALSE,results='asis', cache=TRUE}
@@ -139,7 +139,7 @@ This plot shows the tetrachoric correlation coefficients of the different variab
 ```{r IntentionActionSES, echo=FALSE,out.width='100%', cache=TRUE}
 ```
 
-## Descriptive results on intention, application and access to early childcare by miigration background in the control group 
+## Descriptive results on intention, application and access to early childcare by migration background in the control group 
 
 ```{r IntentionActionMig, echo=FALSE,out.width='100%', cache=TRUE}
 ```

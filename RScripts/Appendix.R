@@ -693,8 +693,8 @@ corrplot(tetrachoric_matrix, method="color",
 Control = MainDB %>% filter(Assignment == "Control")
 library(fixest)
 library(modelsummary)
-cm <- c(  'Educ2Low-SES' = 'Low-SES (ref = High-SES)',
-         "ECSPlanToBaselineTRUE" = "Intention to apply: Yes (ref = No)",  "ECSApp"= "Applied")
+cm <- c(  'Educ2Low-SES' = 'Low-SES \n(ref = High-SES)',
+         "ECSPlanToBaselineTRUE" = "Intention to apply: Yes",  "ECSApp"= "Applied")
 
 lm1 <- feols(as.numeric(ECSPlanToBaseline)~ Educ2 , data = MainDB, cluster = ~StrataWave)
 
@@ -723,7 +723,13 @@ notes=list("",
 ,output = 'flextable',escape=TRUE, 
 coef_map = cm
 )|>
-  autofit()
+  bold(i = c(1),  part = "header") %>% 
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
+  width(j=1,width=3.5,unit = "cm")|>
+  width(j=c(2, 4, 3, 5, 6),width=2.4,unit = "cm") 
 
 #-------- IntentionActionMig -----------------
 
@@ -732,7 +738,7 @@ library(fixest)
 library(modelsummary)
 
 cm <- c(  'MigrationBackgroundYes' = 'MigrationBackground: Yes',
-          "ECSPlanToBaselineTRUE" = "Intention to apply: Yes (ref = No)",  "ECSApp"= "Applied")
+          "ECSPlanToBaselineTRUE" = "Intention to apply: Yes",  "ECSApp"= "Applied")
 
 lm1 <- feols(as.numeric(ECSPlanToBaseline)~ MigrationBackground , data = MainDB, cluster = ~StrataWave)
 
@@ -760,7 +766,13 @@ notes=list("",
            "Coefficient, 95 % CI in brackets, standard errors, p-value or adjusted p-value in parenthesis")
 ,output = 'flextable',escape=TRUE, 
 coef_map = cm
-)
+) |> bold(i = c(1),  part = "header") %>% 
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
+  width(j=1,width=3.5,unit = "cm")|>
+  width(j=c(2, 4, 3, 5, 6),width=2.4,unit = "cm") 
 #------ MECANISMS ---------------------------
 
 
