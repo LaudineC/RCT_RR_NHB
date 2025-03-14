@@ -134,7 +134,18 @@ This plot shows the tetrachoric correlation coefficients of the different variab
 ```{r correlation, echo=FALSE,out.width='100%', cache=TRUE}
 ```
 
+## Descriptive results on intention, application and access to early childcare by SES in the control group 
+
+```{r IntentionActionSES, echo=FALSE,out.width='100%', cache=TRUE}
+```
+
+## Descriptive results on intention, application and access to early childcare by miigration background in the control group 
+
+```{r IntentionActionMig, echo=FALSE,out.width='100%', cache=TRUE}
+```
+
 # Part 3: Main results
+
 
 ## Heterogeneous effects of the information-only treatment on early childcare applications and access
 

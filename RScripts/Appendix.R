@@ -687,6 +687,80 @@ corrplot(tetrachoric_matrix, method="color",
          diag=FALSE)
 
 
+#---------------------- RESULTS ---------------------------
+#-------- IntentionActionSES -----------------
+
+Control = MainDB %>% filter(Assignment == "Control")
+library(fixest)
+library(modelsummary)
+cm <- c(  'Educ2Low-SES' = 'Low-SES (ref = High-SES)',
+         "ECSPlanToBaselineTRUE" = "Intention to apply: Yes (ref = No)",  "ECSApp"= "Applied")
+
+lm1 <- feols(as.numeric(ECSPlanToBaseline)~ Educ2 , data = MainDB, cluster = ~StrataWave)
+
+lm2 <- feols(as.numeric(ECSApp)~  Educ2, data = Control, cluster = ~StrataWave)
+lm5 <- feols(ECSApp~  Educ2 + ECSPlanToBaseline, data = Control, cluster = ~StrataWave)
+
+lm3 <- feols(ECSUseYes~  Educ2, data = Control, cluster = ~StrataWave)
+lm4 <- feols(ECSUseYes~  Educ2 + ECSApp, data = Control, cluster = ~StrataWave)
+
+
+
+modelsummary(list(
+  "Intention" = lm1,    
+  "Application" = lm2, 
+  "Application Intention" = lm5,
+  "Access" = lm3, 
+  "Access Apply" = lm4
+  
+), statistic = "{std.error} ({p.value})",
+estimate="{estimate}{stars}  [{conf.low}, {conf.high}]",
+gof_map = c("r.squared" ,"adj.r.squared" ,"nobs", "vcov.type", "FE"="FE: blocksMatWave" ),
+stars = c("***"=.01,"**"=.05,"*"=.1),
+title="",
+notes=list("",
+           "Coefficient, 95 % CI in brackets, standard errors, p-value or adjusted p-value in parenthesis")
+,output = 'flextable',escape=TRUE, 
+coef_map = cm
+)|>
+  autofit()
+
+#-------- IntentionActionMig -----------------
+
+Control = MainDB %>% filter(Assignment == "Control")
+library(fixest)
+library(modelsummary)
+
+cm <- c(  'MigrationBackgroundYes' = 'MigrationBackground: Yes',
+          "ECSPlanToBaselineTRUE" = "Intention to apply: Yes (ref = No)",  "ECSApp"= "Applied")
+
+lm1 <- feols(as.numeric(ECSPlanToBaseline)~ MigrationBackground , data = MainDB, cluster = ~StrataWave)
+
+lm2 <- feols(as.numeric(ECSApp)~  MigrationBackground, data = Control, cluster = ~StrataWave)
+lm5 <- feols(ECSApp~  MigrationBackground + ECSPlanToBaseline, data = Control, cluster = ~StrataWave)
+
+lm3 <- feols(ECSUseYes~  MigrationBackground, data = Control, cluster = ~StrataWave)
+lm4 <- feols(ECSUseYes~  MigrationBackground + ECSApp, data = Control, cluster = ~StrataWave)
+
+
+
+modelsummary(list(
+  "Intention" = lm1,    
+  "Application" = lm2, 
+  "Application Intention" = lm5,
+  "Access" = lm3, 
+  "Access Apply" = lm4
+  
+), statistic = "{std.error} ({p.value})",
+estimate="{estimate}{stars}  [{conf.low}, {conf.high}]",
+gof_map = c("r.squared" ,"adj.r.squared" ,"nobs", "vcov.type", "FE"="FE: blocksMatWave" ),
+stars = c("***"=.01,"**"=.05,"*"=.1),
+title="",
+notes=list("",
+           "Coefficient, 95 % CI in brackets, standard errors, p-value or adjusted p-value in parenthesis")
+,output = 'flextable',escape=TRUE, 
+coef_map = cm
+)
 #------ MECANISMS ---------------------------
 
 
@@ -901,7 +975,7 @@ names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
 cmT2C <- c('T2-C'    = 'Information + support vs control')
 
 # Title for modelsummary
-TheTitle = "Average gaps and heterogeneous treatment effects"
+TheTitle = "Average gaps and heterogeneous treatment effects of the information + support treatlent on early childcare application and access"
 
 # Now the infamous model summary 
 ModelT2C <- modelsummary(TheModelsATT,
