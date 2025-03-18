@@ -1049,7 +1049,7 @@ summary_baseline_variables_endline <- tabVar %>%
   add_p(
     pvalue_fun = ~ style_pvalue(.x, digits = 3)
   ) %>% 
-  add_q(method = "fdr",
+  add_q(method = "BY",
         pvalue_fun = ~ style_pvalue(.x, digits = 3))%>% 
   add_significance_stars(  thresholds = c(0.01, 0.05, 0.1))
 
@@ -2648,7 +2648,7 @@ summary_baseline_variables_endline <- CompareSamples %>%
   ) %>%
   add_overall() %>%
   add_p(pvalue_fun = ~ style_pvalue(.x, digits = 3)) %>% 
-  add_q(method = "fdr", pvalue_fun = ~ style_pvalue(.x, digits = 3)) %>% 
+  add_q(method = "BY", pvalue_fun = ~ style_pvalue(.x, digits = 3)) %>% 
   add_significance_stars(thresholds = c(0.01, 0.05, 0.1)) %>%
   modify_header(label ~ "**Variable**", stat_0 ~ "Overall", stat_1 ~ "Baseline", stat_2 ~ "Endline") %>%
   modify_spanning_header(c("stat_1", "stat_2") ~ "**Sample**")

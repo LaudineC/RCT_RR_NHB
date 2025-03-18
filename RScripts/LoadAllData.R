@@ -18,7 +18,7 @@
 #---- LoadSource ----
 # Original baseline dataset with the number of refusals
 BaselineFull <- read_csv(here("Data","BaselineWithRefusals.csv")) 
-
+#read_csv("Data/BaselineWithRefusals.csv")
 # Import the main database with both baseline and endline information for all participants
 MainDB <- read_csv(here("Data","MainDatabase.csv")) %>%   mutate(
   NormsBaseline=factor(NormsBaseline,

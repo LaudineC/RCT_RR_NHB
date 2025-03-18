@@ -4,7 +4,10 @@
 
 To improve precision and ensure balance on a set of characteristics likely to affect our main outcomes, we used a block-random assignment procedure based on the cross product of: i) Education of the mother (“tertiary”/“secondary or lower”), ii) Intention to use early childcare (“no”/“yes but has never used early childcare before”/“yes and already has used early childcare before”), and iii) Supply (early childcare coverage rate higher/lower than the average in the department).  
 
-We collected data over a three-month period and defined “waves” of two-weeks periods over which we performed the assignment procedure. Ultimately, our design was built on 6 randomisation waves with three assignment conditions in the 12 blocks of each lottery.
+We collected data over a three-month period and defined “waves” of two-weeks periods over which we performed the assignment procedure. Ultimately, our design was built on 6 randomisation waves with three assignment conditions in the 12 blocks of each lottery so there are 72 design variables.
+let $b_w \in B_w \subset B$ index blocks in all waves $w$ and $\symbfup{B}$ the matrix of block $\times$ waves.
+
+Let $s \in S$ index subsets of the data that partition the sample into comparison paris and, optionally, additional covariates.  Each $s$ corresponds to a grouping rule that defines a subset of observations which allow flexible and tidy notations of treatment effects.
 
 ### Assignment probabilities
 
@@ -42,6 +45,8 @@ Each individual from the baseline sample had a 1/3 probability of being assigned
 <!-- FIN AJOUT ARTHUR -->
 
 ## Intention to treat : main average effects
+
+Our main estimands are the average intention-to-treat effects of each 
 
 Because we have two treatment arms, we followed Goldsmith-Pickham (2024) and used stacked regressions to estimate the average difference between each pair of assignment condition $S_i \in \{\text{'Information only-Control’}, \text{'Information + support-Control’}, \text{‘Information + support-Information only'}\}$, while avoiding contamination bias in our estimates. We used the following equation: 
 

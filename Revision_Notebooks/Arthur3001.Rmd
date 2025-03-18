@@ -99,22 +99,41 @@ bb="0,0,1,1"
 }')
 
 
-TidyThisDag <- tidy_dagitty(DagPosaje)
+TidyThisDag <- tidy_dagitty(DagPosaje) %>% 
+  mutate(Type=case_when(
+                name %in% c("Observed attributes","Intention")~"Adjusted",
+                name == c("Offer support","Information")~"Instrument",
+                name == "Administrative support"~"Exposure",
+                name %in% c("Latent compliance","Unobserved")~"Latent factors",
+                name%in% c("Application","Access")~ "Outcome"),
+        ArrowType=ifelse(Type=="Latent factors","Latent","Adjusted"))
+  
+  mutate(linetype = ifelse(name == "z", "dashed", "solid")) %>% 
+  ggplot(aes(x = x, y = y, xend = xend, yend = yend)) + 
+  geom_dag_point() + 
+  geom_dag_text() + 
+  geom_dag_edges(aes(edge_linetype = linetype), show.legend = FALSE)
 
 TidyThisDag$data <- TidyThisDag$data %>% mutate(Type=case_when(
                 name %in% c("Observed attributes","Intention")~"Adjusted",
                 name == c("Offer support","Information")~"Instrument",
                 name == "Administrative support"~"Exposure",
                 name %in% c("Latent compliance","Unobserved")~"Latent factors",
-                name%in% c("Application","Access")~ "Outcome"))
+                name%in% c("Application","Access")~ "Outcome"),
+                linetype = ifelse(Type=="Latent factors", "dashed", "solid"))
 
 ggplot(TidyThisDag,
-       aes(x = x, y = y, xend = xend, yend = yend,linetype = direction,shape = Type, fill = Type,color=Type,textcolor=Type)) +
+       aes(x = x, y = y, xend = xend, yend = yend, shape=Type,fill = Type,color=Type,textcolor=Type)) +
   geom_dag_point(alpha=.2) +
   geom_dag_text() +
-  geom_dag_edges()+theme_dag_blank() +
+   geom_dag_edges(aes(edge_linetype = linetype), show.legend = FALSE)+
+  theme_dag_blank() +
   scale_color_viridis_d(option="A",end=.7)+
   scale_fill_viridis_d(option="A",end=.7)+
+  guides(fill=guide_legend(nrow=2),
+         shape=guide_legend(nrow=2),
+         color=guide_legend(nrow=2))+
+  #guide_legend(nrow = 2)+
   theme(legend.position="bottom",
         legend.key.size = unit(.1, 'cm'))
 
