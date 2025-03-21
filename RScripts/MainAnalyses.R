@@ -140,13 +140,12 @@ MainResultTable =
         "Covariates","Fixed effects","Chi 2","P-value",
         "nobs", "r.squared","adj.r.squared"),
       title="Intention-to-treat effects on the main outcomes",
-      notes=paste("Sources:", SourcesStacked,
-                  "
-      *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
-      Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
-      Adjusted p-value and confidence intervals account for simultaneous inference using the",ITT.UseCreche$Correction, "method. 
-      Each column estimates jointly the effects of the program using fully-saturated stacked regressions. Control means estimated separately by OLS.
-      Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+      notes=paste("*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Sources:", SourcesStacked,"      
+Each column jointly estimates the average differences between arms using fully-saturated stacked OLS regressions. Control means estimated separately by OLS.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+Adjusted p-value and confidence intervals account for simultaneous inference using the",ITT.UseCreche$Correction, "method. 
+Joint significance test of null effect using Chi-2 tests and p-value are reported at the bottom of the table."),
       output = 'flextable') 
 
 

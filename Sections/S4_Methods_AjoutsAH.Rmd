@@ -91,6 +91,12 @@ The instrument $\tilde{Z}$ was the dummy for being in the information + support 
 As Borusyak Et Al (2024) showed, this model retrieved a weighted average of block-specific treatment effects[@BorusyakEtAl2024]. We used cluster robust standard errors adjusted at the block level.
 
 
+the same set of hypotheses, the average missing potential outcome for the treated is identified and, in fact, so is any measurable function $g(\cdot)$ of that potential outcome, as long as $g(\cdot)$ has finite first moment  [@FrolichMelly2013a]. Formally:
+
+$$
+E\left(g\big(Y^k(0)\big)|D=1\right)=\frac{\int E(g\big(Y(0)\big)|\mathbf{B}=b,Z=0)dF_B(b)-E(g\big(Y^k(0)\big)\times(1-D))}{Pr(D=1)}
+$$
+Thus, To compute the probability that untreated compliers - parents who would have accepted administrative support had it been offered to them -  applied to any childcare, we define $g(\cdot)=(1-D_i)\one{Y_i\leq \varepsilon}$ with $\varepsilon\rightarrow 0$ and run a TSLS on $(1-D_i)$ instrumented by $Z_i$, with block fixed effects. 
 <!-- Yibs= bsbBib+sDib+ibs -->
 
 <!-- Dib= bsbBib+sZib+ibs -->

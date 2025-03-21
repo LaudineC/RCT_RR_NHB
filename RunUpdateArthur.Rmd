@@ -227,8 +227,26 @@ of pairwise comarisons and subgroups using the Westfall-Young method.",
                     "\nAll models include block x wave fixed effects")
   ) 
 
+ ggplot(Data.Het.EducMig)+
+  geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
+                       x=interaction(Het,Heterogeneity,sep="!"),
+                      y=estimate,
+                      ymin=point.conf.low,
+                      ymax=point.conf.high,
+                      shape=Group,
+                      color=Group),position = position_dodge(.4))+
+    facet_grid(rows=vars(fct_rev(Y)),cols=vars(panel),scale="free_x")+
+ # facet_wrap(~Y+panel,scales="free_x")+
+  coord_flip()+
+  geom_hline(data=Data.Het.EducMig %>% filter(panel!="Control group"),
+                           aes(yintercept = 0),linetype=c(2))
+ 
+ Data.Het.EducMig %>% filter(panel!="ATT") %>% select(panel,estimate,Group,Het,Heterogeneity,term) %>% pivot_wider(names_from=panel,values_from = estimate) %>% view()
+   
+ 
 
-
+geom_segment(aes(x = 5, y = 30, xend = 3.5, yend = 25),
+                  arrow = arrow(length = unit(0.5, "cm")))
 
 
 
