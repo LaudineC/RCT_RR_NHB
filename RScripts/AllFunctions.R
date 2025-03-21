@@ -69,6 +69,170 @@ check_controls <- function(variables, yes = "✓", no = "") {
 
 # Function requires package glmnet, fixest and estimatr
 
+
+
+EstPostLasso <- function(Y="ECSApp",                 # Outcome as string
+                         Z="Z",                      # Treatment variable as sting
+                         Cluster= "SubSampleStrata", # Clusters 
+                         FE = "SubSampleStrata"    , # Fixed effects
+                         weights="WeightPS",         # Weights used in the ITT estimates
+                         SubSample="T2-T1",          # Comparison group
+                         DB=PostDB,                  # Database
+                         X=X.c                       # X database (must be able to match with DB)
+){  
+  
+  # get the database  
+  DBUse <- {{DB}} %>% filter(SubSample=={{SubSample}}) 
+  
+  # Outcome
+  Y <- DBUse[[{{Y}}]]  
+  # treatment
+  Z <- DBUse[[{{Z}}]]    
+  # Cluster
+  cluster <-  DBUse[[{{Cluster}}]]  
+  # fixed effects
+  FE <- DBUse[[{{Cluster}}]]  
+  
+  # Weights
+  Weights <- DBUse[[{{weights}}]]  
+  
+  # New X matrix
+  XT <- {{X}} %>% filter(Responded==1 & SubSample=={{SubSample}}) 
+  
+  
+  ## We train a lasso to predict outcomes, so we want it to be able to pick the treated x covariate values that are high and so on.
+  ## Therefore, the X matrix contains the treatment, and we want to interact the treatment with the rest.
+  ## 
+  
+  # remove the variables we don't want, and add dummies for blocks and treatment to this matrix.
+  XT <- XT %>% select(-c("SubSampleStrata" ,"SubSample", "ResponseId","Responded")) #%>% 
+    #bind_cols(model.matrix(~0+HighLowECECBaseline*Educ2*IntendUse*Which_wave,DBUse))
+  
+  # put it as a matrix and allow every possible interactions (the number of columns gets crazy high)
+  #ModelMatrix <- model.matrix(~0+.*.,XT) 
+  ModelMatrix <- model.matrix(~0+.,XT) 
+  # We just don't want 
+ # ModelMatrix <- ModelMatrix[,-c(which(colnames(ModelMatrix)=="Z"))]
+  
+  # Run the basic estimate
+  # We use fixest::feols for the fixest effect. we put the variables in a database as this function requires a dataframe as input
+  DB.FE.Reg <- as.data.frame(bind_cols(Y=Y,Z=Z,cluster=cluster,FE=FE,weights=Weights))
+  basicModel <- feols(Y~Z|FE,data=DB.FE.Reg,cluster = ~cluster,weights = ~weights)
+  
+  ## now, let's run a cross validation 
+  # Cross validation to identify the optimal lambda (may take some time to converge)
+  cv_Lasso2 <- cv.glmnet(ModelMatrix,Y , alpha = 1,nfolds = 5)
+  
+  # get the best lambda
+  bestlam <- cv_Lasso2$lambda.min
+  
+  # Now, we can run the lasso model to pick the right covariate using the optimal lambda
+  Lasso_reg2 <- glmnet(ModelMatrix, Y, alpha = 1, lambda=bestlam)
+  
+  DB.X <- as.data.frame(ModelMatrix[,c(which(Lasso_reg2$beta>0|Lasso_reg2$beta<0))])
+  DB.Reg <- bind_cols(DB.FE.Reg,DB.X) %>% janitor::clean_names() %>% rename(Z=z,FE=fe)
+  DB.FE.Xc <- as.data.frame(bind_cols(Y=Y,Z=Z,cluster=cluster,FE=FE,weights=Weights))
+  # Then, simply run the regression of the outcome on the treatment and the variables selected by lasso. 
+  # lm_lin conviniently accept that and will even make sure that all variables are centred to ensure
+  # a treatment effect interpretation.
+ # post_lasso <- lm_robust(Y~Z+ModelMatrix[,c(which(Lasso_reg2$beta>0))],cluster=cluster,weights = Weights) 
+  # Get all column names except Y, Z, and FE
+  regressors <- setdiff(names(DB.Reg), c("y", "z", "FE","cluster","weights"))
+  
+  # Create the formula as a string
+  formula_str <- paste("y ~ Z +", paste(regressors, collapse = " + "), "| FE")
+  
+  # Run the model
+  post_lasso <- feols(as.formula(formula_str),data=DB.Reg,cluster = ~cluster,weights = ~weights)
+  
+  #post_lasso <- feols(Y~Z+.|FE,data=DB.Reg)
+  #
+  ITT_postLasso <- lm_lin(Y~Z,~ModelMatrix[,which(Lasso_reg2$beta>0 & str_detect(rownames(Lasso_reg2$beta),":Z")==FALSE)],cluster=cluster,weights = Weights) 
+  
+  
+  
+  return(list("Basic Model"=basicModel,"Post Lasso"=post_lasso,"ITT Post lasso"=ITT_postLasso,"Lambda"=bestlam,"Lasso"=Lasso_reg2))
+  
+}
+
+
+
+
+EstPostLassolm_robust <- function(Y="ECSApp",                 # Outcome as string
+                         Z="Z",                      # Treatment variable as sting
+                         Cluster= "SubSampleStrata", # Clusters 
+                         FE = "SubSampleStrata"    , # Fixed effects
+                         weights="WeightPS",         # Weights used in the ITT estimates
+                         SubSample="T2-T1",          # Comparison group
+                         DB=PostDB,                  # Database
+                         X=X.c                       # X database (must be able to match with DB)
+){  
+  
+  # get the database  
+  DBUse <- {{DB}} %>% filter(SubSample=={{SubSample}}) 
+  
+  # Outcome
+  Y <- DBUse[[{{Y}}]]  
+  # treatment
+  Z <- DBUse[[{{Z}}]]    
+  # Cluster
+  cluster <-  DBUse[[{{Cluster}}]]  
+  # fixed effects
+  FE <- DBUse[[{{Cluster}}]]  
+  
+  # Weights
+  Weights <- DBUse[[{{weights}}]]  
+  
+  # New X matrix
+  XT <- {{X}} %>% filter(Responded==1 & SubSample=={{SubSample}}) 
+  
+  
+  ## We train a lasso to predict outcomes, so we want it to be able to pick the treated x covariate values that are high and so on.
+  ## Therefore, the X matrix contains the treatment, and we want to interact the treatment with the rest.
+  ## 
+  
+  # remove the variables we don't want, and add dummies for blocks and treatment to this matrix.
+  XT <- XT %>% select(-c("SubSampleStrata" ,"SubSample", "ResponseId","Responded")) %>% 
+    bind_cols(model.matrix(~0+HighLowECECBaseline*Educ2*IntendUse*Which_wave,DBUse))
+  
+  # put it as a matrix and allow every possible interactions (the number of columns gets crazy high)
+  ModelMatrix <- model.matrix(~0+.*.,XT) 
+  
+  # We just don't want 
+  # ModelMatrix <- ModelMatrix[,-c(which(colnames(ModelMatrix)=="Z"))]
+  
+  # Run the basic estimate
+  # We use fixest::feols for the fixest effect. we put the variables in a database as this function requires a dataframe as input
+  DB.FE.Reg <- as.data.frame(bind_cols(Y=Y,Z=Z,cluster=cluster,FE=FE,weights=Weights))
+  basicModel <- feols(Y~Z|FE,data=DB.FE.Reg,cluster = ~cluster,weights = ~weights)
+  
+  
+  ## now, let's run a cross validation 
+  # Cross validation to identify the optimal lambda (may take some time to converge)
+  cv_Lasso2 <- cv.glmnet(ModelMatrix,Y , alpha = 1,nfolds = 5)
+  
+  # get the best lambda
+  bestlam <- cv_Lasso2$lambda.min
+  
+  # Now, we can run the lasso model to pick the right covariate using the optimal lambda
+  Lasso_reg2 <- glmnet(ModelMatrix, Y, alpha = 1, lambda=bestlam)
+  
+  
+  # Then, simply run the regression of the outcome on the treatment and the variables selected by lasso. 
+  # lm_lin conviniently accept that and will even make sure that all variables are centred to ensure
+  # a treatment effect interpretation.
+  post_lasso <- lm_robust(Y~Z+ModelMatrix[,c(which(Lasso_reg2$beta>0))],cluster=cluster,weights = Weights) 
+  
+  #
+  ITT_postLasso <- lm_lin(Y~Z,~ModelMatrix[,which(Lasso_reg2$beta>0 & str_detect(rownames(Lasso_reg2$beta),":Z")==FALSE)],cluster=cluster,weights = Weights) 
+  
+  
+  
+  return(list("Basic Model"=basicModel,"Post Lasso"=post_lasso,"ITT Post lasso"=ITT_postLasso,"Lambda"=bestlam,"Lasso"=Lasso_reg2))
+  
+}
+
+
 EstPostLasso <- function(Y="ECSApp",                 # Outcome as string
                          Z="Z",                      # Treatment variable as sting
                          Cluster= "SubSampleStrata", # Clusters 

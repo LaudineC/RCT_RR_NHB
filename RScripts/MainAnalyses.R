@@ -1176,9 +1176,9 @@ ECSUseYesT2T1 <- EstPostLasso(Y="ECSUseYes",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 
-TidyECSUseYesLasso <- bind_rows(ECSUseYesT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                ECSUseYesT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                ECSUseYesT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyECSUseYesLasso <- bind_rows(ECSUseYesT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                ECSUseYesT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                ECSUseYesT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Early childcare access")
 
 # Run lasso on application for early childcare in general
@@ -1188,9 +1188,9 @@ ECSAppT2T1 <- EstPostLasso(Y="ECSApp",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 
-TidyECSAppLasso <- bind_rows(   ECSAppT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                ECSAppT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                ECSAppT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyECSAppLasso <- bind_rows(   ECSAppT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                ECSAppT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                ECSAppT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Early childcare application")
 
 
@@ -1202,9 +1202,9 @@ USeCrecheT2T1 <- EstPostLasso(Y="UseCreche",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 ## Stack the results
-TidyUseCrecheLasso <- bind_rows(USeCrecheT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                USeCrecheT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                USeCrecheT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyUseCrecheLasso <- bind_rows(USeCrecheT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                USeCrecheT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                USeCrecheT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Daycare access")
 
 # Run lasso on appliation for daycare
@@ -1214,9 +1214,9 @@ ECSAppCrecheT2T1 <- EstPostLasso(Y="AppCreche",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 
-TidyECSAppCrechepLasso <- bind_rows(   ECSAppCrecheT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                       ECSAppCrecheT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                       ECSAppCrecheT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyECSAppCrechepLasso <- bind_rows(   ECSAppCrecheT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                       ECSAppCrecheT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                       ECSAppCrecheT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Daycare application")
 
 # on récupère tous les résultats dans un dataframe et on garde que le coefficient des itt donc on filtre sur Z
@@ -1225,7 +1225,7 @@ ITT.PostLasso <- bind_rows(TidyUseCrecheLasso,
                            TidyECSAppCrechepLasso,
                            TidyECSAppLasso,
                            TidyECSUseYesLasso
-) %>% filter(term=="Z")
+) #%>% filter(term=="Z")
 
 
 # ITT.UseCreche <- ITTSimultaneous(Y="UseCreche")
@@ -1237,9 +1237,9 @@ ITT.PostLasso <- bind_rows(TidyUseCrecheLasso,
 # Early childcare application
 # Do the tables
 
-modelsummary(list("Information + support vs. Control_Basic"=ECSAppT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=ECSAppT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=ECSAppT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=ECSAppT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=ECSAppT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=ECSAppT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Early childcare application - Intention-to-treat estimates",
@@ -1247,8 +1247,8 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
-            "nobs", "r.squared","adj.r.squared"),
+gof_map = c("Covariates","FE: FE",
+            "nobs", "r.squared","adj.r.squared","rmse"),
 notes=paste(" 
 The dependent variable equals 1 if the household applied for at least one early childcare facility at endline.
 Basic specification run OLS on a treatment dummy and block x wave fixed effects.
@@ -1271,9 +1271,9 @@ Cluster-robust standard errors adjusted at the block level in parenthesis ; poin
 # Early childcare application
 # Do the tables
 #
-modelsummary(list("Information + support vs. Control_Basic"=ECSUseYesT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSUseYesT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=ECSUseYesT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSUseYesT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=ECSUseYesT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSUseYesT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=ECSUseYesT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSUseYesT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=ECSUseYesT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSUseYesT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=ECSUseYesT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSUseYesT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Early childcare access- Intention-to-treat estimates",
@@ -1281,8 +1281,8 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
-            "nobs", "r.squared","adj.r.squared"),
+gof_map = c("Covariates","FE: FE",
+            "nobs", "r.squared","adj.r.squared","rmse"),
 notes=paste("
 The dependent variable equals 1 if the household accessed early childcare at endline.
 Basic specification run OLS on a treatment dummy and block x wave fixed effects.
@@ -1302,9 +1302,9 @@ Cluster-robust standard errors adjusted at the block level in parenthesis ; poin
 
 # Daycare application
 
-modelsummary(list("Information + support vs. Control_Basic"=ECSAppCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppCrecheT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=ECSAppCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppCrecheT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=ECSAppCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppCrecheT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=ECSAppCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppCrecheT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=ECSAppCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppCrecheT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=ECSAppCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppCrecheT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Daycare application - Intention-to-treat estimates",
@@ -1312,8 +1312,8 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
-            "nobs", "r.squared","adj.r.squared"),
+gof_map = c("Covariates","FE: FE",
+            "nobs", "r.squared","adj.r.squared","rmse"),
 notes=paste("
 The dependent variable equals 1 if the household applied to at least one daycare center at endline.
 Basic specification run OLS on a treatment dummy and block x wave fixed effects.
@@ -1332,9 +1332,9 @@ Cluster-robust standard errors adjusted at the  level in parenthesis ; point-wis
 
 
 # Daycare access
-modelsummary(list("Information + support vs. Control_Basic"=USeCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=USeCrecheT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=USeCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=USeCrecheT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=USeCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=USeCrecheT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=USeCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=USeCrecheT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=USeCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=USeCrecheT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=USeCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=USeCrecheT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Daycare access - Intention-to-treat estimates",
@@ -1342,8 +1342,8 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
-            "nobs", "r.squared","adj.r.squared"),
+gof_map = c("Covariates","FE: FE",
+            "nobs", "r.squared","adj.r.squared","rmse"),
 notes=paste("
 The dependent variable equals 1 if the household accessed early childcare at endline.
 Basic specification run OLS on a treatment dummy and block x wave fixed effects.
