@@ -1,0 +1,105 @@
+---
+title: "Investigating how administrative burden and search costs affect social inequalities
+  in early childcare access, a randomised controlled trial"
+author: "Manuscript submitted to Nature Human Behaviour"
+bibliography: NHB.bib
+csl: nature.csl
+abstract: |
+  Access to high-quality early childcare for low socioeconomic status (SES) households has the potential to mitigate socioeconomic inequalities. Yet, there is an SES-based gap in early childcare enrolment. While low-SES households would benefit the most from attending early childcare, they access early childcare the least. This study tackles cognitive and behavioural barriers behind this access gap. We test the effectiveness of informational interventions and personalised support to enhance early childcare application and access for low-SES households through a multi-arm experiment. Results reveal that the information-only treatment had minimal impact while adding personalised support significantly bridged the SES-gap in early childcare applications. However, despite large impacts on application rates, we found limited impacts on access rates for low-SES households. By identifying key obstacles to early childcare access for low-SES households, our research underscores the need for effective strategies to promote equal opportunities in early childhood education.
+
+always_allow_html: true
+language:
+  label:
+    fig: 'Figure '
+    tab: 'Table '
+    eq: 'Equation '
+output: 
+    bookdown::word_document2: 
+      reference_docx: FormatRefWordFinal.docx
+      fig_caption: yes
+      toc: no
+    officedown::rdocx_document:
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE,fig.width = 8,fig.height = 5,fig.pos = "H" #, 
+#cache.lazy = FALSE)
+)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+library(pacman)
+p_load(here)
+p_load(officedown)
+```
+
+
+
+```{r LoadLibraries, include=FALSE}
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+
+```{r, include=FALSE, cache=FALSE}
+knitr::read_chunk(here("RScripts","MainAnalyses.R"))
+# This file contains all the chunks of codes to be called at the right place in the Rmarkdown document
+```
+
+\newpage
+# Introduction
+
+```{r Intro, child='Sections/S1_Introduction.Rmd'}
+```
+
+
+
+# Results
+
+```{r Results, child='Sections/S2_Results.Rmd'}
+```
+
+
+# Discussion
+
+```{r Discussion, child='Sections/S3_Discussion.Rmd'}
+```
+
+
+ 
+# Methods
+
+```{r Methods, child='Sections/S4_Methods.Rmd'}
+```
+
+
+# Bibliography {-}
+
+::: {#refs}
+:::
+
+
+
+**Data availability** 
+This study used primary outcome data collected through surveys. The data will be anonymised and made available for replication on OSF.
+
+**Code availability**
+The code to replicate analysis and tables will be made publicly available on OSF.
+
+\newpage
+
+
+# Extended Data {-} 
+
+
+```{r ExtendedData, child='Sections/S5_ExtendedData.Rmd'}
+```
+
+

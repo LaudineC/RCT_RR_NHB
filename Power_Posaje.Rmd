@@ -1,0 +1,99 @@
+---
+title: "Power computations"
+author: "Arthur Heim"
+date: "2025-01-20"
+always_allow_html: true
+language:
+  label:
+    fig: 'Figure '
+    tab: 'Table '
+    eq: 'Equation '
+output: 
+    bookdown::word_document2: 
+      reference_docx: FormatRefWordFinal.docx
+      fig_caption: yes
+      toc: no
+    officedown::rdocx_document:
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE,fig.width = 8,fig.height = 5,fig.pos = "H" #, 
+#cache.lazy = FALSE)
+)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+```
+
+```{r LoadLibraries, include=FALSE}
+library(here)
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+
+
+# Hypothesis and simple formula
+
+(Asymptotically Normal Estimator) We assume that the estimator $\hat{E}$ is such that there exists a constant (independent of $N) C(\hat{E})$ such that:
+
+$$
+\lim _{N \rightarrow \infty} \operatorname{Pr}\left(\frac{\hat{E}-E}{\sqrt{\mathbf{V}[\hat{E}]}} \leq u\right)=\Phi(u)
+$$
+
+with $\mathbf{V}[\hat{E}]=\frac{C(\hat{E})}{N}$.
+
+A closed-form formula for power $\kappa$ is :
+
+(Power with an Asymptotically Normal Estimator) With $\hat{E}$ asymptotically normal, and with $\beta_A>0$, we have:
+
+- For a One-Sided Test: $H_0: E \leq 0 H_A: E=\beta_A>0$
+
+$$
+\kappa_{\text {oneside }}=\Phi\left(\frac{\beta_A}{\sqrt{\mathbf{V}[\hat{E}]}}-\Phi^{-1}(1-\alpha)\right)
+$$
+
+- For $\rightarrow$ Tyo-Sided Test: $H_0: E=0 H_A: E=\beta_A \neq 0$
+
+$$
+\kappa_{\mathrm{twoside}} \approx \Phi\left(\frac{\beta_A}{\sqrt{\mathbf{V}[\hat{E}]}}-\Phi^{-1}\left(1-\frac{\alpha}{2}\right)\right)
+$$
+
+
+
+
+```{r}
+# functions
+power <- function(betaA,alpha,varE){
+  return(pnorm(betaA/sqrt(varE)-qnorm(1-alpha)))
+}
+
+power.twoside <- function(betaA,alpha,varE){
+  return(pnorm(-betaA/sqrt(varE)-qnorm(1-alpha/2))+pnorm(betaA/sqrt(varE)-qnorm(1-alpha/2)))
+}
+
+
+CE.Encourage.fun <- function(pR,varYb,pE,p1D,p0D){
+  return((1/pE)*(1/(p1D-p0D))^2*(((p1D*pR+p0D*(1-pR))/pR)^2*varYb/(1-pR)+((1-p1D*pR-p0D*(1-pR))/(1-pR))^2*var(yB)/pR))
+}
+
+MDE.Encourage.fun <- function(pR,varYb,pE,p1D,p0D,...){
+  return(MDE(CE=CE.Encourage.fun(pR=pR,varYb=varYb,pE=pE,p1D=p1D,p0D=p0D),...))
+}
+# computing candidate participation rate, using the observed proportion below baryB
+pEhat <- mean(E)
+p1Dhat <- mean(Ds[E==1 & R==1])
+p0Dhat <- mean(Ds[E==1 & R==0])
+
+alpha <- 0.05
+kappa <- 0.8
+
+```
+
+
