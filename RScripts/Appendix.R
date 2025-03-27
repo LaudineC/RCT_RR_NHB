@@ -779,8 +779,7 @@ coef_map = cm
 #-------- MechanismsInformationCosts -----------------
 
 # First etimate the ITT for applications
-Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSApp",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
@@ -788,8 +787,7 @@ Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ITT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ITT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDB,
   Outcome = "ECSApp",
   Heterogeneity= "UsedECEC",
   ITT = TRUE,
@@ -798,8 +796,7 @@ Het.ITT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 
 
-Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSApp",
   Heterogeneity = "InfoBaseline",
   ITT = TRUE,
@@ -808,16 +805,14 @@ Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 ### Now let's get the models for the use
 
-Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSUseYes",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ITT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ITT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSUseYes",
   Heterogeneity = "UsedECEC",
   ITT = TRUE,
@@ -825,8 +820,7 @@ Het.ITT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSUseYes",
   Heterogeneity = "InfoBaseline",
   ITT = TRUE,
@@ -880,8 +874,7 @@ class(StackedITTUse) <- "modelsummary_list"   # define the class
 
 # Step 2 : estimate the conditional ATTs of interest using the function
 ## First etimate the ITT for applications
-Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
   Outcome = "ECSApp",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
@@ -889,8 +882,7 @@ Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ATT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ATT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "ECSApp",
   Heterogeneity= "UsedECEC",
   ITT = FALSE,
@@ -899,8 +891,7 @@ Het.ATT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
 
 
 
-Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "ECSApp",
   Heterogeneity = "InfoBaseline",
   ITT = FALSE,
@@ -909,16 +900,14 @@ Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
 
 ### Now let's get the models for the use
 
-Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "ECSUseYes",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ATT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ATT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
   Outcome = "ECSUseYes",
   Heterogeneity = "UsedECEC",
   ITT = FALSE,
@@ -926,8 +915,7 @@ Het.ATT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
   Outcome = "ECSUseYes",
   Heterogeneity = "InfoBaseline",
   ITT = FALSE,
@@ -1032,8 +1020,7 @@ ModelT2C
 
 #-------- MechanismsInformationCostsDaycare -----------------
 ## First etimate the ITT for applications
-Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "AppCreche",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
@@ -1041,8 +1028,7 @@ Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ITT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ITT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "AppCreche",
   Heterogeneity= "UsedECEC",
   ITT = TRUE,
@@ -1051,8 +1037,7 @@ Het.ITT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 
 
-Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "AppCreche",
   Heterogeneity = "InfoBaseline",
   ITT = TRUE,
@@ -1061,16 +1046,14 @@ Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 ### Now let's get the models for the use
 
-Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB,
   Outcome = "UseCreche",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ITT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ITT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "UseCreche",
   Heterogeneity = "UsedECEC",
   ITT = TRUE,
@@ -1078,8 +1061,7 @@ Het.ITT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "UseCreche",
   Heterogeneity = "InfoBaseline",
   ITT = TRUE,
@@ -1133,8 +1115,7 @@ class(StackedITTUse) <- "modelsummary_list"   # define the class
 
 # Step 2 : estimate the conditional ATTs of interest using the function
 ## First etimate the ITT for applications
-Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "AppCreche",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
@@ -1142,8 +1123,7 @@ Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ATT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ATT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "AppCreche",
   Heterogeneity= "UsedECEC",
   ITT = FALSE,
@@ -1152,8 +1132,7 @@ Het.ATT.App.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
 
 
 
-Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
   Outcome = "AppCreche",
   Heterogeneity = "InfoBaseline",
   ITT = FALSE,
@@ -1162,16 +1141,14 @@ Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
 
 ### Now let's get the models for the use
 
-Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "UseCreche",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ATT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  UsedECEC=ifelse(UsedECEC == "Yes","Already used","Never used")),
+Het.ATT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "UseCreche",
   Heterogeneity = "UsedECEC",
   ITT = FALSE,
@@ -1179,8 +1156,7 @@ Het.ATT.Use.Used <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
   clusters = "StrataWave")
 
 
-Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "UseCreche",
   Heterogeneity = "InfoBaseline",
   ITT = FALSE,
@@ -1295,10 +1271,9 @@ Het.ITT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ITT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ITT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSApp",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -1320,10 +1295,9 @@ Het.ITT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ITT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ITT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB,
   Outcome = "ECSUseYes",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -1389,10 +1363,9 @@ Het.ATT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% muta
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ATT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ATT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
   Outcome = "ECSApp",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = FALSE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -1414,10 +1387,9 @@ Het.ATT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% muta
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ATT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ATT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "ECSUseYes",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = FALSE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -1535,10 +1507,9 @@ Het.ITT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ITT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ITT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "AppCreche",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -1560,10 +1531,9 @@ Het.ITT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ITT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ITT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDB,
   Outcome = "UseCreche",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -1629,10 +1599,9 @@ Het.ATT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% muta
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ATT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ATT.App.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
   Outcome = "AppCreche",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = FALSE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -1654,10 +1623,9 @@ Het.ATT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% muta
   Weights = "WeightPS",
   clusters = "StrataWave")
 
-Het.ATT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ATT.Use.TrustCreche1or0 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "UseCreche",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = FALSE,
   Weights = "WeightPS",
   clusters = "StrataWave")
