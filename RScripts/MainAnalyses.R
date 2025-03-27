@@ -519,8 +519,7 @@ Het.ITT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
                                                  clusters = "StrataWave")
 
 
-Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSApp",
   Heterogeneity = "InfoBaseline",
   ITT = TRUE,
@@ -529,8 +528,7 @@ Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 
 
-Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSApp",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
@@ -561,8 +559,7 @@ Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
 
 
 
-Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
   Outcome = "ECSApp",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
@@ -619,8 +616,7 @@ Het.ITT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
                                                  clusters = "StrataWave")
 
 
-Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSUseYes",
   Heterogeneity = "InfoBaseline",
   ITT = TRUE,
@@ -629,8 +625,7 @@ Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
 
 
 
-Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB,
   Outcome = "ECSUseYes",
   Heterogeneity = "DescriptiveNorms",
   ITT = TRUE,
@@ -661,8 +656,7 @@ Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
 
 
 
-Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
   Outcome = "ECSUseYes",
   Heterogeneity = "DescriptiveNorms",
   ITT = FALSE,
@@ -759,10 +753,9 @@ Het.ITT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
   clusters = "StrataWave")
 
 
-Het.ITT.App.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ITT.App.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSApp",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -791,9 +784,9 @@ Het.ATT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% muta
   clusters = "StrataWave")
 
 
-Het.ATT.App.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ATT.App.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
                                                        Outcome = "ECSApp",
-                                                       Heterogeneity = "TrustCreche1or0",
+                                                       Heterogeneity = "TrustCreche",
                                                        ITT = FALSE,
                                                        Weights = "WeightPS",
                                                        clusters = "StrataWave")
@@ -859,10 +852,9 @@ Het.ITT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
   clusters = "StrataWave")
 
 
-Het.ITT.Use.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ITT.Use.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB ,
   Outcome = "ECSUseYes",
-  Heterogeneity = "TrustCreche1or0",
+  Heterogeneity = "TrustCreche",
   ITT = TRUE,
   Weights = "WeightPS",
   clusters = "StrataWave")
@@ -891,9 +883,9 @@ Het.ATT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% muta
   clusters = "StrataWave")
 
 
-Het.ATT.Use.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+Het.ATT.Use.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
                                                        Outcome = "ECSUseYes",
-                                                       Heterogeneity = "TrustCreche1or0",
+                                                       Heterogeneity = "TrustCreche",
                                                        ITT = FALSE,
                                                        Weights = "WeightPS",
                                                        clusters = "StrataWave")

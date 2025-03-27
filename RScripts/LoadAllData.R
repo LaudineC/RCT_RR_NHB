@@ -30,6 +30,9 @@ MainDB <- read_csv(here("Data","MainDatabase.csv")) %>%   mutate(
   NormsOpposedYes = as.factor(NormsOpposedYes),
   DescriptiveNorms = ifelse(DescriptiveNorms == "Yes", "Majority", "Minority"),
   DescriptiveNorms = as.factor(DescriptiveNorms), 
+  UsedECEC=as.factor(ifelse(UsedECEC == "Yes","Already used","Never used")), 
+  InfoBaseline=as.factor(ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+  TrustCreche=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust"),
   MigrationBackground = ifelse(
     FrenchYNBaseline == "Abroad", 
     "Yes", 
