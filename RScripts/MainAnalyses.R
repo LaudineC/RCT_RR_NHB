@@ -38,7 +38,7 @@ res <-  DiffControls %>% modelplot(,draw=FALSE) %>% mutate(Heterogeneity="Baseli
   mutate(Outcome=str_remove(model,'lhs:'),term=ifelse(str_detect(term,'Low-SES'),'Gap by SES','Mean High SES'))
 
 resb <-  DiffControlsFr %>% modelplot(,draw=FALSE) %>% mutate(Heterogeneity="Migration background")%>% mutate(Outcome=str_remove(model,'lhs:'),
-                                                                                                          term=ifelse(str_detect(term,'Yes'),'Gap by migration background','Mean French'))
+                                                                                                              term=ifelse(str_detect(term,'Yes'),'Gap by migration background','Mean French'))
 
 res2 <- bind_rows(res,resb) %>% mutate(OutcomeLabel=factor(case_when(str_detect(Outcome,"ECSPlanToBaseline")~"Intend to use",
                                                                      str_detect(Outcome,"ECSApp")~"Apply",
@@ -63,8 +63,8 @@ Intend.Gap.plot =
   scale_fill_viridis_d("Outcomes",alpha=.8,option="A",end=.6)+
   scale_color_viridis_d("Outcomes",alpha=.8,option="A",end=.6)+
   labs(#title='Intention-to-access gaps across sub-groups',
-       caption=
-"Sources: Control group only. Intention are measured at the baseline survey during pregnancy (Q4 2022); application and access 
+    caption=
+      "Sources: Control group only. Intention are measured at the baseline survey during pregnancy (Q4 2022); application and access 
 are measured at the endline survey one year after (Q4 2023).
 Notes: Coefficients of OLS regressions of the outcomes on dummies for the group variable of interest. Error bars indicate 
 pointwise 95% CI based on heteroskedasticity-robust standard errors (HC1). Intention-to-action gap in early childcare application 
@@ -118,35 +118,35 @@ cm <- c('T1-C'    = 'Information-only vs Control ',
 #empty <- list(tidy=as.data.frame())
 
 MainResultTable =
-      modelsummary(list(
-        "Application_Early childcare"=ITT.ECSApp$ModelSummary,
-        "Application_Daycare"=ITT.ECSAppCreche$ModelSummary,
-        "Access_Early childcare"=ITT.ECSUseYes$ModelSummary,
-        "Access_Daycare"=ITT.UseCreche$ModelSummary
-      ),
-      coef_map = cm,
-      fmt=fmt_statistic(estimate=2, 
-                        adj.p.value=3,
-                        std.error=2,
-                        conf.int=2,
-                        "Chi 2"=2,
-                        "P-value"=3), 
-      estimate = '{estimate}{stars} ({std.error})',
-      statistic = c("conf.int",
-                    "adj.p.val. = {adj.p.value}"),
-      #stars=FALSE,
-      stars = c('*' = .1,'**' = .05, '***' = .01),
-      gof_map = c(
-        "Covariates","Fixed effects","Chi 2","P-value",
-        "nobs", "r.squared","adj.r.squared"),
-      title="Intention-to-treat effects on the main outcomes",
-      notes=paste("*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
+  modelsummary(list(
+    "Application_Early childcare"=ITT.ECSApp$ModelSummary,
+    "Application_Daycare"=ITT.ECSAppCreche$ModelSummary,
+    "Access_Early childcare"=ITT.ECSUseYes$ModelSummary,
+    "Access_Daycare"=ITT.UseCreche$ModelSummary
+  ),
+  coef_map = cm,
+  fmt=fmt_statistic(estimate=2, 
+                    adj.p.value=3,
+                    std.error=2,
+                    conf.int=2,
+                    "Chi 2"=2,
+                    "P-value"=3), 
+  estimate = '{estimate}{stars} ({std.error})',
+  statistic = c("conf.int",
+                "adj.p.val. = {adj.p.value}"),
+  #stars=FALSE,
+  stars = c('*' = .1,'**' = .05, '***' = .01),
+  gof_map = c(
+    "Covariates","Fixed effects","Chi 2","P-value",
+    "nobs", "r.squared","adj.r.squared"),
+  title="Intention-to-treat effects on the main outcomes",
+  notes=paste("*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
 Sources:", SourcesStacked,"      
 Each column jointly estimates the average differences between arms using fully-saturated stacked OLS regressions. Control means estimated separately by OLS.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block level.
 Adjusted p-values and confidence intervals account for simultaneous inference using the",ITT.UseCreche$Correction, "method. 
 Joint significance test of null effect using Chi-2 tests and p-values are reported at the bottom of the table."),
-      output = 'flextable') 
+  output = 'flextable') 
 
 
 MainResultTable %>% 
@@ -520,20 +520,20 @@ Het.ITT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
 
 
 Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
-  Outcome = "ECSApp",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                             Outcome = "ECSApp",
+                                             Heterogeneity = "InfoBaseline",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
 
 
 
 Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB ,
-  Outcome = "ECSApp",
-  Heterogeneity = "DescriptiveNorms",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                              Outcome = "ECSApp",
+                                              Heterogeneity = "DescriptiveNorms",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
 
 
 
@@ -560,11 +560,11 @@ Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
 
 
 Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-  Outcome = "ECSApp",
-  Heterogeneity = "DescriptiveNorms",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                              Outcome = "ECSApp",
+                                              Heterogeneity = "DescriptiveNorms",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
 
 
 
@@ -617,20 +617,20 @@ Het.ITT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
 
 
 Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB ,
-  Outcome = "ECSUseYes",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                             Outcome = "ECSUseYes",
+                                             Heterogeneity = "InfoBaseline",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
 
 
 
 Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB,
-  Outcome = "ECSUseYes",
-  Heterogeneity = "DescriptiveNorms",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity = "DescriptiveNorms",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
 
 
 
@@ -657,11 +657,11 @@ Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
 
 
 Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
-  Outcome = "ECSUseYes",
-  Heterogeneity = "DescriptiveNorms",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity = "DescriptiveNorms",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
 
 # Define the factors
 term_levels <- c("T2-C")
@@ -754,11 +754,11 @@ Het.ITT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
 
 
 Het.ITT.App.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB ,
-  Outcome = "ECSApp",
-  Heterogeneity = "TrustCreche",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                                       Outcome = "ECSApp",
+                                                       Heterogeneity = "TrustCreche",
+                                                       ITT = TRUE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
 
 
 
@@ -853,11 +853,11 @@ Het.ITT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate
 
 
 Het.ITT.Use.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB ,
-  Outcome = "ECSUseYes",
-  Heterogeneity = "TrustCreche",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+                                                       Outcome = "ECSUseYes",
+                                                       Heterogeneity = "TrustCreche",
+                                                       ITT = TRUE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
 
 
 
@@ -1400,7 +1400,7 @@ Average treatment effects on the treated estimated jointly for both comparison b
 Avg. Cfct. indicates the untreated compliers' average and is estimated by TSLS with (1-D)*Y as an outcome, (1-D) as the treatment variable instrumented by the centred assignment.
 "),
 output = 'flextable') %>% 
- # theme_booktabs()|>
+  # theme_booktabs()|>
   separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
   italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
@@ -1761,7 +1761,7 @@ Adjusted p-values and confidence intervals account for simultaneous inference ac
   merge_v(j=1,part="body")|>
   merge_v(j=2,part="body")|>
   merge_v(j=3,part="body")|>
-    italic(i = c(1),  part = "header") %>% 
+  italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
   align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>

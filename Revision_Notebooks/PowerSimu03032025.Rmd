@@ -3,6 +3,8 @@ title: "Power computation RCT R&R NHB"
 author: "Arthur Heim"
 date: "March 2025"
 output: html_document
+editor_options: 
+  chunk_output_type: console
 ---
 
 
@@ -206,6 +208,7 @@ Comparing the simulated outcome and actual data shows that our simulation works 
 Now, let's introduce our treatment with exactly the same process we used. We generate a constant treatment effect of 0 for T1 and .05 for T2 as a benchmark.
 
 ```{r echo=TRUE}
+library(randomizr)
 # We use block random assignment
 Z = block_ra(blocks=block, prob_each = c(.34,.33,.33), conditions = c("0", "1", "2"))
 
