@@ -1,0 +1,620 @@
+---
+title: "Investigating how administrative burden and search costs affect social inequalities
+  in early childcare access"
+subtitle: "Draft of a formal model"  
+author: "Arthur Heim"
+date: "2025-01-31"
+output: 
+  bookdown::pdf_document2: 
+    latex_engine: xelatex
+    fig_height: 6
+    fontsize: 12
+    citation_package: natbib
+    fig_caption: yes
+    toc: no
+    toc_depth: 3
+    keep_tex: yes
+    highlight: tango
+    number_sections: yes
+    extra_dependencies: ["flafter"]
+    includes:
+      in_header: XeLaTex_Preamble.tex
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE,fig.width = 8,fig.height = 5,fig.pos = "H" #, 
+#cache.lazy = FALSE)
+)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+library(pacman)
+p_load(here)
+#here()
+```
+
+
+```{r LoadLibraries, include=FALSE}
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+
+```{r, include=FALSE, cache=FALSE}
+knitr::read_chunk(here("RScripts","MainAnalyses.R"))
+# This file contains all the chunks of codes to be called at the right place in the Rmarkdown document
+```
+
+
+# Setting
+
+We model the decision to apply for childcare as a function of perceived eligibility, transaction costs, and potential benefits. Households face uncertainty regarding their eligibility and the costs associated with the application process. The intervention aims to reduce these frictions through information provision and administrative support.
+
+We define latent variables with a superscript $V^*$ and a measurement of that varriable as $V$.
+
+We consider a sequential decision process where at the first period (baseline), 
+a pregnant woman has *ex-ante* unobserved **preference profile** $\theta^*_0$ with regard to future childcare options. We observe a set of attributes $\mathbf{X}$ and intention to use $I_0$. Among $\mathbf{X}$, there are social group metrics ($G$) such as SES status (based on education), migration background, and rough metrics of temporal preferences $\rho$ and knowledge of childcare $\mathcal{I}$, which capture latent traits $\rho^*$ and $\mathcal{I}^*$ with error. There are also cognitive and structural factor that may hinder decisions. Let $\mathcal{C}$ denote the subjective application costs.
+Without loss of generality, let $\mathbf{Z}$ denote the set of observable $\mathbf{X}$ supplemented with random shocks such as treatments. 
+
+<!-- In the absence of intervention, the decision to apply can be defined as a threshold function over a latent intention to use: -->
+
+<!-- \begin{equation} -->
+<!-- I_0^*=\mu_w(\mathbf{X},\symbf{\rho,\mathcal{I}})-U_I(\theta_0^*,\mathcal{I}^*,\mathcal{C}^*),\quad I_0=1 ~ if ~I^*_0\geq 0,\quad I^*_0=0~otherwise -->
+<!-- \end{equation} -->
+
+<!-- Where $U_I$ is an unobserved private valuation of information sets, preference types and subjective costs of application.  -->
+
+
+## Intention gap by social groups
+
+
+Formally, the gap between two sets of values of covariates $\mathbf{x}$ $\mathbf{x^\prime}$ in intention to use at baseline is:
+
+\begin{equation}
+\Delta_{x,x'}(I_{0}) = \espb{I_{0i}|\mathbf{X}=\mathbf{x}}-\espb{I_{0i}|\mathbf{X}=\mathbf{x^\prime}}
+\end{equation}
+
+With a random sample, these conditional differences in reported intention to use childcare can be estimated using OLS and heteroskedasticity robust standard errors (Linear probability model) or by first estimating a model with parametric restrictions on $I_0^*$ (such as logit or probit) and computing marginal effects.
+
+However, these parameters and sample analogues are only descriptive difference in means between two groups who also differs in observable characteristics and latent $U_I$. 
+
+
+## Application and access gap in the endline data
+
+The endline survey includes the different sets of outcomes including some metrics of knowledges, application behaviours and access to formal childcare. We leave attrition issues for now and focus on application behaviours. We come back to these points later.
+
+Let $\tilde{Y_i}=\one{\text{applied to any childcare}}$ be the endline measure of application behaviours which derive from:
+$$
+\tilde{Y}_{i}=\underbrace{\one{\text{applied for childminders}}}_{Y^c}+\underbrace{\one{\text{applied for daycare}}}_{Y^d}\\
+$$
+In practice, $\tilde{Y}$ also include other childcare arrangement.
+<!-- The relationships between the observed variables from Baseline and Endline can be represented using Directed Acyclic Graphs such as Figure \ref{fig:DagIntention}. This model is not identified. No causal relationship can be inferred. -->
+
+
+<!-- We analyse the intention-to-action gap between different social groups (High/low SES, migration background) ($\mathbf{X}$) and subjective attributes (Information, temporal orientation) ($\mathbf{K}$). -->
+
+<!-- Formally, the gap between two sets of values of covariates $\mathbf{x}$ $\mathbf{x^\prime}$ in intention to use at baseline is: -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(I_{0i}) = \espb{I_{0i}|\mathbf{X}=\mathbf{x}}-\espb{I_{0i}|\mathbf{X}=\mathbf{x^\prime}} -->
+<!-- \end{equation} -->
+
+The application gap is :
+
+\begin{equation}
+\Delta_{x,x'}(\tilde{Y}_i) = \espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}}
+\end{equation}
+
+Denoting $\tilde{Y^*}$ the variable for access to formal childcare, The access gap is :
+
+\begin{equation}
+\Delta_{x,x'}(\tilde{Y*}_i) = \espb{\tilde{Y^*}_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y^*}_i|\mathbf{X}=\mathbf{x^\prime}}
+\end{equation}
+
+In our setting, the covariates are discrete. These three parameters can therefore be estimated from the control group by regressing the outcome on group dummies using OLS and heterokedasticity robust standard errors, or by computing marginal effects from a logit or probit model. 
+
+In practice, we simply estimate:
+\begin{equation}
+W_i = \alpha_w +\beta_w X+ \upsilon_{iw}
+\end{equation}
+Where $W_i$ denotes any outcome and $X$ one of the social group or subjective attribute variable we test.
+
+Results are are reported in Figure \ref{fig:AttentionAction}.
+
+
+```{r AttentionAction, echo=FALSE,out.width='100%', results='asis', fig.height=8, cache=TRUE, fig.cap=" The intention-to-action gap in early childcare application and access in the control group across four dimensions of heterogeneity. Intention to use early childcare is measured at the baseline survey during pregnancy. Early childcare application and early childcare access are measured at the endline survey one year after."}
+```
+
+
+
+
+
+```{r DagIntention, fig.cap="How observed baseline characteristics relate with the main outcome."}
+
+p_load(tidyverse,
+       dagitty,
+       tidygraph,
+       ggdag,
+       ggrpah)
+
+DagIntention <- dagitty('dag {
+                              bb="0,0,1,1"
+                              "Information set" [latent,pos="0.519,0.181"]
+                              "Intention to use" [adjusted,pos="0.566,0.265"]
+                              "Observable social group X" [exposure,pos="0.261,0.395"]
+                              "Past experience" [latent,pos="0.240,0.242"]
+                              "Preference profile K" [adjusted,pos="0.443,0.267"]
+                              Apply [outcome,pos="0.711,0.255"]
+                              "Information set" -> "Intention to use"
+                              "Information set" -> "Preference profile K"
+                              "Information set" -> Apply
+                              "Intention to use" -> Apply
+                              "Observable social group X" -> "Information set"
+                              "Observable social group X" -> "Intention to use"
+                              "Observable social group X" -> "Preference profile"
+                              "Observable social group X" -> Apply
+                              "Observable social group X" <-> "Past experience"
+                              "Past experience" -> "Information set"
+                              "Past experience" -> "Intention to use"
+                              "Past experience" -> "Preference profile K"
+                              "Preference profile K" -> "Intention to use"
+                              }
+                    ')
+
+
+TidyDagIntention <- tidy_dagitty(DagIntention)
+
+TidyDagIntention$data <- TidyDagIntention$data %>% 
+  mutate(Type=case_when(
+                        name %in% c("Information set","Past experience")~"Latent factors",
+                        name == "Apply"~ "Outcome",
+                        name %in% c("Intention to use","Preference profile K","Observable social group X")~"Adjusted"))
+  
+ggplot(TidyDagIntention$data,
+       aes(x = x, y = y, xend = xend, yend = yend,shape = Type, fill = Type,color=Type,textcolor=Type,linetype = direction)) +
+  geom_dag_point(alpha=.2) +
+  geom_dag_text(size=3) +
+  geom_dag_edges()+theme_dag_blank() +
+  scale_color_viridis_d(option="A",end=.7)+
+  scale_fill_viridis_d(option="A",end=.7)+
+  theme(legend.position="bottom",
+        legend.key.size = unit(.3, 'cm'))
+  #theme_dag() #+
+  #xlim(c(-0.5,2.5)) +
+ # ylim(c(-1.5,1.5))
+
+```
+
+
+
+
+## Intention to action gap
+
+Another parameter of interest is the average intention to action gap $i.e.$ the expected individual difference $\esp{Y_i-I_{0i}}$ , and differences between social groups. to be clear, this variable equals 0 when people are consistent in their reported intention and application behaviours, equals 1 when the person applied but didn't intend to (*Switchers*)  and -1 when they intended to but did not apply (*Quitters*).
+
+$$
+\begin{aligned}
+\esp{Y_i-I_{0i}}=&Pr(Y_i>I_{0i})\underbrace{\esp{Y_i-I_{0i}>0}}_{=1}+Pr(Y_i=I_{0i})\underbrace{\esp{Y_i-I_{0i}=0}}_{=0}+Pr(Y_i<I_{0i})\underbrace{\esp{Y_i-I_{0i}<0}}_{=-1}\\
+=&\underbrace{Pr(Y_i>I_{0i})}_{switchers}-\underbrace{Pr(Y_i<I_{0i})}_{quitters}
+\end{aligned}
+$$
+
+
+:::{.proof}
+Starting with $\mathbb{E}[Y_i - I_{0i}]$, we can decompose this expectation by considering all possible cases for the difference $Y_i - I_{0i}$ and using the law of iterated expectation.
+
+Since $Y_i$ and $I_{0i}$ are binary (0 or 1):
+
+- When $Y_i > I_{0i}$, we must have $Y_i = 1$ and $I_{0i} = 0$, so $Y_i - I_{0i} = 1$
+- When $Y_i = I_{0i}$, we have $Y_i - I_{0i} = 0$
+- When $Y_i < I_{0i}$, we must have $Y_i = 0$ and $I_{0i} = 1$, so $Y_i - I_{0i} = -1$
+
+Therefore:
+
+- $\mathbb{E}[Y_i - I_{0i} | Y_i > I_{0i}] = 1$
+- $\mathbb{E}[Y_i - I_{0i} | Y_i = I_{0i}] = 0$
+- $\mathbb{E}[Y_i - I_{0i} | Y_i < I_{0i}] = -1$
+
+Using the law of iterated expectation:
+$$
+\begin{aligned}
+\esp{Y_i - I_{0i}} = &\Pr(Y_i > I_{0i}) \cdot \mathbb{E}[Y_i - I_{0i} | Y_i > I_{0i}] + \Pr(Y_i = I_{0i}) \cdot \mathbb{E}[Y_i - I_{0i} | Y_i = I_{0i}] \\
+ &+ \Pr(Y_i < I{0i}) \cdot \mathbb{E}[Y_i - I_{0i} | Y_i < I_{0i}]
+\end{aligned}
+$$
+Continuing with the derivation:
+$$
+\mathbb{E}[Y_i - I_{0i}] = \Pr(Y_i > I_{0i}) \cdot 1 + \Pr(Y_i = I_{0i}) \cdot 0 + \Pr(Y_i < I_{0i}) \cdot (-1)
+$$
+The term $\Pr(Y_i = I_{0i}) \cdot 0$ drops out, and we're left with:
+$$
+\mathbb{E}[Y_i - I_{0i}] = \Pr(Y_i > I_{0i}) - \Pr(Y_i < I_{0i})
+$$
+:::
+
+\ref{fig:figQuitters} below estimate these three quantities in the control group:
+
+
+```{r figQuitters, fig.cap="Intention to action gap: switchers and quitters"}
+test <- MainDB %>% filter(Assignment=="Control") %>% mutate(I0=ifelse(IntendUse=="Else",0,1),YminusI0=ECSApp-I0,Switcher=ECSApp>I0,Quitter=ECSApp<I0)
+
+#feols(YminusI0~1,test,se="hetero")
+
+Intention.Action.Gap <- feols(c(YminusI0,Switcher,-Quitter)~1,test,se ="hetero") 
+tidyIAG <- Intention.Action.Gap %>% modelplot(draw=FALSE)
+
+Intention.Action.Gap %>% modelplot()+labs(title="Switchers, quitters and average intention-to-action gap")+scale_color_manual(values = palette_lgbtq("bisexual"))+geom_vline(aes(xintercept = 0),linetype=2)
+
+
+```
+
+The intention-to-action gap is `r round(tidyIAG$estimate[str_detect(tidyIAG$model,"Yminus")]*100,1)`% ; it sums the `r round(tidyIAG$estimate[str_detect(tidyIAG$model,"Switcher")]*100,1)`% of *switchers* (who did not intend but applied) and the `r round(tidyIAG$estimate[str_detect(tidyIAG$model,"Quitter")]*100,1)`% of  *quitters*.
+
+
+We can go further into the decomposition using the same expansion.
+The probability of being a switcher can be divided into the probability of for high and low SES weighted by their relative share in the sample:
+
+For each SES group, we can write:
+$$
+\begin{aligned}
+\Pr(Y_{i} > I_{0i} | SES_i = High) =& \Pr(Y_i = 1, I_{0i} = 0 | SES_i = High)&\\
+\Pr(Y_{i} > I_{0i} | SES_i = Low ) =& \Pr(Y_i = 1, I_{0i} = 0 | SES_i = Low)&
+\end{aligned}
+$$
+These conditional probabilities can be further decomposed using Bayes' rule:
+$$
+\begin{aligned}
+\Pr(Y_i = 1, I{0i} = 0 | SES_i = High)& = \Pr(Y_i = 1 | I_{0i} = 0, SES_i = High) \times \Pr(I_{0i} = 0 | SES_i = High)\\
+\Pr(Y_i = 1, I{0i} = 0 | SES_i = Low )& = \Pr(Y_i = 1 | I_{0i} = 0, SES_i = Low ) \times \Pr(I_{0i} = 0 | SES_i = Low)
+\end{aligned}
+$$
+Putting it all together, we get:
+$$
+\begin{aligned}
+\Pr(Y_i > I0) =& \left[\Pr(Y_i = 1 | I_{0i} = 0, SEi = High) \times \Pr(I_{0i} = 0 | SES_i = High) \times Pr(SES_i = High)\right] +\\
+&\left[\Pr(Y_i = 1 | I_{0i} = 0, SES_i = Low) \times \Pr(I_{0i} = 0 | SES_i = Low) \times Pr(SES_i = Low)\right]
+\end{aligned}
+$$
+This decomposition allows us to quantify:
+
+The contribution of the High SES group to the overall switching probability:
+\begin{equation}
+\Pr(Y_i > I_{0i}, SES_i = High) = \Pr(Y_i = 1 | I_{0i} = 0, SES_i = High) \times \Pr(I_{0i} = 0 | SES_i = High) \times \Pr(SES_i = High)
+\end{equation}
+The contribution of the Low SES group to the overall switching probability:
+\begin{equation}
+Pr(Y > I0, SES = Low) = Pr(Y = 1 | I0 = 0, SES = Low) \times Pr(I0 = 0 | SES = Low) \times Pr(SES = Low)
+\end{equation}
+
+This decomposition gives hiw much of the overall switching behaviour is driven by each SES group, accounting for both their population share and their propensity to switch. We can do the same derivation for quitters. 
+
+We end-up here with a decomposition of the intention-to-action gap as a weighted average of the switching and quitting share in high and low SES group with weights proportional to the share of household who did not intend to use daycare in each group times the share of each group in the sample.
+<!-- These can be estimated with Kitagawa-Oaxaca-Blinder decompositions. -->
+
+
+```{r figQuittersECS, fig.cap="Intention to action gap: switchers and quitters"}
+#test <- MainDB %>% filter(Assignment=="Control") %>% mutate(I0=ifelse(IntendUse=="Else",0,1),YminusI0=ECSApp-I0,Switcher=ECSApp>I0,Quitter=ECSApp<I0)
+
+#feols(YminusI0~1,test,se="hetero")
+
+Intention.Action.GapSES <- feols(c(YminusI0,Switcher,-Quitter)~0+Educ2,test,se ="hetero") 
+tidyIAGSES <- Intention.Action.GapSES %>% modelplot(draw=FALSE)
+
+Intention.Action.GapSES %>% modelplot()+labs(title="Switchers, quitters and average intention-to-action gap")+scale_color_manual(values = palette_lgbtq("bisexual"))+geom_vline(aes(xintercept = 0),linetype=2)
+
+
+```
+
+These results show that for High SES, the intention-to-action gap (I.A.G) is small and not significant with that sample size. It is significant for Low-SES group and we later test if the two are different. The I.A.G of High-SES group averages `r round(tidyIAGSES %>% filter(str_detect(term,"High") & str_detect(model,"Switcher")) %>% select(estimate)*100)`% of switchers and the `r round(tidyIAGSES %>% filter(str_detect(term,"High") & str_detect(model,"Quit")) %>% select(estimate)*100)`%n of quitters.
+
+The I.A.G of Low-SES group averages `r round(tidyIAGSES %>% filter(str_detect(term,"Low") & str_detect(model,"Switcher")) %>% select(estimate)*100)`% of switchers and the `r round(tidyIAGSES %>% filter(str_detect(term,"Low") & str_detect(model,"Quit")) %>% select(estimate)*100)`%n of quitters.
+
+
+
+
+```{r figQuitterslin, fig.cap="Intention to action gap: switchers and quitters by SES"}
+#test <- MainDB %>% filter(Assignment=="Control") %>% mutate(I0=ifelse(IntendUse=="Else",0,1),YminusI0=ECSApp-I0,Switcher=ECSApp>I0,Quitter=ECSApp<I0)
+
+#feols(YminusI0~High_SES*(Switcher),test %>% mutate(Switcher=as.numeric(Switcher)-mean(as.numeric(Switcher),na.rm=T)),se="hetero") %>% etable()
+
+#lm_lin(YminusI0~Educ2,~0+Switcher+Quitter,test) %>% modelsummary()
+Intention.Action.Gap2 <- feols(c(YminusI0,Switcher,-Quitter)~Educ2,test,se ="hetero") 
+tidyIAG2 <- Intention.Action.Gap2 %>% modelplot(draw=FALSE)
+
+Intention.Action.Gap2 %>% modelplot()+labs(title="Switchers, quitters and average intention-to-action gap")+scale_color_manual(values = palette_lgbtq("bisexual"))+geom_vline(aes(xintercept = 0),linetype=2)
+#Share <- feols(-High_SES~1,test)
+modelsummary(Intention.Action.Gap2, stars = c('*' = .1,'**' = .05, '***' = .01),
+             title="Intention to action gap by SES: tests",
+      gof_map = c(
+        "nobs", "r.squared","adj.r.squared","FE: ResponseId", "vcov.type"),
+             ) 
+```
+
+Note that there is a direct link between the intention gap and application gap by social group defined earlier:
+
+<!-- Each term has a clear interpretation: -->
+
+<!-- Pr(Y = 1 | I0 = 0, SES = ...) is the conditional probability of switching to state 1 given that the individual was in state 0 at time 1 -->
+<!-- Pr(I0 = 0 | SES = ...) is the baseline probability of being in state 0 at time 1 -->
+<!-- Pr(SES = ...) is the population share of each SES group -->
+
+<!-- This decomposition lets us understand how much of the overall switching behavior is driven by each SES group, accounting for both their population share and their propensity to switch. -->
+
+
+<!-- $$ -->
+<!-- Pr(Y_i>I_{0i})=\int_xw_xPr(Y_i>I_{0i}|x)dx -->
+<!-- $$ -->
+
+$$
+\begin{aligned}
+\Delta_{x,x'}(\tilde{Y}_i) -\Delta_{x,x'}(I_{0})&=& \espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}}-(\espb{I_{0i}|\mathbf{X}=\mathbf{x}}-\espb{I_{0i}|\mathbf{X}=\mathbf{x^\prime}})\\
+ &=&\espb{\tilde{Y}_i-I_{0i}|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i-I_{0i}|\mathbf{X}=\mathbf{x^\prime}}
+ \end{aligned}
+$$
+
+
+
+\begin{align}
+\Delta_{x,x'}(\tilde{Y}_i-I_{0i}) &=& \espb{\tilde{Y}_i-I_{0i}|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i-I_{0i}|\mathbf{X}=\mathbf{x^\prime}}%\\
+%&=&  \underbrace{\espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x}}-\espb{\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}}}_{\Delta_{x,x'}(\tilde{Y}_i)}-\underbrace{\left(\espb{I_{0i}|\mathbf{X}=\mathbf{x}}-\espb{I_{0i}|\mathbf{X}=\mathbf{x^\prime}}\right)}_{\Delta_{x,x'}(I_{0i})}
+\end{align}
+
+Thus, these parameters can be estimated either by regressing the difference between application and intention on social group dummies or by:
+
+1) stacking baseline (intention) and endline databases (application)
+2) defining an outcome $Y$ which equals $I_0$ in the baseline and $\tilde{Y}$ in the endline.
+3) regressing Y on an endline dummy, an interaction with the group indicator, mother fixed effects and clustered SE
+
+The coefficient of the interaction is an estimate of $\Delta_{x,x'}(\tilde{Y}_i-I_{0i})$ i.e. the intention-to-action gap between high and low SES.
+
+
+```{r IntendToAction}
+#test <- MainDB %>% filter(Assignment=="Control") %>% mutate(I0=ifelse(IntendUse=="Else",0,1),YminusI0=ECSApp-I0)
+
+bindedtest <- bind_rows(test %>% mutate(Baseline=0,Y=I0),
+                        test %>% mutate(Baseline=1,Y=ECSApp))
+
+m0 <- feols(YminusI0~1,test,se = "hetero") # dif Intention to action gap by SES
+m1 <- feols(YminusI0~Educ2,test,se = "hetero") # dif Intention to action gap by SES
+m1b <- feols(YminusI0~0+Educ2,test,se="hetero") # level Intention to action gap by SES
+m2 <- feols(Y~Baseline:Educ2+Baseline|ResponseId,bindedtest,cluster = ~ResponseId) #dif in dif to check they are the same
+
+#feols(c(Switcher,-Quitter,YminusI0)~Educ2,test,se = "hetero") # dif Intention to action gap by SES
+
+modelsummary(list("Mean gap"=m0, "Group average"=m1b,"OLS"=m1,"DID"=m2),
+             title="Intention to application gap by SES status",
+             caption="OLS regresions, control group only.
+             DID include individual fixed effects and clustered SE at the individual level.
+             ",
+              stars = c('*' = .1,'**' = .05, '***' = .01),
+      gof_map = c(
+        "nobs", "r.squared","adj.r.squared","FE: ResponseId", "vcov.type"),
+             )
+# 
+# m0 <- feols(YminusI0~I0,test,se = "hetero") # dif Intention to action gap by SES
+# m1 <- feols(YminusI0~Educ2*I0,test,se = "hetero") # dif Intention to action gap by SES
+# m1b <- feols(YminusI0~0+Educ2*I0,test,se="hetero") # level Intention to action gap by SES
+# m2 <- feols(Y~Baseline:Educ2+Baseline|ResponseId,bindedtest,cluster = ~ResponseId) #dif in dif to check they are the same
+# 
+# 
+# modelsummary(list("Mean gap"=m0, "Group average"=m1b,"OLS"=m1,"DID"=m2),
+#              title="Intention to application gap by SES status",
+#              caption="OLS regresions, control group only.
+#              DID include individual fixed effects and clustered SE at the individual level.
+#              ",
+#               stars = c('*' = .1,'**' = .05, '***' = .01),
+#       gof_map = c(
+#         "nobs", "r.squared","adj.r.squared","FE: ResponseId", "vcov.type"),
+#              )
+
+
+# Note Laudine que le modèle m1bis <- feols(ECSApp~W*High_SES,test,se = "hetero") qui est le modèle qui contrôle par W et interagit ne donne pas les mêmes résultats. ça tient à l'hypothèse implicite d'un effect constant dans ce modèle à "value added" tu peux check ;-) 
+# à l'inverse, le modèle OLS et l modèle DID sont rigoureusement identiques.
+
+
+
+```
+
+
+Table \ref{tab:IntendToAction} shows these estimates by high/low education. The average individual gap among high SES is `r round(m1b$coefficients["Educ2High-SES"]*100,1)`pp, which average switchers from intention to no use and from no intention to use among high SES households. It decomposes the total intention to action gap. This gap is wider for Low SES Family ; the difference in intention to action gap between the two groups is driven by the second and third columns, both estimating the difference in difference in gaps, either by using the actual difference in variable as outcome, or stacking databases with interactions.
+
+In Table \ref{tab:IntendToAction2}, we test the difference in the share of quitters and switchers by social groups. For switchers, there are no difference by SES status But for quitters, Low-SES status who are already less likely to intend to use childcare are twice more likely to quit !
+
+
+```{r IntendToAction2,tab.cap="Test for switchers and quitters by social groups"}
+test <- MainDB %>% filter(Assignment=="Control") %>% mutate(I0=ifelse(IntendUse=="Else",0,1),YminusI0=ECSApp-I0,Switcher=ECSApp>I0,Quitter=ECSApp<I0)
+
+bindedtest <- bind_rows(test %>% mutate(Baseline=0,Y=I0),
+                        test %>% mutate(Baseline=1,Y=ECSApp-I0))
+
+m0 <- feols(c(Switcher,-Quitter)~1,test,se = "hetero") # dif Intention to action gap by SES
+m1 <- feols(c(Switcher,-Quitter)~Educ2,test,se = "hetero") # dif Intention to action gap by SES
+m1b <-feols(c(Switcher,-Quitter)~0+Educ2,test,se="hetero") # level Intention to action gap by SES
+
+#feols(c(Switcher,-Quitter,YminusI0)~Educ2,test,se = "hetero") # dif Intention to action gap by SES
+#lin <- lm_lin(ECSApp~Educ2,~I0,test)
+
+modelsummary(list(#"Mean"=m0, 
+  "Group"=m1b,"Diff"=m1),
+             title="Intention to application gap by SES status",
+             caption="OLS regresions, control group only.
+             DID include individual fixed effects and clustered SE at the individual level.
+             ",
+              stars = c('*' = .1,'**' = .05, '***' = .01),
+      gof_map = c(
+        "nobs", "r.squared","adj.r.squared"),
+             )
+
+#feols(ECSApp~Educ2*I0,test) %>% etable()
+# feols(D~Z|StrataWave,PostDBT2C) %>% summary()
+# 
+# predFS <- feols(Z~0+StrataWave,PostDBT2C) 
+# 
+# PostDBT2C$IV <- predict(predFS)
+# 
+# feols(ECSApp~1|D~Z:psscore,PostDBT2C) %>% etable(stage=c(1,2))
+# 
+# m0 <- feols(YminusI0~I0,test,se = "hetero") # dif Intention to action gap by SES
+# m1 <- feols(YminusI0~Educ2*I0,test,se = "hetero") # dif Intention to action gap by SES
+# m1b <- feols(YminusI0~0+Educ2*I0,test,se="hetero") # level Intention to action gap by SES
+# m2 <- feols(Y~Baseline:Educ2+Baseline|ResponseId,bindedtest,cluster = ~ResponseId) #dif in dif to check they are the same
+# 
+# 
+# modelsummary(list("Mean gap"=m0, "Group average"=m1b,"OLS"=m1,"DID"=m2),
+#              title="Intention to application gap by SES status",
+#              caption="OLS regresions, control group only.
+#              DID include individual fixed effects and clustered SE at the individual level.
+#              ",
+#               stars = c('*' = .1,'**' = .05, '***' = .01),
+#       gof_map = c(
+#         "nobs", "r.squared","adj.r.squared","FE: ResponseId", "vcov.type"),
+#              )
+
+
+# Note Laudine que le modèle m1bis <- feols(ECSApp~W*High_SES,test,se = "hetero") qui est le modèle qui contrôle par W et interagit ne donne pas les mêmes résultats. ça tient à l'hypothèse implicite d'un effect constant dans ce modèle à "value added" tu peux check ;-) 
+# à l'inverse, le modèle OLS et l modèle DID sont rigoureusement identiques.
+
+
+
+```
+
+# Treatment effects on quitter and switchers.
+
+Now that we have seen that there are more quitters than switchers and that the gap in quitters is twice as large among low SES group, we look at the effect of information and administrative support on these probabilities.
+
+## Average estimations
+```{r}
+TestTreat <- PostDB %>% mutate(I0=ifelse(IntendUse=="Else",0,1),YminusI0=ECSApp-I0,Switcher=ECSApp>I0,Quitter=ECSApp<I0)
+
+ITT.Gap <- ITTSimultaneous(Y="YminusI0",DB = TestTreat)
+ITT.Quitter <- ITTSimultaneous(Y="Quitter",DB = TestTreat)
+ITT.Switchers <- ITTSimultaneous(Y="Switcher",DB = TestTreat)
+
+#Coef Map for clear labels
+cm <- c('T1-C'    = 'Information-only vs Control ',
+        'T2-C'    = 'Information + Support vs Control',
+        'T2-T1'   = 'Information + support vs Information-only',
+        "Control mean" = "Mean control group")
+
+
+ modelsummary(list("Gap"=ITT.Gap$ModelSummary,  "Quitter"=ITT.Quitter$ModelSummary,"Switchers"=ITT.Switchers$ModelSummary), title="ITT on Switching and quitting status",
+             coef_map = cm,
+      fmt=fmt_statistic(estimate=2, 
+                        adj.p.value=3,
+                        std.error=2,
+                        conf.int=2,
+                        "Chi 2"=2,
+                        "P-value"=3), 
+      estimate = '{estimate}{stars} ({std.error})',
+      statistic = c("conf.int",
+                    "adj.p.val. = {adj.p.value}"),
+      #stars=FALSE,
+      stars = c('*' = .1,'**' = .05, '***' = .01),
+      gof_map = c(
+        "Covariates","Fixed effects","Chi 2","P-value",
+        "nobs", "r.squared","adj.r.squared"),notes=paste("Sources:", SourcesStacked,
+                  "
+      *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+      Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+      Adjusted p-value and confidence intervals account for simultaneous inference using the",ITT.Switchers$Correction, "method. 
+      Each column estimates jointly the effects of the program using fully-saturated stacked regressions. Control means estimated separately by OLS.
+      Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+      output = 'flextable') %>% 
+     align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
+  width(j=c(2,3),width=2.7,unit = "cm")|>
+  width(j=c(1),width=2.4,unit = "cm") %>% 
+  hline(c(9,11),part="body")
+
+
+```
+
+
+
+## Analysis by SES Status:
+
+
+
+
+```{r}
+TestTreat <- PostDBT2 %>% mutate(I0=ifelse(IntendUse=="Else",0,1),YminusI0=ECSApp-I0,Switcher=ECSApp>I0,Quitter=ECSApp<I0)
+
+Het.ITT.Quitter.Educ2C <- GroupHeterogeneityFnCTRL(DB = TestTreat,
+                                               Outcome = "Quitter",
+                                               Heterogeneity = "Educ2",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+Het.ITT.Switcher.Educ2C <- GroupHeterogeneityFnCTRL(DB = TestTreat,
+                                               Outcome = "Switcher",
+                                               Heterogeneity = "Educ2",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+Het.ITT.YminusI0.Educ2C <- GroupHeterogeneityFnCTRL(DB = TestTreat,
+                                               Outcome = "YminusI0",
+                                               Heterogeneity = "Educ2",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+
+Het.ITT.ECS.Educ2C <- GroupHeterogeneityFnCTRL(DB = TestTreat %>% mutate(HighCoverageBaseline=as.logical(HighCoverageBaseline)),
+                                               Outcome = "UseCreche",
+                                               Heterogeneity = "HighCoverageBaseline",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+
+
+delta <- CompareCoefDelta(Het.ITT.YminusI0.Educ2C)
+#delta <- CompareCoef(Het.ITT.ECS.Educ2C)
+
+delta$Summary.Model
+#Coef Map for clear labels
+cm <- c('T1-C'    = 'Information-only vs Control ',
+        'T2-C'    = 'Information + Support vs Control',
+        'T2-T1'   = 'Information + support vs Information-only',
+        "Control mean" = "Mean control group")
+
+modelsummary(list("Gap"=Het.ITT.YminusI0.Educ2C$ModelSummary, "Quitters"=Het.ITT.Quitter.Educ2C$ModelSummary,"Switchers"=Het.ITT.Switcher.Educ2C$ModelSummary),
+             shape = Group+term~model,
+              coef_map = cm,
+      fmt=fmt_statistic(estimate=2, 
+                        adj.p.value=3,
+                        std.error=2,
+                        conf.int=2,
+                        "Chi 2"=2,
+                        "P-value"=3), 
+      estimate = '{estimate}{stars} ({std.error})',
+      statistic = c("conf.int",
+                    "adj.p.val. = {adj.p.value}"),
+      #stars=FALSE,
+      stars = c('*' = .1,'**' = .05, '***' = .01),
+      gof_map = c(
+        "Covariates","Fixed effects","Chi 2","P-value",
+        "nobs", "r.squared","adj.r.squared"),
+             output = 'flextable') %>% 
+     align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
+  width(j=c(3,4),width=2.7,unit = "cm")|>
+  width(j=c(1,2),width=2.4,unit = "cm") %>% 
+  hline(c(6),part="body")
+
+
+
+```
+
+
+
+
+
+

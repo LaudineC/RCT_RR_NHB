@@ -105,12 +105,34 @@ EstPostLasso <- function(Y="ECSApp",                 # Outcome as string
   ## 
   
   # remove the variables we don't want, and add dummies for blocks and treatment to this matrix.
-  XT <- XT %>% select(-c("SubSampleStrata" ,"SubSample", "ResponseId","Responded")) #%>% 
-    #bind_cols(model.matrix(~0+HighLowECECBaseline*Educ2*IntendUse*Which_wave,DBUse))
+  # XT <- XT %>% select(-c("SubSampleStrata" ,"SubSample", "ResponseId","Responded")) %>% 
+  #   bind_cols(model.matrix(~0+HighLowECECBaseline+Educ2+IntendUse+Which_wave,DBUse))
+  # 
+  # XT <- XT %>% select(-c("SubSampleStrata" ,"SubSample", "ResponseId","Responded")) %>% 
+  #   bind_cols(DBUse %>% select(HighLowECECBaseline,Educ2,IntendUse,Which_wave))
+  # 
+  
+  # remove the variables we don't want, and add dummies for blocks and treatment to this matrix.
+  XT <- XT %>% select(-c("SubSampleStrata" ,"SubSample", "ResponseId","Responded")) %>% 
+    bind_cols(model.matrix(~0+HighLowECECBaseline*Educ2*IntendUse*Which_wave+Z,DBUse))
   
   # put it as a matrix and allow every possible interactions (the number of columns gets crazy high)
+  ModelMatrix <- model.matrix(~0+.*.,XT) 
+  
+  # We just don't want 
+  ModelMatrix <- ModelMatrix[,-c(which(colnames(ModelMatrix)=="Z"))]
+  
+  # Remove near zero variable
+  # ZeroVar <- XT %>% nearZeroVar(freqCut = 90/10) 
+  # XT <- XT[,-c(ZeroVar)]
+  # put it as a matrix and allow every possible interactions (the number of columns gets crazy high)
   #ModelMatrix <- model.matrix(~0+.*.,XT) 
-  ModelMatrix <- model.matrix(~0+.,XT) 
+ # ModelMatrix <- model.matrix(~0+(HighLowECECBaseline:Educ2:IntendUse)*.,XT) 
+  
+  # remove variables with less than 5% of distinct values (almost 0 variance variable which ends-up colinear)
+  ZeroVar <- ModelMatrix %>% nearZeroVar(uniqueCut = 5) 
+  ModelMatrix <- ModelMatrix[,-c(ZeroVar)]
+  
   # We just don't want 
  # ModelMatrix <- ModelMatrix[,-c(which(colnames(ModelMatrix)=="Z"))]
   
@@ -121,7 +143,7 @@ EstPostLasso <- function(Y="ECSApp",                 # Outcome as string
   
   ## now, let's run a cross validation 
   # Cross validation to identify the optimal lambda (may take some time to converge)
-  cv_Lasso2 <- cv.glmnet(ModelMatrix,Y , alpha = 1,nfolds = 5)
+  cv_Lasso2 <- cv.glmnet(ModelMatrix,Y , alpha = 1,nfolds = 10)
   
   # get the best lambda
   bestlam <- cv_Lasso2$lambda.min
@@ -139,6 +161,9 @@ EstPostLasso <- function(Y="ECSApp",                 # Outcome as string
   # Get all column names except Y, Z, and FE
   regressors <- setdiff(names(DB.Reg), c("y", "z", "FE","cluster","weights"))
   
+  # do not get the design variable
+  regressors <- regressors[str_detect(regressors,"educ2|intend_use|ecec_covering|wave")==FALSE]
+  
   # Create the formula as a string
   formula_str <- paste("y ~ Z +", paste(regressors, collapse = " + "), "| FE")
   
@@ -155,7 +180,7 @@ EstPostLasso <- function(Y="ECSApp",                 # Outcome as string
   
 }
 
-
+#test <- EstPostLasso()
 
 
 EstPostLassolm_robust <- function(Y="ECSApp",                 # Outcome as string
@@ -233,7 +258,7 @@ EstPostLassolm_robust <- function(Y="ECSApp",                 # Outcome as strin
 }
 
 
-EstPostLasso <- function(Y="ECSApp",                 # Outcome as string
+EstPostLassoOld <- function(Y="ECSApp",                 # Outcome as string
                          Z="Z",                      # Treatment variable as sting
                          Cluster= "SubSampleStrata", # Clusters 
                          FE = "SubSampleStrata"    , # Fixed effects

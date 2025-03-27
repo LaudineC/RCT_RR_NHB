@@ -410,6 +410,32 @@ To ensure the robustness of the findings, we tested alternative definitions of s
 ```{r RobustnessHTESESsTableT2DaycareCompositeSES,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
 ```
 
+## Sensitivity analysis of the main results: migration background measurment
+
+### Information-only treatment
+
+#### Heterogeneous effects of the information-only treatment on early childcare applications and access
+
+```{r MigTablesEarlyChilcareInfoOnly,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+#### Heterogeneous effects of the information-only treatment on daycare applications and access
+
+```{r MigTablesDaycareInfoOnly,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+#### Heterogeneous effects of the information + support treatment on early childcare applications and access
+
+```{r MigTablesEarlyChilcare,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+#### Heterogeneous effects of the information + support treatment on daycare applications and access
+
+
+```{r MigTablesDaycare,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+
 ## Sensitivity analysis of the main results: models
 
 ### Classical Ordinary-Least-Squares (OLS) models

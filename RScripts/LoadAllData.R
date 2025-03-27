@@ -28,15 +28,29 @@ MainDB <- read_csv(here("Data","MainDatabase.csv")) %>%   mutate(
   FmilyEarnLessThan2500 = as.factor(FmilyEarnLessThan2500), 
   NumberOfChildren3 = as.factor(NumberOfChildren3), 
   NormsOpposedYes = as.factor(NormsOpposedYes),
+  DescriptiveNorms = ifelse(DescriptiveNorms == "Yes", "Majority", "Minority"),
   DescriptiveNorms = as.factor(DescriptiveNorms), 
   MigrationBackground = ifelse(
     FrenchYNBaseline == "Abroad", 
     "Yes", 
     "No"
   ),
+  MigrationBackgroundParent2 = ifelse(
+    (BirthPlace2 == "En France métropolitaine" | BirthPlace2 == "Dans un territoire français d’outre-mer"), 
+    "No", 
+    "Yes"
+  ),
+  MigrationBackgroundOneOfTheTwo = case_when(
+    (MigrationBackground == "Yes" | MigrationBackgroundParent2 == "Yes") ~ "Yes", 
+    TRUE ~ "No"
+  ),
   MigrationBackground = as.factor(MigrationBackground), 
+  MigrationBackgroundBoth = case_when(
+    (MigrationBackground == "Yes" & is.na(MigrationBackgroundParent2)) ~ "Yes", 
+      (MigrationBackground == "Yes" & MigrationBackgroundParent2 == "Yes") ~ "Yes", 
+      TRUE ~ "No"
+    ),
   GenderChild = as.factor(ifelse(BabyFemale == TRUE, "Girl", "Boy"))
-  
 )  %>% mutate_if(is.character, as.factor) 
 
 
@@ -208,7 +222,8 @@ AgeChilden.c <- AgeChilden %>% bind_cols(.,AgeChildenId %>% select(ResponseId,Su
   group_by(SubSampleStrata) %>% mutate_at(all_of(names(AgeChilden)),~.x-mean(.))%>% ungroup()
 
 #KnowsCreche:KnowsNothing
-KnowsId <- StackedDB %>% select(ResponseId,SubSampleStrata,SubSample,KnowsCreche:KnowsCrecheOnly) 
+#KnowsId <- StackedDB %>% select(ResponseId,SubSampleStrata,SubSample,KnowsCreche:KnowsCrecheOnly) 
+KnowsId <- StackedDB %>% select(ResponseId,SubSampleStrata,SubSample,KnownNbTypeECS,KnowsCreche)
 Knows <- model.matrix(~0+.,KnowsId %>% select(-c(ResponseId,SubSampleStrata,SubSample))) %>% as.data.frame() 
 Knows.c <- Knows   %>% bind_cols(.,KnowsId %>% select(ResponseId,SubSampleStrata,SubSample)) %>% 
   group_by(SubSampleStrata)  %>% mutate_at(all_of(names(Knows)),~.x-mean(.))%>% ungroup()

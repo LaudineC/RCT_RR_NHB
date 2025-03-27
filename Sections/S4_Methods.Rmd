@@ -1,0 +1,163 @@
+---
+output:
+  word_document: default
+  html_document: default
+---
+
+This project has been pre-registered. Its detailed pre-registration is available on the AEA Social Science Registry ([RCT ID AEARCTR-0009901](www.socialscienceregistry.org/trials/9901)).
+
+## Ethics information
+
+This experiment was approved by the Institutional Review Board of the Paris School of Economics (IRB Number: 2022-015). The participants explicitly consented to the study at the beginning of each survey. Participants were compensated for their time.
+
+## Design
+
+### Study setting
+
+Our study takes place in the Paris metropolitan area, and includes 84 cities across 3 districts, called *départments* in France (Paris, Val de Marne, and Seine Saint Denis). Despite being geographically close and having similar high population densities, these three Departments differ in terms of the availability of early childcare slots and application processes. In Paris, daycare slots are allocated at the sub-district level (*arrondissement*), and the availability of early childcare slots is the highest of the country (80 early childcare slots for 100 less than 3-years-old children in 2021 in the area, 70 in our sample)[@Cnaf2020]. In Val-de-Marne, the application process is most often centralised at the city level, and the availability of early childcare slots is about the same as the national average (52.6 slots per 100 children in the area, 48.5 in our sample, national average of 59.4). Importantly, in this region, all applications for public daycare have to go through a website with no mobile version. Seine-Saint-Denis has one of the lowest coverage rates of early childhood services in the country (34.6 slots per 100 children in the area, 40.1 in our sample). Application processes are mostly organised at the municipality level with sharp territorial inequalities. In Supplementary Information Section 1, we provide a more detailed description of the early childcare supply in these areas, and we compare it to national averages.
+
+### Research design
+
+Between September and December 2023, we contacted pregnant mothers (4 to 9 months of pregnancy) during their visits to maternity wards of hospitals in the Paris metropolitan area and administered a baseline questionnaire to collect information on socio-demographic characteristics, knowledge of the French early childcare system, and intentions to use early childcare. 2027 questionnaires were administered, but only 1849 were retained for the study because of inclusion criteria: 103 respondents were undocumented, 70 declined to provide their phone number, and an additional 9 participants had to be excluded from the study due to various reasons, such as non-functioning phone numbers.
+
+One year later, between October and December 2023, participants were called back to answer the endline questionnaire through assisted telephone interviews. Of the 1849 households that had been randomised, 79 % of them completed the Endline survey (1455 out of 1849). Robustness analyses and balance checks show that the experimental results are not affected by selective attrition (see Extended Data Table 10).
+
+Map 1 illustrates the distribution of the endline sample across the Paris metropolitan area.
+
+```{r MAP, echo=FALSE, fig.cap="Distribution of the sample across the Paris metropolitan area", fig.width = 10 ,fig.height = 10}
+```
+
+### Intervention design
+
+Neither the information-only nor the information + support treatments were prescriptive about childcare choices. Our goal was to help households to make informed choices on their own with or without guidance and assistance with formal applications. The treatment arms are as follows:
+
+-   ***Information treatment***: *October-December* 2022: this treatment involves two clusters of contents
+
+    -   [*Information about early childcare types*]{.underline}: information aimed at helping households to identify which type of early childcare fits best with their preferences and constraints. Treated households received a text message linking to a short video presenting information about the availability and characteristics of different early childcare options and how they fit different preferences and needs. In the following days, a second text message linked to a second short video presenting early childcare eligibility criteria and costs and a third video presenting less well-known early childcare options (halte-garderies), which may be particularly well-suited to low-SES households (collective but less intensive care, less restrictive criteria of access, easier application procedures and more flexible time schedules).
+
+    -   [*Information about the application process*]{.underline}: information aimed at understanding the application process. As for the information about early childcare types, this involved sending text messages linking to videos presenting information on the calendar of applications, application procedures, and tips to maximise one’s chances of success, such as applying for multiple early childcare options. The content of the first video  was tailored to the area in which households live, because each area has a specific application process. We also gave households access to a website with resources to help them navigate the application process (e.g. checklists, detailed information on the application process at the city level, contract templates).
+
+    -   [*Reminders*]{.underline}: Reminders were sent by text messages in the third week of treatment. Around February 2023, households received a personalised reminder to watch the video and our content to maximise applications for the June commission, where most of the slots get allocated. The content of the message was personalised according to their planned early childcare choices (if and when they were willing to use early childcare) collected at Baseline. We also sent generic reminders to apply shortly before the deadline for the 2023 applications to early childcare (May 2023).
+
+-   ***Information + support treatment***: *February-April 2023*: This treatment involved the same intervention as the information-only treatment according to the same timeline, but also one or several phone calls with parents between February and April 2023 to deliver personalised assistance, as well as personalised application reminders. Between February and April, every two weeks, we randomly allocated the household of this treatment arm to one of the 7 trained research assistants for personalised assistance. Research assistants then called each household as many times as necessary to reach them. The personalised administrative support was then delivered according to a systematic procedure, in French, English or Arabic. The first step was to present the various types of support we could offer to parents. When parents showed interest, we first established a diagnosis of their choices, intentions, and needs after birth. Households were at very different stages of their decision making and we adapted the intervention accordingly. When they had not decided yet, we helped them identify the early childcare solution that best fitted their needs, including how accessible each solution was given their situation, and how affordable each solution was through cost simulations. When they had identified the type of early childcare they wanted, we assisted them according to their demands. Some parents just needed help to identify the early childcare facilities they could apply to, while others needed us to fill the application forms with them. 
+
+-   ***Control group***: Households assigned to the control group received a placebo treatment. Our goal was to maintain some contact with these households in order to minimise attrition at endline. Placebo messages were also sent to the two intervention groups for the same reason. The placebo messages were about events throughout the year (e.g. welcoming text, winter and summer holidays, new year), and useful tips not affecting the outcomes of interest (e.g. flea markets around Paris). Moreover, the households in the control group also received videos, but not about early childcare. The content of these videos referred to emotions and well-being during pregnancy and other health-related topics.
+
+## Sample characteristics
+
+In France, early childcare services welcome children from 3 months to 3 years and many settings accept registrations long before birth. We thus targeted pregnant women in their fourth through ninth months of pregnancy. We recruited expectant mothers through face-to-face interviews in 8 maternity wards in the Paris metropolitan area. Figure 6 shows the distribution of our endline sample across the Paris region. Our sampling strategy resulted in a low refusal rate, with 99.51% of mothers accepting to participate in the study. To be eligible, parents needed to be at least 18 years old (99.7% of the interviewed individuals), have at least one partner allowed to stay on French territory (96%), possess a smartphone (98.9%), and demonstrate a basic level of comprehension and communication in French, English, or Arabic (98% of the population in these areas).
+
+```{r BalanceTable, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+## Variable description
+
+### Main outcomes
+
+The endline survey included our primary outcome variable, which is a binary variable that takes the value 1 if the household has applied to at least one early childcare facility, and 0 otherwise. Our secondary outcome variable is about access. It takes the value 1 if the family has secured a slot in any early childcare facility, indicating that the child is currently enrolled or about to enrol in a facility. To ensure the reliability of our findings, we asked parents to provide the name(s) and address(es) of the early childcare facilities to which they applied or in which their child is enrolled. We excluded responses where parents were unable to provide this information. Additionally, we incorporated the questions on early childcare access within a broader questionnaire that covered various aspects of maternal and newborn care unrelated to early childcare, such as breastfeeding, health behaviours during pregnancy, newborn health, and maternal mental health.
+
+### Heterogeneity
+
+All treatment heterogeneity variables were measured during the baseline survey. SES was primarily assessed based on mother’s level of education. Our main indicator of SES was a binary variable indicating whether the mother completed tertiary education. We conducted robustness checks using alternative measures of SES, including: 1) Mother's occupation, coded according to the International Standard Classification of Occupations (ISCO-08) using the 3-digit level and then, recoded into a numerical score using the International Socio-Economic Index of Occupational Status (ISEI) with the R software package occupar. Finally, we constructed a variable that takes the value 1 if the ISEI score of the mother is above the median ISEI score in the sample, and 0 otherwise; 2) A composite SES score that takes into account the highest occupation level in the households and the highest education level in the household, using a method similar to the one used by the OCDE for the PISA survey [@OECD2020; @Avvisati2020a]. Each mother and father's level of education was converted into equivalent years of education ranging from 0 (no degree) to 17 (Master's degree and above). Mother's and father's occupations were both coded according to the aforementioned procedure. Migration background was measured by a variable that takes the value 1 if the mother was born outside of the French territory, and 0 otherwise. The baseline level of knowledge was primarily initially coded as a categorical variable with four levels: poor, fair, good or excellent level of knowledge. As preregistered, we used this initial variable to create a binary variable that takes the value 1 if the family has a poor level of knowledge at baseline, and 0 otherwise. The activity level of the mother was also measured using a binary variable, with a value of 1 indicating that she was employed or a student at the time of the baseline interview, and a value of 0 indicating otherwise. Another binary variable was used to assess previous early childcare access, with a value of 1 indicating that one of the parents had accessed early childcare services in the past for any of their children, and a value of 0 indicating otherwise. Lastly, following the approach of Reimers et al. (2009), temporal orientation was measured by asking mothers to choose between a hypothetical reward of 50€ in three days or 80€ in three months[@ReimersEtAl2009]. The resulting variable, present orientation, was coded as 1 if the mother chose the 50€ reward.
+
+## Analysis plan 
+
+### Randomisation protocol
+
+To improve precision and ensure balance on a set of characteristics likely to affect our main outcomes, we used a block-random assignment procedure based on the cross product of: i) Education of the mother (“tertiary”/“secondary or lower”), ii) Intention to use early childcare (“no”/“yes but has never used early childcare before”/“yes and already has used early childcare before”), and iii) Supply (early childcare coverage rate higher/lower than the average in the department).  
+
+We collected data over a three-month period and defined “waves” of two-weeks periods over which we performed the assignment procedure. Ultimately, our design was built on 6 randomisation waves with three assignment conditions in the 12 blocks of each lottery.
+
+### Assignment probabilities
+
+Each individual from the baseline sample had a 1/3 probability of being assigned to one of three groups: control, information-only, or information + support. Since our analyses compared pairs of assignment conditions (e.g. information-only vs. control), our analyses relied on conditional assignment probabilities that exclude one treatment arm. However, some blocks had a small or odd number of observations, potentially resulting in slight variations in assignment probabilities across groups. To account for this, we estimated a probit model of assignment based on block-fixed effects in subsamples of pairwise comparisons. We then used the predicted probabilities from these models as propensity scores, denoted as $p_{ibs}$ , where ibs denotes the household $i$ of block $b$ in sub-sample of pairwise comparison $s$. With these, we define inverse propensity score weights $w_{ibs}=\frac{Z_{ibs}}{p_{ibs}}+\frac{(1-Z_{ibs})}{(1-p_{ibs})}$ and centered assignment $\tilde{Z}_{ibs}=Z_{ibs}-p_{ibs}$ where $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block b has been assigned to the treatment group in sub-sample $s$.
+
+<!-- AJOUT ARTHUR -->
+
+<!-- ## Intention to action gaps -->
+
+<!-- We analyse the intention-to-action gap between different social groups (High/low SES, migration background) ($\mathbf{X}$) and subjective attributes (Information, temporal orientation) ($\mathbf{K}$). -->
+
+<!-- Formally, the gap between two sets of values of covariates $\mathbf{x}$ $\mathbf{x^\prime}$ in intention to use at baseline is: -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(W_i) = E\left(W_i|\mathbf{X}=\mathbf{x}\right)-E\left(W_i|\mathbf{X}=\mathbf{x^\prime}\right) -->
+<!-- \end{equation} -->
+
+<!-- The application gap is : -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(\tilde{Y}_i) = E\left(\tilde{Y}_i|\mathbf{X}=\mathbf{x})-E\left(\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}) -->
+<!-- \end{equation} -->
+
+<!-- Denoting $\tilde{Y^*}$ the variable for access to formal childcare, The access gap is : -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(\tilde{Y*}_i) = E\left(\tilde{Y^*}_i|\mathbf{X}=\mathbf{x})-E\left(\tilde{Y^*}_i|\mathbf{X}=\mathbf{x^\prime}}) -->
+<!-- \end{equation} -->
+
+<!-- In our setting, the covariates are discrete and we estimate them with data from the control group using OLS on group dummies and heterokedasticity robust standard errors. -->
+
+
+
+<!-- FIN AJOUT ARTHUR -->
+
+## Intention to treat : main average effects
+
+Because we have two treatment arms, we followed Goldsmith-Pickham (2024) and used stacked regressions to estimate the average difference between each pair of assignment condition $S_i \in \{\text{'Information only-Control’}, \text{'Information + support-Control’}, \text{‘Information + support-Information only'}\}$, while avoiding contamination bias in our estimates. We used the following equation: 
+
+$$
+Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ib}+\sum_s\beta_sZ_{ibs}+\varepsilon_{ibs}
+$$
+
+Where Y denotes the outcome of individual $i$ of block $b$ in sub-sample $s$ ; $B_{ibs}$ denotes block-wave dummies and are interacted with $S_{is}$, a factor variable of sub-sample pairs of treatment arms. $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block $b$ has been assigned to the treatment group in sub-sample $s$. The estimates of $\beta_s$ correspond to the average intention to treat effect [@AtheyImbens2017]. Following Chaisemartin-Ramirez (2022) and  Abadie Et. Al. (2022), we used cluster-heterosckedasticity-robust standard errors adjusted at the block level [@deChaisemartinRamirez-Cuellar2020;@AbadieEtAl2022].This adjustment is very conservative as shown by Abadie Et. Al. (2022), and the detected effects correspond to the lower bound one could expect given these treatments [@AbadieEtAl2022].
+
+### Robustness checks
+
+As pre-registered, we assessed the robustness of our results using a data-driven selection of potential confounders with post-lasso and estimated both pooled and fully-interacted regressions following Negi Wooldrige (2021) and Lin (2013), allowing heterogeneous treatment effects within blocks. We estimated Pooled regressions[@NegiWooldridge2021;@Lin2013]. We used the following equation:
+
+$$
+Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ibs}+\sum_s\beta_sZ_{ibs}+\sum_s\mathbf{\dot{X}^\prime}\rho_s+\upsilon_{ibs}
+$$
+And Lin regressions:
+$$
+Y_{ib}=\beta_sZ_{ibs}+\sum_s\mathbf{\dot{X}^\prime}\rho_s+\sum_s Z\mathbf{\dot{X}^\prime}\tau_s+\upsilon_{ibs}
+$$
+
+
+With $\mathbf{\dot{X}}$, the matrix of covariates selected by the lasso method and previously centred.
+
+Lasso selection and estimations were performed separately for each comparison pair and inference was based on point-wise standard errors clustered at the block-level.
+
+We also reproduced our main analyses using a linear probability model with one dummy for each treatment arm and strata fixed effects, and logistic regressions.
+
+## Local average treatment effect of administrative support
+
+In our setting, administrative support was only offered to those assigned to the information + support treatment group, making non-compliance one-sided. Out of the households that were offered the support, 52% opted for it (See Extended Data Table 2). Thus, under exclusion restriction, an instrumental variable strategy using assignment to the information + support treatment group to predict compliance with support can retrieve the Local average treatment effect (LATE), which can have, an “average treatment effect on the treated” interpretation [@FrolichMelly2013;@ImbensAngrist1994]. We denoted $D_{ib}=1(\text{received support})$ the compliance status and estimated the average treatment effect on the treated through the following system of equations using weighted TSLS:
+
+$$
+TSLS~\left\{ \begin{array}{ll}
+Y_{i}=&\sum_b \alpha_{b}B_{i}+\delta D_{i}+\mu_{i}\\
+D_{i}=& \sum_b \gamma_{b}B_i+\tilde{Z}_{i}\pi_{b}+\epsilon_{i}\\
+\end{array} \right. 
+$$
+
+using cluster robust standard errors adjusted at the block level.
+
+
+<!-- Yibs= bsbBib+sDib+ibs -->
+
+<!-- Dib= bsbBib+sZib+ibs -->
+
+## Conditional average treatment effects
+
+We estimated average treatment effects by pre-specified subgroups following the same estimation strategy as the main models presented above. We retrieved conditional average effects using fully saturated stacked regressions interacting all right hand side variables with subgroup dummies (see Goldsmith-Pinkham et Al. (2022))[@Goldsmith2022]. In the two stage least squares models, we estimated one first stage for each sub-group. 
+
+# Inference and tests
+
+We adjusted p-values and confidence intervals to account for the Family-wise error rates using the Young-Westfall method using the R package multcomp [@BretzEtAl2010].
+Our multiple testing procedure adjusted, for each outcome, the p-values and confidence intervals for simultaneous inference on the 3 comparisons (information - control, information + support - control, information + support - information only).
+
+When we estimate conditional average treatment effects, the
+
+All analyses were performed using R 4.3.0 and R studio 2023.12.1.

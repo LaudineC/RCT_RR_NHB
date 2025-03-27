@@ -4438,8 +4438,8 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j = c(2,3,4,7), width = 2.2, unit = "cm") %>%
   hline(c(3, 6,9, 12, 15, 18, 21), part = "body") 
 
-
-
+#------ ROBUSTNESS------------
+##--------------- SES -----------------
 #------ RobustnessHTESESGraphsT1EarlyChildcareApp --------
 
 # Nous créons ici les graphiques pour les vérifications de robustesse de l'analyse d'hétérogénéité par SES.
@@ -5538,6 +5538,709 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
   width(j = c(1, 2, 3, 6), width = 2, unit = "cm") %>%
   hline(c(6, 3), part = "body")
 
+##-------------- Migration background --------------
+#--------------- MigTablesEarlyChilcareInfoOnly -------------------------------
+
+# First estimate the ITT for applications - Migration Background dimensions
+Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "ECSApp",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.App.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSApp",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.App.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "ECSApp",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Now estimate the ITT for access - Migration Background dimensions
+Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "ECSUseYes",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.Use.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.Use.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "ECSUseYes",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Stack control for application - Migration Background
+StackedControlApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.App.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary0$glance
+)
+class(StackedControlApp) <- "modelsummary_list"   # define the class
+
+# Stack ITT for application - Migration Background
+StackedITTApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.App.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary$glance
+)
+class(StackedITTApp) <- "modelsummary_list"   # define the class
+
+# Stack control for use - Migration Background
+StackedControlUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.Use.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary0$glance
+)
+class(StackedControlUse) <- "modelsummary_list"   # define the class
+
+# Stack ITT for use - Migration Background
+StackedITTUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.Use.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary$glance
+)
+class(StackedITTUse) <- "modelsummary_list"   # define the class
+
+# Put that in a list
+TheModelsATT <-   list(StackedControlApp,
+                       StackedITTApp,
+                       StackedControlUse,
+                       StackedITTUse
+)
+
+# Define labels
+OutcomeLabel <- c("Early childcare application", "Early childcare access")
+
+# Define the name of the models with it with an underscore to separate them after
+names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ITT",sep="_"))
+# Now T2 against C
+cmT2C <- c('T1-C'    = 'Information-only vs control')
+
+# Title for modelsummary
+TheTitle = "Average gaps and heterogeneous treatment effects of the information-only treatment on early childcare application and access - Migration Background robustness checks"
+
+# Now the infamous model summary 
+ModelT1C <- modelsummary(TheModelsATT,
+                         shape= Variable + Group ~ model,
+                         fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
+                         estimate = '{estimate}{stars} ({std.error})',
+                         statistic = c("conf.int",
+                                       "adj.p.val. = {adj.p.value}"),
+                         stars = c('*' = .1,'**' = .05, '***' = .01),
+                         coef_map = cmT2C,
+                         gof_map = c('Fixed effects',"N"),
+                         title=TheTitle,
+                         notes=paste("Sources:", SourcesStacked,
+                                     "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Adjusted standard errors robust to cluster-heteroskedasticity at the block level.
+Adjusted p-values and confidence intervals account for simultaneous inference using the Westfall method.
+Joint significance test of null effect using Chi-2 test and p-values are reported at the bottom of the table.
+                         " 
+                         ),output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
+  bold(i=1,  part = "header") %>%                # Variable labels bold
+  merge_at(j=1,part="header")|>
+  merge_at(j=2,part="header")|>
+  merge_v(j=1:3,part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>%
+  fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>
+  width(j=c(1,2, 3),width=2.2,unit = "cm") %>% 
+   hline(i = 3, j = 1:7, part="body") %>%
+   hline(i = 6, j = 1:7, part="body") %>%
+   hline(i = 9, j = 1:7, part="body") %>%
+  hline(i = 12, j = 1:7, part="body") %>%
+  hline(i = 15, j = 1:7, part="body") %>%
+  hline(i = 18, j = 1:7, part="body")
+
+ModelT1C
+
+#--------------- MigTablesDaycareInfoOnly -------------------------------
+
+# First estimate the ITT for daycare applications - Migration Background dimensions
+Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "AppCreche",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.App.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "AppCreche",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.App.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "AppCreche",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Now estimate the ITT for daycare access - Migration Background dimensions
+Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "UseCreche",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.Use.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "UseCreche",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.Use.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "UseCreche",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Stack control for daycare application - Migration Background
+StackedControlApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.App.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary0$glance
+)
+class(StackedControlApp) <- "modelsummary_list"   # define the class
+
+# Stack ITT for daycare application - Migration Background
+StackedITTApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.App.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary$glance
+)
+class(StackedITTApp) <- "modelsummary_list"   # define the class
+
+# Stack control for daycare use - Migration Background
+StackedControlUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.Use.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary0$glance
+)
+class(StackedControlUse) <- "modelsummary_list"   # define the class
+
+# Stack ITT for daycare use - Migration Background
+StackedITTUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackground"),
+                   Het.ITT.Use.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary$glance
+)
+class(StackedITTUse) <- "modelsummary_list"   # define the class
+
+# Put that in a list
+TheModelsATT <-   list(StackedControlApp,
+                       StackedITTApp,
+                       StackedControlUse,
+                       StackedITTUse
+)
+
+# Define labels
+OutcomeLabel <- c("Daycare application", "Daycare access")
+
+# Define the name of the models with it with an underscore to separate them after
+names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ITT",sep="_"))
+# Now T1 against C
+cmT2C <- c('T1-C'    = 'Information-only vs control')
+
+# Title for modelsummary
+TheTitle = "Average gaps and heterogeneous treatment effects of the information-only treatment on daycare application and access - Migration Background robustness checks"
+
+# Now the infamous model summary 
+ModelT1C <- modelsummary(TheModelsATT,
+                         shape= Variable + Group ~ model,
+                         fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
+                         estimate = '{estimate}{stars} ({std.error})',
+                         statistic = c("conf.int",
+                                       "adj.p.val. = {adj.p.value}"),
+                         stars = c('*' = .1,'**' = .05, '***' = .01),
+                         coef_map = cmT2C,
+                         gof_map = c('Fixed effects',"N"),
+                         title=TheTitle,
+                         notes=paste("Sources:", SourcesStacked,
+                                     "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Adjusted standard errors robust to cluster-heteroskedasticity at the block level.
+Adjusted p-values and confidence intervals account for simultaneous inference using the Westfall method.
+Joint significance test of null effect using Chi-2 test and p-values are reported at the bottom of the table.
+                         " 
+                         ),output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
+  bold(i=1,  part = "header") %>%                # Variable labels bold
+  merge_at(j=1,part="header")|>
+  merge_at(j=2,part="header")|>
+  merge_v(j=1:3,part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>%
+  fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>
+  width(j=c(1,2, 3),width=2.2,unit = "cm") %>% 
+  hline(i = 3, j = 1:7, part="body") %>%
+  hline(i = 6, j = 1:7, part="body") %>%
+  hline(i = 9, j = 1:7, part="body") %>%
+  hline(i = 12, j = 1:7, part="body") %>%
+  hline(i = 15, j = 1:7, part="body") %>%
+  hline(i = 18, j = 1:7, part="body")
+
+ModelT1C
+#--------------- MigTablesEarlyChilcare -------------------------------
+# First estimate the ITT for applications - Migration Background dimensions
+Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "ECSApp",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.App.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSApp",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.App.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "ECSApp",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Now estimate the ITT for access - Migration Background dimensions
+Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "ECSUseYes",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.Use.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.Use.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "ECSUseYes",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Stack control for application - Migration Background
+StackedControlApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.App.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary0$glance
+)
+class(StackedControlApp) <- "modelsummary_list"   # define the class
+
+# Stack ITT for application - Migration Background
+StackedITTApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.App.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary$glance
+)
+class(StackedITTApp) <- "modelsummary_list"   # define the class
+
+# Stack control for use - Migration Background
+StackedControlUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.Use.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary0$glance
+)
+class(StackedControlUse) <- "modelsummary_list"   # define the class
+
+# Stack ITT for use - Migration Background
+StackedITTUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.Use.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary$glance
+)
+class(StackedITTUse) <- "modelsummary_list"   # define the class
+
+# Step 2 : estimate the conditional ATTs of interest using the function
+# ATT for applications - Migration Background
+Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                            Outcome = "ECSApp",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = FALSE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ATT.App.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "ECSApp",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ATT.App.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "ECSApp",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = FALSE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Now ATT for use - Migration Background
+Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                            Outcome = "ECSUseYes",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = FALSE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ATT.Use.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "ECSUseYes",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ATT.Use.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "ECSUseYes",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = FALSE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Stack ATT for application - Migration Background
+StackedATTApp <- list(
+  tidy = bind_rows(Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ATT.App.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ATT.App.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ATT.App.Mig$ModelSummary$glance
+)
+class(StackedATTApp) <- "modelsummary_list"   # define the class
+
+# Stack ATT for use - Migration Background
+StackedATTUse <- list(
+  tidy = bind_rows(Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ATT.Use.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ATT.Use.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ATT.Use.Mig$ModelSummary$glance
+)
+class(StackedATTUse) <- "modelsummary_list"   # define the class
+
+# Put that in a list
+TheModelsATT <-   list(StackedControlApp,
+                       StackedITTApp,
+                       StackedATTApp,
+                       StackedControlUse,
+                       StackedITTUse,
+                       StackedATTUse
+)
+
+# Define labels
+OutcomeLabel <- c("Early childcare application", "Early childcare access")
+
+# Define the name of the models with it with an underscore to separate them after
+names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ATT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ATT",sep="_"))
+
+# Now T2 against C
+cmT2C <- c('T2-C'    = 'Information + support vs control')
+
+# Title for modelsummary
+TheTitle = "Average gaps and heterogeneous treatment effects of the information + support treatment on early childcare application and access - Migration Background robustness checks"
+
+# Now the infamous model summary 
+ModelT2C <- modelsummary(TheModelsATT,
+                         shape= Variable + Group ~ model,
+                         fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
+                         estimate = '{estimate}{stars} ({std.error})',
+                         statistic = c("conf.int",
+                                       "adj.p.val. = {adj.p.value}"),
+                         stars = c('*' = .1,'**' = .05, '***' = .01),
+                         coef_map = cmT2C,
+                         gof_map = c('Fixed effects',"N"),
+                         title=TheTitle,
+                         notes=paste("Sources:", SourcesStacked,
+                                     "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Adjusted standard errors robust to cluster-heteroskedasticity at the block level.
+Adjusted p-values and confidence intervals account for simultaneous inference using the Westfall method.
+Joint significance test of null effect using Chi-2 test and p-values are reported at the bottom of the table.
+                         " 
+                         ),output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
+  bold(i=1,  part = "header") %>%                # Variable labels bold
+  merge_at(j=1,part="header")|>
+  merge_at(j=2,part="header")|>
+  merge_v(j=1:3,part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>
+  width(j=c(1,2, 3, 6),width=2.2,unit = "cm") %>% 
+  hline(i = 3, j = 1:9, part="body") %>%
+  hline(i = 6, j = 1:9, part="body") %>%
+  hline(i = 9, j = 1:9, part="body") %>%
+  hline(i = 12, j = 1:9, part="body") %>%
+  hline(i = 15, j = 1:9, part="body") %>%
+  hline(i = 18, j = 1:9, part="body")
+
+ModelT2C
+
+#--------------- MigTablesDaycare -------------------------------
+# First estimate the ITT for daycare applications - Migration Background dimensions
+Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "AppCreche",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.App.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "AppCreche",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.App.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "AppCreche",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Now estimate the ITT for daycare access - Migration Background dimensions
+Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "UseCreche",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ITT.Use.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                              Outcome = "UseCreche",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = TRUE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ITT.Use.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDB %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "UseCreche",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = TRUE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Stack control for daycare application - Migration Background
+StackedControlApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.App.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary0$glance
+)
+class(StackedControlApp) <- "modelsummary_list"   # define the class
+
+# Stack ITT for daycare application - Migration Background
+StackedITTApp <- list(
+  tidy = bind_rows(Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.App.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.App.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.App.Mig$ModelSummary$glance
+)
+class(StackedITTApp) <- "modelsummary_list"   # define the class
+
+# Stack control for daycare use - Migration Background
+StackedControlUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.Use.Mig12$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary0$glance
+)
+class(StackedControlUse) <- "modelsummary_list"   # define the class
+
+# Stack ITT for daycare use - Migration Background
+StackedITTUse <- list(
+  tidy = bind_rows(Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ITT.Use.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ITT.Use.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ITT.Use.Mig$ModelSummary$glance
+)
+class(StackedITTUse) <- "modelsummary_list"   # define the class
+
+# Step 2 : estimate the conditional ATTs of interest using the function
+# ATT for daycare applications - Migration Background
+Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                            Outcome = "AppCreche",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = FALSE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ATT.App.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "AppCreche",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ATT.App.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "AppCreche",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = FALSE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Now ATT for daycare use - Migration Background
+Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                            Outcome = "UseCreche",
+                                            Heterogeneity = "MigrationBackgroundBoth",
+                                            ITT = FALSE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+Het.ATT.Use.Mig12 <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                              Outcome = "UseCreche",
+                                              Heterogeneity= "MigrationBackgroundOneOfTheTwo",
+                                              ITT = FALSE,
+                                              Weights = "WeightPS",
+                                              clusters = "StrataWave")
+
+Het.ATT.Use.Mig2 <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% filter(!is.na(MigrationBackgroundParent2)),
+                                             Outcome = "UseCreche",
+                                             Heterogeneity = "MigrationBackgroundParent2",
+                                             ITT = FALSE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+# Stack ATT for daycare application - Migration Background
+StackedATTApp <- list(
+  tidy = bind_rows(Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ATT.App.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ATT.App.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ATT.App.Mig$ModelSummary$glance
+)
+class(StackedATTApp) <- "modelsummary_list"   # define the class
+
+# Stack ATT for daycare use - Migration Background
+StackedATTUse <- list(
+  tidy = bind_rows(Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundBoth"),
+                   Het.ATT.Use.Mig12$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundOneOfTheTwo"),
+                   Het.ATT.Use.Mig2$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="MigrationBackgroundParent2")),
+  glance = Het.ATT.Use.Mig$ModelSummary$glance
+)
+class(StackedATTUse) <- "modelsummary_list"   # define the class
+
+# Put that in a list
+TheModelsATT <-   list(StackedControlApp,
+                       StackedITTApp,
+                       StackedATTApp,
+                       StackedControlUse,
+                       StackedITTUse,
+                       StackedATTUse
+)
+
+# Define labels
+OutcomeLabel <- c("Daycare application", "Daycare access")
+
+# Define the name of the models with it with an underscore to separate them after
+names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ATT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ATT",sep="_"))
+
+# Now T2 against C
+cmT2C <- c('T2-C'    = 'Information + support vs control')
+
+# Title for modelsummary
+TheTitle = "Average gaps and heterogeneous treatment effects of the information + support treatment on daycare application and access - Migration Background robustness checks"
+
+# Now the infamous model summary 
+ModelT2C <- modelsummary(TheModelsATT,
+                         shape= Variable + Group ~ model,
+                         fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
+                         estimate = '{estimate}{stars} ({std.error})',
+                         statistic = c("conf.int",
+                                       "adj.p.val. = {adj.p.value}"),
+                         stars = c('*' = .1,'**' = .05, '***' = .01),
+                         coef_map = cmT2C,
+                         gof_map = c('Fixed effects',"N"),
+                         title=TheTitle,
+                         notes=paste("Sources:", SourcesStacked,
+                                     "
+*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+Adjusted standard errors robust to cluster-heteroskedasticity at the block level.
+Adjusted p-values and confidence intervals account for simultaneous inference using the Westfall method.
+Joint significance test of null effect using Chi-2 test and p-values are reported at the bottom of the table.
+                         " 
+                         ),output = 'flextable') %>% 
+  theme_booktabs()|>
+  separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
+  bold(i=1,  part = "header") %>%                # Variable labels bold
+  merge_at(j=1,part="header")|>
+  merge_at(j=2,part="header")|>
+  merge_v(j=1:3,part="body")|>
+  italic(i = c(1),  part = "header") %>% 
+  italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
+  align(part = "header", align = "center")|>                # center
+  align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
+  width(j=c(1,2, 3, 6),width=2.2,unit = "cm") %>% 
+  hline(i = 3, j = 1:9, part="body") %>%
+  hline(i = 6, j = 1:9, part="body") %>%
+  hline(i = 9, j = 1:9, part="body") %>%
+  hline(i = 12, j = 1:9, part="body") %>%
+  hline(i = 15, j = 1:9, part="body") %>%
+  hline(i = 18, j = 1:9, part="body")
+
+ModelT2C
 
 #------RobustnessPostLassoGraphs -------
 

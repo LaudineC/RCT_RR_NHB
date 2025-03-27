@@ -43,7 +43,8 @@ p_load(fixest,                    # Fast fixed-effect models
        glmnet,                    # Generalised linear model with regularization (lasso, ridge and elasticnets)
        nnet,                      # Neural network models and multinomial logit
        multcomp,                  # Multiple comparisons
-       twang                     # Functions for propensity score estimations and weightings + non-response analysis and weighting
+       twang,                     # Functions for propensity score estimations and weightings + non-response analysis and weighting
+       caret
       )
 
 
