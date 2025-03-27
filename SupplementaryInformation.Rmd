@@ -76,7 +76,7 @@ The average coverage rate in our sample is `r round(mean(MainDB$Taux.de.couv.glo
 
 # Part 2: Descriptive statistics 
 
-## Descriptive tables of the main variables - following Reviewer 1's suggestion
+## Descriptive tables of the main variables 
 
 #### Distribution of the variables
 ```{r Descriptive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
