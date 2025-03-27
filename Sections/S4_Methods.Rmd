@@ -70,32 +70,62 @@ We collected data over a three-month period and defined “waves” of two-weeks
 
 ### Assignment probabilities
 
-Each individual from the baseline sample had a 1/3 probability of being assigned to one of three groups: control, information-only, or information + support. Since our analyses compared pairs of assignment conditions (e.g. information-only vs. control), our analyses relied on conditional assignment probabilities that exclude one treatment arm. However, some blocks had a small or odd number of observations, potentially resulting in slight variations in assignment probabilities across groups. To account for this, we estimated a probit model of assignment based on block-fixed effects in subsamples of pairwise comparisons. We then used the predicted probabilities from these models as propensity scores, denoted as $p_{ibs}$ , where ibs denotes the household $i$ of block $b$ in sub-sample of pairwise comparison $s$. With these, we define inverse propensity score weights $w_{ibs}=\frac{Z_{ibs}}{p_{ibs}}+\frac{(1-Z_{ibs})}{(1-p_{ibs})}$ and centered assignment $\tilde{Z}_{ibs}=Z_{ibs}-p_{ibs}$ where $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block b has been assigned to the treatment group in sub-sample $s$.  	
+Each individual from the baseline sample had a 1/3 probability of being assigned to one of three groups: control, information-only, or information + support. Since our analyses compared pairs of assignment conditions (e.g. information-only vs. control), our analyses relied on conditional assignment probabilities that exclude one treatment arm. However, some blocks had a small or odd number of observations, potentially resulting in slight variations in assignment probabilities across groups. To account for this, we estimated a probit model of assignment based on block-fixed effects in subsamples of pairwise comparisons. We then used the predicted probabilities from these models as propensity scores, denoted as $p_{ibs}$ , where ibs denotes the household $i$ of block $b$ in sub-sample of pairwise comparison $s$. With these, we define inverse propensity score weights $w_{ibs}=\frac{Z_{ibs}}{p_{ibs}}+\frac{(1-Z_{ibs})}{(1-p_{ibs})}$ and centered assignment $\tilde{Z}_{ibs}=Z_{ibs}-p_{ibs}$ where $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block b has been assigned to the treatment group in sub-sample $s$.
+
+<!-- AJOUT ARTHUR -->
+
+<!-- ## Intention to action gaps -->
+
+<!-- We analyse the intention-to-action gap between different social groups (High/low SES, migration background) ($\mathbf{X}$) and subjective attributes (Information, temporal orientation) ($\mathbf{K}$). -->
+
+<!-- Formally, the gap between two sets of values of covariates $\mathbf{x}$ $\mathbf{x^\prime}$ in intention to use at baseline is: -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(W_i) = E\left(W_i|\mathbf{X}=\mathbf{x}\right)-E\left(W_i|\mathbf{X}=\mathbf{x^\prime}\right) -->
+<!-- \end{equation} -->
+
+<!-- The application gap is : -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(\tilde{Y}_i) = E\left(\tilde{Y}_i|\mathbf{X}=\mathbf{x})-E\left(\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}) -->
+<!-- \end{equation} -->
+
+<!-- Denoting $\tilde{Y^*}$ the variable for access to formal childcare, The access gap is : -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(\tilde{Y*}_i) = E\left(\tilde{Y^*}_i|\mathbf{X}=\mathbf{x})-E\left(\tilde{Y^*}_i|\mathbf{X}=\mathbf{x^\prime}}) -->
+<!-- \end{equation} -->
+
+<!-- In our setting, the covariates are discrete and we estimate them with data from the control group using OLS on group dummies and heterokedasticity robust standard errors. -->
+
+
+
+<!-- FIN AJOUT ARTHUR -->
 
 ## Intention to treat : main average effects
 
 Because we have two treatment arms, we followed Goldsmith-Pickham (2024) and used stacked regressions to estimate the average difference between each pair of assignment condition $S_i \in \{\text{'Information only-Control’}, \text{'Information + support-Control’}, \text{‘Information + support-Information only'}\}$, while avoiding contamination bias in our estimates. We used the following equation: 
 
 $$
-Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ibs}\times S_{is}+\beta_sZ_{ibs}+\varepsilon_{ibs}
+Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ib}+\sum_s\beta_sZ_{ibs}+\varepsilon_{ibs}
 $$
 
-Where Y denotes the outcome of individual $i$ of block $b$ in sub-sample $s$ ; $B_{ibs}$ denotes block-wave dummies and are interacted with $S_{is}$, a factor variable of sub-sample pairs of treatment arms. $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block $b$ has been assigned to the treatment group in sub-sample $s$. The estimates of $\beta_s$ correspond to the average intention to treat effect [@AtheyImbens2017]. Following Chaisemartin-Ramirez (2022) and  Abadie Et. Al. (2022), we used cluster-heterosckedasticity-robust standard errors adjusted at the block level [@deChaisemartinRamirez-Cuellar2020;@AbadieEtAl2022].This adjustment is very conservative as shown by Abadie Et. Al. (2022), and the detected effects correspond to the lower bound one could expect given these treatments[@AbadieEtAl2022].
+Where Y denotes the outcome of individual $i$ of block $b$ in sub-sample $s$ ; $B_{ibs}$ denotes block-wave dummies and are interacted with $S_{is}$, a factor variable of sub-sample pairs of treatment arms. $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block $b$ has been assigned to the treatment group in sub-sample $s$. The estimates of $\beta_s$ correspond to the average intention to treat effect [@AtheyImbens2017]. Following Chaisemartin-Ramirez (2022) and  Abadie Et. Al. (2022), we used cluster-heterosckedasticity-robust standard errors adjusted at the block level [@deChaisemartinRamirez-Cuellar2020;@AbadieEtAl2022].This adjustment is very conservative as shown by Abadie Et. Al. (2022), and the detected effects correspond to the lower bound one could expect given these treatments [@AbadieEtAl2022].
 
 ### Robustness checks
 
 As pre-registered, we assessed the robustness of our results using a data-driven selection of potential confounders with post-lasso and estimated both pooled and fully-interacted regressions following Negi Wooldrige (2021) and Lin (2013), allowing heterogeneous treatment effects within blocks. We estimated Pooled regressions[@NegiWooldridge2021;@Lin2013]. We used the following equation:
 
 $$
-Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ibs}\times S_{is}+\beta_sZ_{ibs}+\mathbf{\bar{X}^\prime}\rho_s+\upsilon_{ibs}
+Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ibs}+\sum_s\beta_sZ_{ibs}+\sum_s\mathbf{\dot{X}^\prime}\rho_s+\upsilon_{ibs}
 $$
 And Lin regressions:
 $$
-Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ibs}\times S_{is}+\beta_sZ_{ibs}+\mathbf{\bar{X}^\prime}\rho_s+Z\mathbf{\bar{X}^\prime}\tau_s+\upsilon_{ibs}
+Y_{ib}=\beta_sZ_{ibs}+\sum_s\mathbf{\dot{X}^\prime}\rho_s+\sum_s Z\mathbf{\dot{X}^\prime}\tau_s+\upsilon_{ibs}
 $$
 
 
-With $\mathbf{\bar{X}}$, the matrix of covariates selected by the lasso method and previously centred.
+With $\mathbf{\dot{X}}$, the matrix of covariates selected by the lasso method and previously centred.
 
 Lasso selection and estimations were performed separately for each comparison pair and inference was based on point-wise standard errors clustered at the block-level.
 
@@ -112,7 +142,7 @@ D_{i}=& \sum_b \gamma_{b}B_i+\tilde{Z}_{i}\pi_{b}+\epsilon_{i}\\
 \end{array} \right. 
 $$
 
-adjusting standard errors for clustering at the block level.
+using cluster robust standard errors adjusted at the block level.
 
 
 <!-- Yibs= bsbBib+sDib+ibs -->
@@ -125,6 +155,9 @@ We estimated average treatment effects by pre-specified subgroups following the 
 
 # Inference and tests
 
-We adjust p-values and confidence intervals to account for the Family-wise error rates using the Young-Westfall method implemented by the R package multcomp[@BretzEtAl2010].
+We adjusted p-values and confidence intervals to account for the Family-wise error rates using the Young-Westfall method using the R package multcomp [@BretzEtAl2010].
+Our multiple testing procedure adjusted, for each outcome, the p-values and confidence intervals for simultaneous inference on the 3 comparisons (information - control, information + support - control, information + support - information only).
+
+When we estimate conditional average treatment effects, the
 
 All analyses were performed using R 4.3.0 and R studio 2023.12.1.

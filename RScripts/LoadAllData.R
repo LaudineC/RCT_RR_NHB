@@ -18,7 +18,7 @@
 #---- LoadSource ----
 # Original baseline dataset with the number of refusals
 BaselineFull <- read_csv(here("Data","BaselineWithRefusals.csv")) 
-
+#read_csv("Data/BaselineWithRefusals.csv")
 # Import the main database with both baseline and endline information for all participants
 MainDB <- read_csv(here("Data","MainDatabase.csv")) %>%   mutate(
   NormsBaseline=factor(NormsBaseline,
@@ -28,8 +28,29 @@ MainDB <- read_csv(here("Data","MainDatabase.csv")) %>%   mutate(
   FmilyEarnLessThan2500 = as.factor(FmilyEarnLessThan2500), 
   NumberOfChildren3 = as.factor(NumberOfChildren3), 
   NormsOpposedYes = as.factor(NormsOpposedYes),
-  DescriptiveNorms = as.factor(DescriptiveNorms)
-  
+  DescriptiveNorms = ifelse(DescriptiveNorms == "Yes", "Majority", "Minority"),
+  DescriptiveNorms = as.factor(DescriptiveNorms), 
+  MigrationBackground = ifelse(
+    FrenchYNBaseline == "Abroad", 
+    "Yes", 
+    "No"
+  ),
+  MigrationBackgroundParent2 = ifelse(
+    (BirthPlace2 == "En France métropolitaine" | BirthPlace2 == "Dans un territoire français d’outre-mer"), 
+    "No", 
+    "Yes"
+  ),
+  MigrationBackgroundOneOfTheTwo = case_when(
+    (MigrationBackground == "Yes" | MigrationBackgroundParent2 == "Yes") ~ "Yes", 
+    TRUE ~ "No"
+  ),
+  MigrationBackground = as.factor(MigrationBackground), 
+  MigrationBackgroundBoth = case_when(
+    (MigrationBackground == "Yes" & is.na(MigrationBackgroundParent2)) ~ "Yes", 
+      (MigrationBackground == "Yes" & MigrationBackgroundParent2 == "Yes") ~ "Yes", 
+      TRUE ~ "No"
+    ),
+  GenderChild = as.factor(ifelse(BabyFemale == TRUE, "Girl", "Boy"))
 )  %>% mutate_if(is.character, as.factor) 
 
 
@@ -201,7 +222,8 @@ AgeChilden.c <- AgeChilden %>% bind_cols(.,AgeChildenId %>% select(ResponseId,Su
   group_by(SubSampleStrata) %>% mutate_at(all_of(names(AgeChilden)),~.x-mean(.))%>% ungroup()
 
 #KnowsCreche:KnowsNothing
-KnowsId <- StackedDB %>% select(ResponseId,SubSampleStrata,SubSample,KnowsCreche:KnowsCrecheOnly) 
+#KnowsId <- StackedDB %>% select(ResponseId,SubSampleStrata,SubSample,KnowsCreche:KnowsCrecheOnly) 
+KnowsId <- StackedDB %>% select(ResponseId,SubSampleStrata,SubSample,KnownNbTypeECS,KnowsCreche)
 Knows <- model.matrix(~0+.,KnowsId %>% select(-c(ResponseId,SubSampleStrata,SubSample))) %>% as.data.frame() 
 Knows.c <- Knows   %>% bind_cols(.,KnowsId %>% select(ResponseId,SubSampleStrata,SubSample)) %>% 
   group_by(SubSampleStrata)  %>% mutate_at(all_of(names(Knows)),~.x-mean(.))%>% ungroup()
@@ -306,4 +328,47 @@ rm(SocDemo, SocDemo.c, SocDemoId,
          DBResponse, PredVars, fit_basic, fit_basicStack,
          survey_trick, ps_fit
          ) 
+
+## Theme
+#vis_theme <- theme(
+#  # Agrandir tous les textes
+#  text = element_text(size = 12),
+#  # Titres de facettes plus grands
+#  strip.text = element_text(size = 12, face = "bold"),
+#  # Texte des axes plus grand
+#  axis.title = element_text(size = 14, face = "bold"),
+#  axis.text = element_text(size = 12),
+#  # Légende plus visible
+#  legend.title = element_text(size = 12, face = "bold"),
+#  legend.text = element_text(size = 12),
+#  # Notes de bas de page plus lisibles
+#  plot.caption = element_text(size = 10, hjust = 0, margin = margin(t = 10)),
+#  # Plus d'espace global
+#  plot.margin = margin(15, 15, 15, 15)
+#)
+
+# Thème ajusté pour l'article avec meilleure gestion des longs labels
+vis_theme <- theme(
+  # Agrandir tous les textes mais rester raisonnable pour l'article
+  text = element_text(size = 12),
+  # Titres de facettes plus grands
+  strip.text = element_text(size = 11, face = "bold"),
+  # Texte des axes plus grand
+  axis.title = element_text(size = 14, face = "bold"),
+  axis.text = element_text(size = 12),
+  # Marge additionnelle pour le texte d'axe y qui contient les longs labels
+  axis.text.y = element_text(size = 12, margin = margin(r = 8)),
+  # Légende plus visible
+  legend.title = element_text(size = 12, face = "bold"),
+  legend.text = element_text(size = 12),
+  # Position de la légende ajustée pour libérer de l'espace
+  legend.position = "bottom",
+  # Réduire l'espacement des panneaux pour maximiser l'espace
+  panel.spacing = unit(1, "lines"),
+  # Notes de bas de page plus lisibles
+  plot.caption = element_text(size = 10, hjust = 0, margin = margin(t = 10)),
+  # Plus d'espace global mais plus conservateur en largeur
+  plot.margin = margin(15, 10, 15, 15)
+)
+
 

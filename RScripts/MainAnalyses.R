@@ -29,7 +29,7 @@ DiffControls <- feols(c(ECSPlanToBaseline,ECSApp,ECSUseYes)~Educ2,
                       #weights = ~WeightBalance,
                       se="hetero")
 
-DiffControlsFr <- feols(c(ECSPlanToBaseline,ECSApp,ECSUseYes)~i(FrenchYNBaseline,ref="France"),
+DiffControlsFr <- feols(c(ECSPlanToBaseline,ECSApp,ECSUseYes)~i(MigrationBackground,ref="No"),
                         MainDB %>% filter(Assignment=="Control") %>%mutate(ECSPlanToBaseline = ifelse(ECSPlanToBaseline == TRUE, 1, 0)),
                         #weights = ~WeightBalance,
                         se="hetero")
@@ -37,8 +37,8 @@ DiffControlsFr <- feols(c(ECSPlanToBaseline,ECSApp,ECSUseYes)~i(FrenchYNBaseline
 res <-  DiffControls %>% modelplot(,draw=FALSE) %>% mutate(Heterogeneity="Baseline education")%>% 
   mutate(Outcome=str_remove(model,'lhs:'),term=ifelse(str_detect(term,'Low-SES'),'Gap by SES','Mean High SES'))
 
-resb <-  DiffControlsFr %>% modelplot(,draw=FALSE) %>% mutate(Heterogeneity="Country of birth")%>% mutate(Outcome=str_remove(model,'lhs:'),
-                                                                                                          term=ifelse(str_detect(term,'Abroad'),'Gap by migration background','Mean French'))
+resb <-  DiffControlsFr %>% modelplot(,draw=FALSE) %>% mutate(Heterogeneity="Migration background")%>% mutate(Outcome=str_remove(model,'lhs:'),
+                                                                                                          term=ifelse(str_detect(term,'Yes'),'Gap by migration background','Mean French'))
 
 res2 <- bind_rows(res,resb) %>% mutate(OutcomeLabel=factor(case_when(str_detect(Outcome,"ECSPlanToBaseline")~"Intend to use",
                                                                      str_detect(Outcome,"ECSApp")~"Apply",
@@ -47,36 +47,10 @@ res2 <- bind_rows(res,resb) %>% mutate(OutcomeLabel=factor(case_when(str_detect(
 ))
 
 
-# same with discount and information
-DiffControlsDisc <- feols(c(ECSPlanToBaseline,ECSApp,ECSUseYes)~i(Discount501or0,0),
-                          MainDB %>% filter(Assignment=="Control") %>%
-                            mutate(ECSPlanToBaseline = ifelse(ECSPlanToBaseline == TRUE, 1, 0)),
-                          #weights = ~WeightBalance,
-                          se="hetero")
-
-DiffControlsInfo <- feols(c(ECSPlanToBaseline,ECSApp,ECSUseYes)~i(InfoBaseline),MainDB %>% filter(Assignment=="Control") %>%
-                            mutate(ECSPlanToBaseline = ifelse(ECSPlanToBaseline == TRUE, 1, 0)),
-                          #weights = ~WeightBalance,
-                          se="hetero")
-
-res <-  DiffControlsDisc %>% modelplot(,draw=FALSE) %>% mutate(Heterogeneity="Present bias")%>% mutate(Outcome=str_remove(model,'lhs:'),
-                                                                                                       term=ifelse(str_detect(term,'Intercept'),'Mean low present bias','Gap by temporal orientation'))
-
-resb <-  DiffControlsInfo %>% modelplot(,draw=FALSE) %>% mutate(Heterogeneity="Baseline information")%>% mutate(Outcome=str_remove(model,'lhs:'),
-                                                                                                                term=ifelse(str_detect(term,'Low'),'Gap by level of baseline knowledge','Mean high information group'))
-
-res2b <- bind_rows(res,resb) %>% mutate(OutcomeLabel=factor(case_when(str_detect(Outcome,"ECSPlanToBaseline")~"Intend to use",
-                                                                      str_detect(Outcome,"ECSApp")~"Apply",
-                                                                      str_detect(Outcome,"ECSUseYes")~"Access"),
-                                                            levels=c("Intend to use","Apply","Access")
-))
-
 # stack the two results and use "Heterogeneity" for facets
-Stack.Intend.Gap <- bind_rows(res2,res2b) %>% 
+Stack.Intend.Gap <- res2 %>% 
   mutate(termPlot=factor(term,
-                         levels=c('Gap by SES','Gap by migration background',
-                                  'Gap by level of baseline knowledge',
-                                  'Gap by temporal orientation')))
+                         levels=c('Gap by SES','Gap by migration background')))
 
 
 Intend.Gap.plot = 
@@ -94,14 +68,11 @@ Intend.Gap.plot =
 are measured at the endline survey one year after (Q4 2023).
 Notes: Coefficients of OLS regressions of the outcomes on dummies for the group variable of interest. Error bars indicate 
 pointwise 95% CI based on heteroskedasticity-robust standard errors (HC1). Intention-to-action gap in early childcare application 
-and access gap in the control group across four dimensions of heterogeneity:
+and access gap in the control group across SES and migration background:
 - Gap by SES compares households (HH) in which the mother did not attend any kind of post-secondary education 
 with those in which the mother did.
-- Gap by migration background compares HH in which the mother was born abroad with HH in which the mother was born in France.
-- Gap by level of baseline knowledge compares parents with very low knowledge with those wih higher knowledge of early childcare.
-- Gap by temporal orientation compares HH in which the mother prefers a reward of 50€ in three days (defined as present-oriented) 
- to HH in which the mother prefers 80€ in 3 months."
-  )
+- Gap by migration background compares HH in which the mother was born abroad with HH in which the mother was born in France."
+  )+vis_theme
 
 Intend.Gap.plot
 
@@ -113,27 +84,31 @@ Intend.Gap.plot
 set.seed(999)
 
 
-ITT.UseCreche <- ITTSimultaneous(Y="UseCreche",
-                                 treat="Z",
-                                 DB=PostDB,
-                                 Correction="Westfall",
-                                 weights="WeightPS")
-ITT.ECSUseYes <- ITTSimultaneous(Y="ECSUseYes",
-                                 treat="Z",
-                                 DB=PostDB,
-                                 Correction="Westfall",
-                                 weights="WeightPS")
 ITT.ECSApp <- ITTSimultaneous(Y="ECSApp",
                               treat="Z",
                               DB=PostDB,
                               Correction="Westfall",
                               weights="WeightPS")
+
 ITT.ECSAppCreche <- ITTSimultaneous(Y="AppCreche",
                                     treat="Z",
                                     DB=PostDB,
                                     Correction="Westfall",
                                     weights="WeightPS")
 
+
+
+ITT.UseCreche <- ITTSimultaneous(Y="UseCreche",
+                                 treat="Z",
+                                 DB=PostDB,
+                                 Correction="Westfall",
+                                 weights="WeightPS")
+
+ITT.ECSUseYes <- ITTSimultaneous(Y="ECSUseYes",
+                                 treat="Z",
+                                 DB=PostDB,
+                                 Correction="Westfall",
+                                 weights="WeightPS")
 #Coef Map for clear labels
 cm <- c('T1-C'    = 'Information-only vs Control ',
         'T2-C'    = 'Information + Support vs Control',
@@ -165,13 +140,12 @@ MainResultTable =
         "Covariates","Fixed effects","Chi 2","P-value",
         "nobs", "r.squared","adj.r.squared"),
       title="Intention-to-treat effects on the main outcomes",
-      notes=paste("Sources:", SourcesStacked,
-                  "
-      *= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
-      Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
-      Adjusted p-value and confidence intervals account for simultaneous inference using the",ITT.UseCreche$Correction, "method. 
-      Each column estimates jointly the effects of the program using fully-saturated stacked regressions. Control means estimated separately by OLS.
-      Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
+      notes=paste("*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
+Sources:", SourcesStacked,"      
+Each column jointly estimates the average differences between arms using fully-saturated stacked OLS regressions. Control means estimated separately by OLS.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block level.
+Adjusted p-values and confidence intervals account for simultaneous inference using the",ITT.UseCreche$Correction, "method. 
+Joint significance test of null effect using Chi-2 tests and p-values are reported at the bottom of the table."),
       output = 'flextable') 
 
 
@@ -195,7 +169,8 @@ MainResultTable %>%
 
 
 
-#----- HetT2ApplicationITTATT ------------
+#----- HetT2ITTATT ------------
+
 
 ## First etimate the ITT
 Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
@@ -207,31 +182,12 @@ Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 
 Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            ,
                                             Outcome = "ECSApp",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
-
-
-
-Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSApp",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-Het.ITT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSApp",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
 
 ## Estimate the ATT
 Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
@@ -240,36 +196,19 @@ Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                ITT = FALSE,
                                                Weights = "WeightPS",
                                                clusters = "StrataWave")
-Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+
+Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
                                             Outcome = "ECSApp",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
 
 
 
-Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
-                                             Outcome = "ECSApp",
-                                             Heterogeneity = "InfoBaseline",
-                                             ITT = FALSE,
-                                             Weights = "WeightPS",
-                                             clusters = "StrataWave")
-
-
-
-Het.ATT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSApp",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
 # Define the factors
 term_levels <- c("T2-C")
-heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
+heterogeneity_levels <- c("SES", "Migration \nbackground")
 panel_levels <- c("Control group", "ITT", "ATT")
 
 # Merge ITTs in one DataFrame with the correct fator levels
@@ -278,18 +217,12 @@ DataPlot_ITT <- bind_rows(
   Het.ITT.App.Educ2C$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.App.Mig$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.App.Mig$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Info$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Info$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Discount$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Temporal \norientation", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Discount$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Temporal \norientation", Type = "ITT") %>% filter(term %in% term_levels)
 )
 
 # Merge ATTs in one DataFrame with the correct fator levels
 DataPlot_ATT <- bind_rows(
   Het.ATT.App.Educ2C$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.App.Mig$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.App.Info$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Level of \nknowledge", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.App.Discount$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Temporal \norientation", Type = "ATT") %>% filter(term %in% term_levels)
+  Het.ATT.App.Mig$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels)
 )
 
 # Combine both data frames
@@ -297,63 +230,10 @@ DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
   mutate(
     term = factor(term, levels = term_levels),
     Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
-    panel = factor(panel, levels = panel_levels)
-  )
-
-# Vector of labels for the x axis
-x_labels <- c(
-  "T2-C!Apply for early childcare!SES" = "SES",
-  "T2-C!Apply for early childcare!Migration background" = "Migration background",
-  "T2-C!Apply for early childcare!Level of knowledge" = "Level of knowledge",
-  "T2-C!Apply for early childcare!Temporal orientation" = "Temporal orientation"
-)
-
-# Draw plot with ordered factors
-DataPlot %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
-  geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
-    fill = Group, ymin = conf.low,
-    color = Group, ymax = conf.high
-  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge","Present Orientated","Future Orientated"))+
-  scale_color_brewer("Heterogeneity",palette = "Dark2",limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge","Present Orientated","Future Orientated"))+
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) + # Ajuste le nombre de colonnes de la légende des couleurs
-  theme(legend.position = "right", legend.box = "vertical") + # Ajuste la position de la légende
-  geom_hline(data=DataPlot %>%filter(panel!="Control group"),
-    aes(yintercept = 0), linetype = c(2)) + # Ligne pointillée pour la date de randomisation
-  ylab("Estimates") +
-  guides(
-    col = guide_legend(ncol = 1),
-    fill = guide_legend(ncol = 1)
-  ) +
-  labs(
-    # title = "",
-    #subtitle = "",
-    caption = paste("Sources:", SourcesStacked,
-                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.",
-                    "\nPoint indicates the ITT/ATT and the error bars indicate pointwise 95% CI.",
-                    "\nBoxes around estimates indicate simultaneous 95% CI accounting for multiple testing.",
-                    "\nThe Fixed effect models are estimated with block x subsample fixed effects and inverse probability weighting.")
-  )+
-  theme(
-    axis.title.y = element_blank(),  # Enlève le titre de l'axe Y
-    axis.text.y = element_blank(),   # Enlève les étiquettes de l'axe Y
-    axis.ticks.y = element_blank()   # Enlève les ticks de l'axe Y
+    panel = factor(panel, levels = panel_levels),
   )
 
 
-
-#-----  HetT2AccessITTATT ------------
 
 # Do the same graph for access to early childcare
 ## First estimate the ITT
@@ -366,26 +246,11 @@ Het.ITT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                             Outcome = "ECSUseYes",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
 
-Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ITT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
 
 ## Estimate the ATT
 Het.ATT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
@@ -397,27 +262,10 @@ Het.ATT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                             Outcome = "ECSUseYes",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
-
-Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                             Outcome = "ECSUseYes",
-                                             Heterogeneity = "InfoBaseline",
-                                             ITT = FALSE,
-                                             Weights = "WeightPS",
-                                             clusters = "StrataWave")
-
-Het.ATT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
 # Define the factors
 term_levels <- c("T2-C")
 #heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
@@ -429,83 +277,131 @@ DataPlot_ITT <- bind_rows(
   Het.ITT.Use.Educ2C$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.Use.Mig$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.Use.Mig$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Info$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Info$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Discount$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Temporal \norientation", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Discount$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Temporal \norientation", Type = "ITT") %>% filter(term %in% term_levels)
+  
 )
 
 # Merge ATTs in one DataFrame with the correct factor levels
 DataPlot_ATT <- bind_rows(
   Het.ATT.Use.Educ2C$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
   Het.ATT.Use.Mig$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.Use.Info$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Level of \nknowledge", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.Use.Discount$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Temporal \norientation", Type = "ATT") %>% filter(term %in% term_levels)
 )
 
 # Combine the two DataFrames
-DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+DataPlotUse <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
   mutate(
     term = factor(term, levels = term_levels),
     Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
     panel = factor(panel, levels = panel_levels)
   )
 
-# Create named vector for x-axis labels
-x_labels <- c(
-  "T2-C!Access early childcare!SES" = "SES",
-  "T2-C!Access early childcare!Migration background" = "Migration background",
-  "T2-C!Access early childcare!Level of knowledge" = "Level of knowledge",
-  "T2-C!Access early childcare!Temporal orientation" = "Temporal orientation"
-)
-
 # Plot the graph with ordered factors
-DataPlot %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
+
+#### Here is what's new : 
+
+Data.Het.EducMig <- bind_rows(DataPlot,DataPlotUse)
+
+ggplot(Data.Het.EducMig)+
+  geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
+    x=interaction(Het,Heterogeneity,sep="!"),
+    y=estimate,
+    ymin=point.conf.low,
+    ymax=point.conf.high,
+    shape=Group,
+    color=Group),position = position_dodge(.4))+
   geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
+    y = estimate, x = interaction(Het,Heterogeneity,sep="!"),
     fill = Group, ymin = conf.low,
     color = Group, ymax = conf.high
   ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge","Present Orientated","Future Orientated")) +
-  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge","Present Orientated","Future Orientated")) +
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) +  # Adjusts the number of legend columns
-  theme(legend.position = "right", legend.box = "vertical") +  # Adjusts the position of the legend
-  geom_hline(data=DataPlot %>%filter(panel!="Control group"),
-    aes(yintercept = 0), linetype = c(2)) +  # Dotted line for randomization date
-  ylab("Estimates") +
-  guides(
-    col = guide_legend(ncol = 1),
-    fill = guide_legend(ncol = 1)
+  #facet_wrap(~panel,scales="free_x")+
+  facet_grid(rows=vars(fct_rev(Y)),cols=vars(panel),scale="free_x")+
+  # facet_wrap(~Y+panel,scales="free_x")+
+  coord_flip()+
+  geom_hline(data=Data.Het.EducMig %>% filter(panel!="Control group"),
+             aes(yintercept = 0),linetype=c(2))+
+  xlab("")+
+  #scale_vline(aes(Yintercept=0))+
+  scale_x_discrete(guide = guide_axis_nested(delim = "!"))+
+  scale_fill_brewer("Heterogeneity", palette = "Dark2" 
   ) +
+  scale_color_brewer("Heterogeneity", palette = "Dark2")+
+  scale_shape("Heterogeneity")+
   labs(
     caption = paste("Sources:", SourcesStacked,
-                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.",
-                    "\nPoint indicates the ITT/ATT and the error bars indicate pointwise 95% CI.",
-                    "\nBoxes around estimates indicate simultaneous 95% CI correction for multiple testing.",
-                    "\nThe Fixed effect model is estimated with block x subsample fixed effects and inverse probability weighting.")
-  ) +
-  theme(
-    axis.title.y = element_blank(),  # Removes Y axis title
-    axis.text.y = element_blank(),   # Removes Y axis labels
-    axis.ticks.y = element_blank()   # Removes Y axis ticks
+                    "\nITT: Intention to Treat estimates; ATT: Average Treatment on the Treated estimates.",
+                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block level.",
+                    "\nPoints indicate point estimates and the error bars indicate pointwise 95% Confidence Interval (CI).",
+                    "\nBoxes around estimates indicate simultaneous 95% CI adjusted for multiple testing 
+of pairwise comparisons and subgroups using the Westfall-Young method.",
+                    "\nAll models include block fixed effects")
+  ) + vis_theme
+
+
+#----- HetT2Daycare ------------
+
+
+## First etimate the ITT
+Het.ITT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                     Outcome = "AppCreche",
+                                                     Heterogeneity = "Educ2",
+                                                     ITT = TRUE,
+                                                     Weights = "WeightPS",
+                                                     clusters = "StrataWave")
+
+
+Het.ITT.AppCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                  Outcome = "AppCreche",
+                                                  Heterogeneity= "MigrationBackground",
+                                                  ITT = TRUE,
+                                                  Weights = "WeightPS",
+                                                  clusters = "StrataWave")
+
+## Estimate the ATT
+Het.ATT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                     Outcome = "AppCreche",
+                                                     Heterogeneity = "Educ2",
+                                                     ITT = FALSE,
+                                                     Weights = "WeightPS",
+                                                     clusters = "StrataWave")
+Het.ATT.AppCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                  Outcome = "AppCreche",
+                                                  Heterogeneity = "MigrationBackground",
+                                                  ITT = FALSE,
+                                                  Weights = "WeightPS",
+                                                  clusters = "StrataWave")
+
+
+
+# Define the factors
+term_levels <- c("T2-C")
+heterogeneity_levels <- c("SES", "Migration \nbackground")
+panel_levels <- c("Control group", "ITT", "ATT")
+
+# Merge ITTs in one DataFrame with the correct fator levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.AppCreche.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Apply for daycare", panel = "Control group", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.AppCreche.Educ2C$Tidy %>% mutate(Y = "Apply for daycare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.AppCreche.Mig$ModelSummary0$tidy %>% mutate(Y = "Apply for daycare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.AppCreche.Mig$Tidy %>% mutate(Y = "Apply for daycare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+)
+
+# Merge ATTs in one DataFrame with the correct fator levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.AppCreche.Educ2C$Tidy %>% mutate(Y = "Apply for daycare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.AppCreche.Mig$Tidy %>% mutate(Y = "Apply for daycare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels)
+)
+
+# Combine both data frames
+DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels),
   )
 
 
 
-#----- GraphAccessDaycare ------------
-
-
-# Do again the same graph for access to daycare
+# Do the same graph for access to early childcare
 ## First estimate the ITT
 Het.ITT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                      Outcome = "UseCreche",
@@ -516,26 +412,11 @@ Het.ITT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 Het.ITT.UseCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                   Outcome = "UseCreche",
-                                                  Heterogeneity= "FrenchYNBaseline",
+                                                  Heterogeneity= "MigrationBackground",
                                                   ITT = TRUE,
                                                   Weights = "WeightPS",
                                                   clusters = "StrataWave")
 
-Het.ITT.UseCreche.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "UseCreche",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ITT.UseCreche.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "UseCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
 
 ## Estimate the ATT
 Het.ATT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
@@ -547,30 +428,13 @@ Het.ATT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 Het.ATT.UseCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                   Outcome = "UseCreche",
-                                                  Heterogeneity = "FrenchYNBaseline",
+                                                  Heterogeneity = "MigrationBackground",
                                                   ITT = FALSE,
                                                   Weights = "WeightPS",
                                                   clusters = "StrataWave")
-
-Het.ATT.UseCreche.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                                   Outcome = "UseCreche",
-                                                   Heterogeneity = "InfoBaseline",
-                                                   ITT = FALSE,
-                                                   Weights = "WeightPS",
-                                                   clusters = "StrataWave")
-
-Het.ATT.UseCreche.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "UseCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
 # Define the factors
 term_levels <- c("T2-C")
-#heterogeneity_levels <- c("SES", "Migration background", "Level of knowledge", "Temporal orientation")
+#heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
 #panel_levels <- c("Control group", "ITT", "ATT")
 
 # Merge ITTs in one DataFrame with the correct factor levels
@@ -579,211 +443,540 @@ DataPlot_ITT <- bind_rows(
   Het.ITT.UseCreche.Educ2C$Tidy %>% mutate(Y = "Access daycare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.UseCreche.Mig$ModelSummary0$tidy %>% mutate(Y = "Access daycare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
   Het.ITT.UseCreche.Mig$Tidy %>% mutate(Y = "Access daycare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.UseCreche.Info$ModelSummary0$tidy %>% mutate(Y = "Access daycare", panel = "Control group", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.UseCreche.Info$Tidy %>% mutate(Y = "Access daycare", panel = "ITT", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.UseCreche.Discount$ModelSummary0$tidy %>% mutate(Y = "Access daycare", panel = "Control group", Heterogeneity = "Temporal \norientation", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.UseCreche.Discount$Tidy %>% mutate(Y = "Access daycare", panel = "ITT", Heterogeneity = "Temporal \norientation", Type = "ITT") %>% filter(term %in% term_levels)
+  
 )
 
 # Merge ATTs in one DataFrame with the correct factor levels
 DataPlot_ATT <- bind_rows(
   Het.ATT.UseCreche.Educ2C$Tidy %>% mutate(Y = "Access daycare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
   Het.ATT.UseCreche.Mig$Tidy %>% mutate(Y = "Access daycare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.UseCreche.Info$Tidy %>% mutate(Y = "Access daycare", panel = "ATT", Heterogeneity = "Level of \nknowledge", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.UseCreche.Discount$Tidy %>% mutate(Y = "Access daycare", panel = "ATT", Heterogeneity = "Temporal \norientation", Type = "ATT") %>% filter(term %in% term_levels)
 )
 
 # Combine the two DataFrames
-DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+DataPlotUse <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
   mutate(
     term = factor(term, levels = term_levels),
     Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
     panel = factor(panel, levels = panel_levels)
   )
 
-# Create named vector for x-axis labels
-x_labels <- c(
-  "T2-C!Access daycare!SES" = "SES",
-  "T2-C!Access daycare!Migration background" = "Migration background",
-  "T2-C!Access daycare!Level of knowledge" = "Level of knowledge",
-  "T2-C!Access daycare!Temporal orientation" = "Temporal orientation"
-)
-
 # Plot the graph with ordered factors
-DataPlot %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
+
+#### Here is what's new : 
+
+Data.Het.Daycare.EducMig <- bind_rows(DataPlot,DataPlotUse)
+
+ggplot(Data.Het.Daycare.EducMig)+
+  geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
+    x=interaction(Het,Heterogeneity,sep="!"),
+    y=estimate,
+    ymin=point.conf.low,
+    ymax=point.conf.high,
+    shape=Group,
+    color=Group),position = position_dodge(.4))+
   geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
+    y = estimate, x = interaction(Het,Heterogeneity,sep="!"),
     fill = Group, ymin = conf.low,
     color = Group, ymax = conf.high
   ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge","Present Orientated","Future Orientated")) +
-  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge","Present Orientated","Future Orientated")) +
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) +  # Adjusts the number of legend columns
-  theme(legend.position = "right", legend.box = "vertical") +  # Adjusts the position of the legend
-  geom_hline(data=DataPlot %>%filter(panel!="Control group"),
-    aes(yintercept = 0), linetype = c(2)) +  # Dotted line for randomization date
-  ylab("Estimates") +
-  guides(
-    col = guide_legend(ncol = 1),
-    fill = guide_legend(ncol = 1)
+  #facet_wrap(~panel,scales="free_x")+
+  facet_grid(rows=vars(fct_rev(Y)),cols=vars(panel),scale="free_x")+
+  # facet_wrap(~Y+panel,scales="free_x")+
+  coord_flip()+
+  geom_hline(data=Data.Het.Daycare.EducMig %>% filter( panel!="Control group"),
+             aes(yintercept = 0),linetype=c(2))+
+  xlab("")+
+  #scale_vline(aes(Yintercept=0))+
+  scale_x_discrete(guide = guide_axis_nested(delim = "!"))+
+  scale_fill_brewer("Heterogeneity", palette = "Dark2" 
   ) +
+  scale_color_brewer("Heterogeneity", palette = "Dark2")+
+  scale_shape("Heterogeneity")+
   labs(
     caption = paste("Sources:", SourcesStacked,
-                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.",
-                    "\nPoint indicates the ITT/ATT and the error bars indicate pointwise 95% CI.",
-                    "\nBoxes around estimates indicate simultaneous 95% CI correction for multiple testing.",
-                    "\nThe Fixed effect model is estimated with block x subsample fixed effects and inverse probability weighting.")
-  ) +
-  theme(
-    axis.title.y = element_blank(),  # Removes Y axis title
-    axis.text.y = element_blank(),   # Removes Y axis labels
-    axis.ticks.y = element_blank()  
+                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block level.",
+                    "\nPoints indicate point estimates and the error bars indicate pointwise 95% CI.",
+                    "\nBoxes around estimates indicate simultaneous 95% CI adjusted for multiple testing 
+of pairwise comparisons and subgroups using the Westfall-Young method.",
+                    "\nAll models include block fixed effects")
+  )+vis_theme
+
+
+#----- MechanismsInfo ------------
+
+#Knowledge, previous ecs use and DescriptiveNorms as proxy for information costs
+
+#UsedECEC 
+
+## ITT App
+
+
+Het.ITT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
+                                                 Outcome = "ECSApp",
+                                                 Heterogeneity = "UsedECEC",
+                                                 ITT = TRUE,
+                                                 Weights = "WeightPS",
+                                                 clusters = "StrataWave")
+
+
+Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+  Outcome = "ECSApp",
+  Heterogeneity = "InfoBaseline",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+
+Het.ITT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+  Outcome = "ECSApp",
+  Heterogeneity = "DescriptiveNorms",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+
+
+## ATT
+
+
+Het.ATT.App.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
+                                                 Outcome = "ECSApp",
+                                                 Heterogeneity = "UsedECEC",
+                                                 ITT = FALSE,
+                                                 Weights = "WeightPS",
+                                                 clusters = "StrataWave")
+
+
+Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
+                                             Outcome = "ECSApp",
+                                             Heterogeneity = "InfoBaseline",
+                                             ITT = FALSE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+
+
+
+Het.ATT.App.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+  Outcome = "ECSApp",
+  Heterogeneity = "DescriptiveNorms",
+  ITT = FALSE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+
+
+# Define the factors
+term_levels <- c("T2-C")
+heterogeneity_levels <- c("Level of \nknowledge", "Used Early \nChildcare before","Share of people \nusing Early Childcare \naround")
+panel_levels <- c("Control group", "ITT", "ATT")
+
+
+# Het.ITT.App.UsedECEC
+# Het.ITT.App.Info
+# Het.ITT.App.Norms
+
+# Merge ITTs in one DataFrame with the correct fator levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.App.Info$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.Info$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.UsedECEC$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.UsedECEC$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.Norms$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.Norms$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels)
+)
+
+# Merge ATTs in one DataFrame with the correct fator levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.App.Info$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Level of \nknowledge", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.App.UsedECEC$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Used Early \nChildcare before", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.App.Norms$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ATT") %>% filter(term %in% term_levels)
+)
+
+# Combine both data frames
+DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels),
   )
 
 
+## ECS Use
 
 
-#----- Mechanisms ------------
-
-## Activity and ever used early childcare
-# App itt              
-
-Het.ITT.App.Use <- GroupHeterogeneityFnCTRL(DB = PostDB%>%  mutate(UsedECEC=ifelse(UsedECEC == "Oui","Yes","No")),
-                                            Outcome = "ECSApp",
-                                            Heterogeneity = "UsedECEC",
-                                            ITT = TRUE,
-                                            Weights = "WeightPS",
-                                            clusters = "StrataWave")
+Het.ITT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDB ,
+                                                 Outcome = "ECSUseYes",
+                                                 Heterogeneity = "UsedECEC",
+                                                 ITT = TRUE,
+                                                 Weights = "WeightPS",
+                                                 clusters = "StrataWave")
 
 
-
-Het.ITT.App.Active <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                               Outcome = "ECSApp",
-                                               Heterogeneity = "ActiveBaseline",
-                                               ITT = TRUE,
-                                               Weights = "WeightPS",
-                                               clusters = "StrataWave")
-Het.ITT.App.Cov<- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                           Outcome = "ECSApp",
-                                           Heterogeneity = "HighLowECECBaseline",
-                                           ITT = TRUE,
-                                           Weights = "WeightPS",
-                                           clusters = "StrataWave")
-
-# App Att
-Het.ATT.App.Use <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>%  mutate(UsedECEC=ifelse(UsedECEC == "Oui","Yes","No")),
-                                            Outcome = "ECSApp",
-                                            Heterogeneity = "UsedECEC",
-                                            ITT = FALSE,
-                                            Weights = "WeightPS",
-                                            clusters = "StrataWave")
+Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "InfoBaseline",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
 
 
 
-Het.ATT.App.Active <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                               Outcome = "ECSApp",
-                                               Heterogeneity = "ActiveBaseline",
-                                               ITT = FALSE,
-                                               Weights = "WeightPS",
-                                               clusters = "StrataWave")
-Het.ATT.App.Cov<- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                           Outcome = "ECSApp",
-                                           Heterogeneity = "HighLowECECBaseline",
-                                           ITT = FALSE,
-                                           Weights = "WeightPS",
-                                           clusters = "StrataWave")
+Het.ITT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "DescriptiveNorms",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
 
-# Définir les niveaux des facteurs pour un ordre personnalisé
+
+
+
+## ATT
+
+
+Het.ATT.Use.UsedECEC <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
+                                                 Outcome = "ECSUseYes",
+                                                 Heterogeneity = "UsedECEC",
+                                                 ITT = FALSE,
+                                                 Weights = "WeightPS",
+                                                 clusters = "StrataWave")
+
+
+Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
+                                             Outcome = "ECSUseYes",
+                                             Heterogeneity = "InfoBaseline",
+                                             ITT = FALSE,
+                                             Weights = "WeightPS",
+                                             clusters = "StrataWave")
+
+
+
+
+Het.ATT.Use.Norms <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
+  DescriptiveNorms=ifelse(DescriptiveNorms == "Yes","Majority","Minority")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "DescriptiveNorms",
+  ITT = FALSE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+# Define the factors
 term_levels <- c("T2-C")
-heterogeneity_levels <- c("Ever accessed \nearly childcare", "Activity baseline")
-panel_levels <- c("Control group", "ITT", "ATT")
+#heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
+#panel_levels <- c("Control group", "ITT", "ATT")
 
-# Fusionner les données ITT en un seul DataFrame avec les niveaux de facteur appropriés
+# Merge ITTs in one DataFrame with the correct factor levels
 DataPlot_ITT <- bind_rows(
-  Het.ITT.App.Use$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Ever accessed \nearly childcare", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Use$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Ever accessed \nearly childcare", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Active$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity =  "Activity baseline", Type = "ITT") %>% filter(term %in% term_levels),
-  Het.ITT.App.Active$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity =  "Activity baseline", Type = "ITT") %>% filter(term %in% term_levels)
+  Het.ITT.Use.Info$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Info$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Level of \nknowledge", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Norms$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Norms$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.UsedECEC$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.UsedECEC$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Used Early \nChildcare before", Type = "ITT") %>% filter(term %in% term_levels)
   
 )
 
-# Fusionner les données ATT en un seul DataFrame avec les niveaux de facteur appropriés
+# Merge ATTs in one DataFrame with the correct factor levels
 DataPlot_ATT <- bind_rows(
-  Het.ATT.App.Use$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Ever accessed \nearly childcare", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.App.Use$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Ever accessed \nearly childcare",  Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.App.Active$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity =  "Activity baseline", Type = "ATT") %>% filter(term %in% term_levels),
-  Het.ATT.App.Active$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity =  "Activity baseline", Type = "ATT") %>% filter(term %in% term_levels)
+  Het.ATT.Use.Info$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Level of \nknowledge", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.Use.Norms$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Share of people \nusing Early Childcare \naround", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.Use.UsedECEC$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Used Early \nChildcare before", Type = "ATT") %>% filter(term %in% term_levels)
+  
 )
 
-# Filtrer les données ATT pour enlever la moyenne du groupe de contrôle
-DataPlot_ATT <- DataPlot_ATT %>%
-  filter(panel != "Control group")
-
-# Combiner les deux DataFrames
-DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+# Combine the two DataFrames
+DataPlotUse <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
   mutate(
     term = factor(term, levels = term_levels),
     Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
     panel = factor(panel, levels = panel_levels)
   )
 
-# Créer un vecteur nommé pour les étiquettes de l'axe x
-x_labels <- c(
-  "T2-C!Apply for early childcare!Ever accessed \nearly childcare" = "Ever accessed \nearly childcare",
-  "T2-C!Apply for early childcare!Activity baseline" = "Activity baseline")
 
-# Tracer le graphique avec les facteurs ordonnés
-DataPlot %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
+Data.Het.InfoFriction <- bind_rows(DataPlot,DataPlotUse)
+
+ggplot(Data.Het.InfoFriction)+
+  geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
+    x=interaction(Het,Heterogeneity,sep="!"),
+    y=estimate,
+    ymin=point.conf.low,
+    ymax=point.conf.high,
+    shape=Group,
+    color=Group),position = position_dodge(.4))+
   geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
+    y = estimate, x = interaction(Het,Heterogeneity,sep="!"),
     fill = Group, ymin = conf.low,
     color = Group, ymax = conf.high
   ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y")  +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("No", "Yes", "Active", "Inactive"))+
-  scale_color_brewer("Heterogeneity",palette = "Dark2",limits = c("No", "Yes", "Active", "Inactive"))+
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) + # Ajuste le nombre de colonnes de la légende des couleurs
-  theme(legend.position = "right", legend.box = "vertical") + # Ajuste la position de la légende
-  geom_hline(data=DataPlot %>% filter(panel!="Control group"),
-    aes(yintercept = 0), linetype = c(2)) + # Ligne pointillée pour la date de randomisation
-  ylab("Estimates") +
-  guides(
-    col = guide_legend(ncol = 1),
-    fill = guide_legend(ncol = 1)
+  #facet_wrap(~panel,scales="free_x")+
+  facet_grid(rows=vars(fct_rev(Y)),cols=vars(panel),scale="free_x")+
+  # facet_wrap(~Y+panel,scales="free_x")+
+  coord_flip()+
+  geom_hline(data=Data.Het.InfoFriction %>% filter( panel!="Control group"),
+             aes(yintercept = 0),linetype=c(2))+
+  xlab("")+
+  #scale_vline(aes(Yintercept=0))+
+  scale_x_discrete(guide = guide_axis_nested(delim = "!"))+
+  scale_fill_brewer("Heterogeneity", palette = "Dark2" 
   ) +
+  scale_color_brewer("Heterogeneity", palette = "Dark2")+
+  scale_shape("Heterogeneity")+
   labs(
-   # title = "Heterogeneous ITT and ATT of the information + personalised administrative support treatment \n on early childcare application",
-    #subtitle = "",
     caption = paste("Sources:", SourcesStacked,
-                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.",
-                    "\nPoint indicates the ITT/ATT and the error bars indicate pointwise 95% CI.",
-                    "\nBoxes around estimates indicate simultaneous 95% CI correction for multiple testing.",
-                    "\nThe Fixed effect model is estimated with block  x subsample fixed effects and inverse probability weighting.")
-  )+
-  theme(
-    axis.title.y = element_blank(),  # Removes Y axis title
-    axis.text.y = element_blank(),   # Removes Y axis labels
-    axis.ticks.y = element_blank()  
+                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block level.",
+                    "\nPoints indicate point estimates and the error bars indicate pointwise 95% CI.",
+                    "\nBoxes around estimates indicate simultaneous 95% CI adjusted for multiple testing 
+of pairwise comparisons and subgroups using the Westfall-Young method.",
+                    "\nAll models include block fixed effects")
+  )+vis_theme
+
+#----- MechanismsPsych ------------
+
+
+#Present biased trust et active pour psychological costs
+
+
+#PresentOrientated 
+
+## ITT App
+
+
+Het.ITT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  PresentOrientated=ifelse(PresentOrientated == 1,"Yes","No")),
+  Outcome = "ECSApp",
+  Heterogeneity = "PresentOrientated",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+Het.ITT.App.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+  Outcome = "ECSApp",
+  Heterogeneity = "TrustCreche1or0",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+
+Het.ITT.App.ActiveBaseline <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                       Outcome = "ECSApp",
+                                                       Heterogeneity = "ActiveBaseline",
+                                                       ITT = TRUE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
+
+
+
+
+## ATT
+
+
+Het.ATT.App.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
+  PresentOrientated=ifelse(PresentOrientated == 1,"Yes","No")),
+  Outcome = "ECSApp",
+  Heterogeneity = "PresentOrientated",
+  ITT = FALSE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+Het.ATT.App.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+                                                       Outcome = "ECSApp",
+                                                       Heterogeneity = "TrustCreche1or0",
+                                                       ITT = FALSE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
+
+
+
+
+Het.ATT.App.ActiveBaseline <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                       Outcome = "ECSApp",
+                                                       Heterogeneity = "ActiveBaseline",
+                                                       ITT = FALSE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
+
+
+
+
+# Define the factors
+term_levels <- c("T2-C")
+heterogeneity_levels <- c("Present biased", "Trust","Activity")
+panel_levels <- c("Control group", "ITT", "ATT")
+
+
+# Het.ITT.App.PresentOrientated
+# Het.ITT.App.Info
+# Het.ITT.App.ActiveBaseline
+
+# Merge ITTs in one DataFrame with the correct fator levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.App.TrustCreche1or0$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Trust", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.TrustCreche1or0$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Trust", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.PresentOrientated$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.PresentOrientated$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.ActiveBaseline$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.ActiveBaseline$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels)
+)
+
+# Merge ATTs in one DataFrame with the correct fator levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.App.TrustCreche1or0$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Trust", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.App.PresentOrientated$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Present biased", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.App.ActiveBaseline$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Activity", Type = "ATT") %>% filter(term %in% term_levels)
+)
+
+# Combine both data frames
+DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels),
   )
+
+
+## ECS Use
+
+
+Het.ITT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  PresentOrientated=ifelse(PresentOrientated == 1,"Yes","No")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "PresentOrientated",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+Het.ITT.Use.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "TrustCreche1or0",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+
+Het.ITT.Use.ActiveBaseline <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                                       Outcome = "ECSUseYes",
+                                                       Heterogeneity = "ActiveBaseline",
+                                                       ITT = TRUE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
+
+
+
+
+## ATT
+
+
+Het.ATT.Use.PresentOrientated <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
+  PresentOrientated=ifelse(PresentOrientated == 1, "Yes","No")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "PresentOrientated",
+  ITT = FALSE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+Het.ATT.Use.TrustCreche1or0<- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(TrustCreche1or0=ifelse(TrustCreche1or0 == "Yes","High trust","Low trust")),
+                                                       Outcome = "ECSUseYes",
+                                                       Heterogeneity = "TrustCreche1or0",
+                                                       ITT = FALSE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
+
+
+
+
+Het.ATT.Use.ActiveBaseline <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                       Outcome = "ECSUseYes",
+                                                       Heterogeneity = "ActiveBaseline",
+                                                       ITT = FALSE,
+                                                       Weights = "WeightPS",
+                                                       clusters = "StrataWave")
+
+# Define the factors
+term_levels <- c("T2-C")
+#heterogeneity_levels <- c("SES", "Migration \nbackground", "Trust", "Temporal \norientation")
+#panel_levels <- c("Control group", "ITT", "ATT")
+
+# Merge ITTs in one DataFrame with the correct factor levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.Use.TrustCreche1or0$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Trust", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.TrustCreche1or0$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Trust", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.ActiveBaseline$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.ActiveBaseline$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Activity", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.PresentOrientated$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.PresentOrientated$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Present biased", Type = "ITT") %>% filter(term %in% term_levels)
+  
+)
+
+# Merge ATTs in one DataFrame with the correct factor levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.Use.TrustCreche1or0$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Trust", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.Use.ActiveBaseline$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Activity", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.Use.PresentOrientated$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Present biased", Type = "ATT") %>% filter(term %in% term_levels)
+  
+)
+
+# Combine the two DataFrames
+DataPlotUse <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels)
+  )
+
+
+Data.Het.Psy <- bind_rows(DataPlot,DataPlotUse)
+
+ggplot(Data.Het.Psy)+
+  geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
+    x=interaction(Het,Heterogeneity,sep="!"),
+    y=estimate,
+    ymin=point.conf.low,
+    ymax=point.conf.high,
+    shape=Group,
+    color=Group),position = position_dodge(.4))+
+  geom_crossbar(aes(
+    y = estimate, x = interaction(Het,Heterogeneity,sep="!"),
+    fill = Group, ymin = conf.low,
+    color = Group, ymax = conf.high
+  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
+  #facet_wrap(~panel,scales="free_x")+
+  facet_grid(rows=vars(fct_rev(Y)),cols=vars(panel),scale="free_x")+
+  # facet_wrap(~Y+panel,scales="free_x")+
+  coord_flip()+
+  geom_hline(data=Data.Het.Psy %>% filter(panel!="Control group"),
+             aes(yintercept = 0),linetype=c(2))+
+  xlab("")+
+  #scale_vline(aes(Yintercept=0))+
+  scale_x_discrete(guide = guide_axis_nested(delim = "!"))+
+  scale_fill_brewer("Heterogeneity", palette = "Dark2" 
+  ) +
+  scale_color_brewer("Heterogeneity", palette = "Dark2")+
+  scale_shape("Heterogeneity")+
+  labs(
+    caption = paste("Sources:", SourcesStacked,
+                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block level.",
+                    "\nPoints indicate point estimates and the error bars indicate pointwise 95% CI.",
+                    "\nBoxes around estimates indicate simultaneous 95% CI adjusted for multiple testing 
+of pairwise comparisons and subgroups using the Westfall-Young method.",
+                    "\nAll models include block fixed effects")
+  )+vis_theme
 
 
 #------ BalanceTable ----------
@@ -795,8 +988,8 @@ tabVar <- MainDB  %>%
     SingleMum1or0 = ifelse(SingleMum == TRUE, 1, 0),
     Active1or0 = ifelse(Act3 == "Active", 1, 0),
     Educ1or0  = ifelse(Educ == "Sup", 1, 0),
-    BornFr1or0  = ifelse(FrenchYNBaseline == "France", 1, 0),
-    EverUsedECS1or0  = ifelse(UsedECEC == "Oui", 1, 0),
+    BornFr1or0  = ifelse(MigrationBackground == "Yes", 1, 0),
+    EverUsedECS1or0  = ifelse(UsedECEC == "Yes", 1, 0),
     PlanToUseECS1or0 = ifelse(ECSPlanToBaseline == TRUE, 1, 0),
     HighECSCov1or0 = ifelse(HighLowECECBaseline == "High ECEC covering", 1, 0), 
     DepParis1or0  = ifelse(Dep == "75", 1, 0),
@@ -856,7 +1049,7 @@ summary_baseline_variables_endline <- tabVar %>%
   add_p(
     pvalue_fun = ~ style_pvalue(.x, digits = 3)
   ) %>% 
-  add_q(method = "fdr",
+  add_q(method = "BY",
         pvalue_fun = ~ style_pvalue(.x, digits = 3))%>% 
   add_significance_stars(  thresholds = c(0.01, 0.05, 0.1))
 
@@ -872,8 +1065,9 @@ summary_baseline_variables_endline %>%
   width(j=c(2:7),unit = "cm",width=2)|>
   set_caption(caption = "Baseline balance by treatment groups") %>% 
   add_footer_lines(
-    "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
-We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test. Q-value control for the false discovery rate.")  %>%  fontsize(i=1,size=10,part="footer") #%>% print()
+    "Sources:Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
+We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test. Q-value control for the false discovery rate (FDR) using the Benjamini and Hochberg method.
+")  %>%  fontsize(i=1,size=10,part="footer") #%>% print()
 
 
 #-------- MAP --------------------
@@ -984,9 +1178,9 @@ ECSUseYesT2T1 <- EstPostLasso(Y="ECSUseYes",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 
-TidyECSUseYesLasso <- bind_rows(ECSUseYesT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                ECSUseYesT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                ECSUseYesT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyECSUseYesLasso <- bind_rows(ECSUseYesT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                ECSUseYesT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                ECSUseYesT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Early childcare access")
 
 # Run lasso on application for early childcare in general
@@ -996,9 +1190,9 @@ ECSAppT2T1 <- EstPostLasso(Y="ECSApp",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 
-TidyECSAppLasso <- bind_rows(   ECSAppT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                ECSAppT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                ECSAppT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyECSAppLasso <- bind_rows(   ECSAppT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                ECSAppT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                ECSAppT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Early childcare application")
 
 
@@ -1010,9 +1204,9 @@ USeCrecheT2T1 <- EstPostLasso(Y="UseCreche",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 ## Stack the results
-TidyUseCrecheLasso <- bind_rows(USeCrecheT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                USeCrecheT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                USeCrecheT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyUseCrecheLasso <- bind_rows(USeCrecheT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                USeCrecheT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                USeCrecheT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Daycare access")
 
 # Run lasso on appliation for daycare
@@ -1022,9 +1216,9 @@ ECSAppCrecheT2T1 <- EstPostLasso(Y="AppCreche",Z="Z",SubSample = "T2-T1")
 
 #EstPostLasso()
 
-TidyECSAppCrechepLasso <- bind_rows(   ECSAppCrecheT1C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
-                                       ECSAppCrecheT2C$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
-                                       ECSAppCrecheT2T1$`ITT Post lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
+TidyECSAppCrechepLasso <- bind_rows(   ECSAppCrecheT1C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T1-C"),
+                                       ECSAppCrecheT2C$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-C"),
+                                       ECSAppCrecheT2T1$`Post Lasso` %>% tidy(conf.int = TRUE) %>% mutate(SubSample="T2-T1")) %>% 
   mutate(Y="Daycare application")
 
 # on récupère tous les résultats dans un dataframe et on garde que le coefficient des itt donc on filtre sur Z
@@ -1033,7 +1227,7 @@ ITT.PostLasso <- bind_rows(TidyUseCrecheLasso,
                            TidyECSAppCrechepLasso,
                            TidyECSAppLasso,
                            TidyECSUseYesLasso
-) %>% filter(term=="Z")
+) #%>% filter(term=="Z")
 
 
 # ITT.UseCreche <- ITTSimultaneous(Y="UseCreche")
@@ -1045,9 +1239,9 @@ ITT.PostLasso <- bind_rows(TidyUseCrecheLasso,
 # Early childcare application
 # Do the tables
 
-modelsummary(list("Information + support vs. Control_Basic"=ECSAppT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=ECSAppT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=ECSAppT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=ECSAppT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=ECSAppT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=ECSAppT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Early childcare application - Intention-to-treat estimates",
@@ -1055,13 +1249,13 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
+gof_map = c("Covariates","FE: FE","rmse",
             "nobs", "r.squared","adj.r.squared"),
 notes=paste(" 
 The dependent variable equals 1 if the household applied for at least one early childcare facility at endline.
-Basic specification run OLS on a treatment dummy and block x wave fixed effects.
-Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the de-meaned covariates and interactions. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
-Cluster-robust standard errors adjusted at the block level in parenthesis ; point-wise 95% confidence intervals in bracklets."), output = 'flextable') %>% 
+Basic specification run OLS on a treatment dummy and block fixed effects.
+Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the demeaned covariates selected by post-Lasso and block fixed effects. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
+Cluster-robust standard errors adjusted at the block level in parenthesis ; pointwise 95% confidence intervals in brackets"), output = 'flextable') %>% 
   theme_booktabs()|>
   separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
   merge_at(j=c(1),i=c(1,2),part="header") %>% 
@@ -1079,9 +1273,9 @@ Cluster-robust standard errors adjusted at the block level in parenthesis ; poin
 # Early childcare application
 # Do the tables
 #
-modelsummary(list("Information + support vs. Control_Basic"=ECSUseYesT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSUseYesT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=ECSUseYesT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSUseYesT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=ECSUseYesT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSUseYesT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=ECSUseYesT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSUseYesT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=ECSUseYesT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSUseYesT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=ECSUseYesT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSUseYesT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Early childcare access- Intention-to-treat estimates",
@@ -1089,13 +1283,13 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
+gof_map = c("Covariates","FE: FE","rmse",
             "nobs", "r.squared","adj.r.squared"),
 notes=paste("
 The dependent variable equals 1 if the household accessed early childcare at endline.
-Basic specification run OLS on a treatment dummy and block x wave fixed effects.
-Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the de-meaned covariates and interactions. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
-Cluster-robust standard errors adjusted at the block level in parenthesis ; point-wise 95% confidence intervals in bracklets."), output = 'flextable') %>% 
+Basic specification run OLS on a treatment dummy and block fixed effects.
+Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the demeaned covariates selected by post-Lasso and block fixed effects. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
+Cluster-robust standard errors adjusted at the block level in parenthesis ; pointwise 95% confidence intervals in brackets"), output = 'flextable') %>% 
   theme_booktabs()|>
   separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
   merge_at(j=c(1),i=c(1,2),part="header") %>% 
@@ -1110,9 +1304,9 @@ Cluster-robust standard errors adjusted at the block level in parenthesis ; poin
 
 # Daycare application
 
-modelsummary(list("Information + support vs. Control_Basic"=ECSAppCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppCrecheT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=ECSAppCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppCrecheT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=ECSAppCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppCrecheT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=ECSAppCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=ECSAppCrecheT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=ECSAppCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=ECSAppCrecheT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=ECSAppCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=ECSAppCrecheT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Daycare application - Intention-to-treat estimates",
@@ -1120,13 +1314,13 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
+gof_map = c("Covariates","FE: FE","rmse",
             "nobs", "r.squared","adj.r.squared"),
 notes=paste("
 The dependent variable equals 1 if the household applied to at least one daycare center at endline.
-Basic specification run OLS on a treatment dummy and block x wave fixed effects.
-Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the de-meaned covariates and interactions. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
-Cluster-robust standard errors adjusted at the  level in parenthesis ; point-wise 95% confidence intervals in bracklets."), output = 'flextable') %>% 
+Basic specification run OLS on a treatment dummy and block fixed effects.
+Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the demeaned covariates selected by post-Lasso and block fixed effects. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
+Cluster-robust standard errors adjusted at the block level in parenthesis ; pointwise 95% confidence intervals in brackets"), output = 'flextable') %>% 
   theme_booktabs()|>
   separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
   merge_at(j=c(1),i=c(1,2),part="header") %>% 
@@ -1140,9 +1334,9 @@ Cluster-robust standard errors adjusted at the  level in parenthesis ; point-wis
 
 
 # Daycare access
-modelsummary(list("Information + support vs. Control_Basic"=USeCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=USeCrecheT2C$`ITT Post lasso`,
-                  "Information + support vs. Information-only_Basic"=USeCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=USeCrecheT2T1$`ITT Post lasso`,
-                  "Information-only vs. Control_Basic"=USeCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=USeCrecheT1C$`ITT Post lasso`
+modelsummary(list("Information + support vs. Control_Basic"=USeCrecheT2C$`Basic Model`, "Information + support vs. Control_Post-Lasso"=USeCrecheT2C$`Post Lasso`,
+                  "Information + support vs. Information-only_Basic"=USeCrecheT2T1$`Basic Model`, "Information + support vs. Information-only_Post-Lasso"=USeCrecheT2T1$`Post Lasso`,
+                  "Information-only vs. Control_Basic"=USeCrecheT1C$`Basic Model`, "Information-only vs. Control_Post-Lasso"=USeCrecheT1C$`Post Lasso`
 ),
 coef_map="Z",
 title="Daycare access - Intention-to-treat estimates",
@@ -1150,13 +1344,13 @@ fmt=fmt_statistic(estimate=3,std.error=3,conf.int=3),
 estimate = '{estimate}{stars} ({std.error})',
 statistic = c("conf.int"),
 stars = c('*' = .1,'**' = .05, '***' = .01),
-gof_map = c("Covariates","Fixed effects",
+gof_map = c("Covariates","FE: FE","rmse",
             "nobs", "r.squared","adj.r.squared"),
 notes=paste("
 The dependent variable equals 1 if the household accessed early childcare at endline.
-Basic specification run OLS on a treatment dummy and block x wave fixed effects.
-Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the de-meaned covariates and interactions. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
-Cluster-robust standard errors adjusted at the block level in parenthesis ; point-wise 95% confidence intervals in bracklets."), output = 'flextable') %>% 
+Basic specification run OLS on a treatment dummy and block fixed effects.
+Post-lasso use coefficients of an OLS regression of the outcome on a treatment dummy, the demeaned covariates selected by post-Lasso and block fixed effects. Covariates were selected by a lasso regression with lambda minimising the RMSE chosen by 10-fold cross validation. 
+Cluster-robust standard errors adjusted at the block level in parenthesis ; pointwise 95% confidence intervals in brackets"), output = 'flextable') %>% 
   theme_booktabs()|>
   separate_header(split="_",opts = c("center-hspan")) |>   # Separate headers
   merge_at(j=c(1),i=c(1,2),part="header") %>% 
@@ -1205,9 +1399,9 @@ gof_map = c(#"Mean of DV",
 title="Average treatment effect on the treated on the main outcomes",
 notes=paste("Sources:", SourcesStacked,
             "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
-Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
-Adjusted p-value and confidence intervals account for simultaneous inference using the",LATE.UseCreche$Correction, "method. 
+*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block level.
+Adjusted p-values and confidence intervals account for simultaneous inference using the",LATE.UseCreche$Correction, "method. 
 Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table.
 First stage reports OLS estimates of offering support on actual support on both comparison groups.
 Average treatment effects on the treated estimated jointly for both comparison by instrumenting administrative support in each comparison sample by assignment to T2 (centred by the pairwise instrument propensity score) interacted with the comparison sample dummy and block x wave x comparison fixed effects instrumenting themselved.
@@ -1231,8 +1425,9 @@ output = 'flextable') %>%
   hline(c(6,8),part="body")
 
 
+#----- HetT1ITTATT ------------
 
-#------ T1AccessApplicationGraph ------------
+
 ## First etimate the ITT
 Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                Outcome = "ECSApp",
@@ -1243,221 +1438,167 @@ Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 
 Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            ,
                                             Outcome = "ECSApp",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+## Estimate the ATT
+Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                               Outcome = "ECSApp",
+                                               Heterogeneity = "Educ2",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2 ,
+                                            Outcome = "ECSApp",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
 
 
 
-Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSApp",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-Het.ITT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSApp",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-# Définir les niveaux des facteurs pour un ordre personnalisé
+# Define the factors
 term_levels <- c("T1-C")
-heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
-panel_levels <- c("Control mean", "ITT Application")
+heterogeneity_levels <- c("SES", "Migration \nbackground")
+panel_levels <- c("Control group", "ITT", "ATT")
 
-# Fusionner les données en un seul DataFrame avec les niveaux de facteur appropriés
-DataApp <- bind_rows(
-  Het.ITT.App.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.App.Educ2C$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.App.Mig$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.App.Mig$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.App.Info$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
-  Het.ITT.App.Info$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
-  Het.ITT.App.Discount$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels),
-  Het.ITT.App.Discount$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels)
-) %>%
+# Merge ITTs in one DataFrame with the correct fator levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.App.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.Educ2C$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.Mig$ModelSummary0$tidy %>% mutate(Y = "Apply for early childcare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.App.Mig$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+)
+
+# Merge ATTs in one DataFrame with the correct fator levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.App.Educ2C$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.App.Mig$Tidy %>% mutate(Y = "Apply for early childcare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels)
+)
+
+# Combine both data frames
+DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
   mutate(
     term = factor(term, levels = term_levels),
     Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
-    panel = factor(panel, levels = panel_levels)
-  )
-
-
-# Créer un vecteur nommé pour les étiquettes de l'axe x
-x_labels <- c(
-  "T1-C!Early childcare application!SES" = "SES",
-  "T1-C!Early childcare application!Migration background" = "Migration \nbackground",
-  "T1-C!Early childcare application!Level of knowledge" = "Level of \nknowledge",
-  "T1-C!Early childcare application!Temporal orientation" = "Temporal \norientation"
-)
-
-# Tracer le graphique avec les facteurs ordonnés
-DataPlotApp <- DataApp %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
-  geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
-    fill = Group, ymin = conf.low,
-    color = Group, ymax = conf.high
-  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) +  # Adjust the number of legend columns
-  geom_hline(data=DataApp %>%filter(panel!="Control mean"),
-             aes(yintercept = 0), linetype = c(2)) + # Ligne pointillée pour la date de randomisation
-  ylab("Estimates") +
-  guides(
-     col = guide_legend(ncol = 4),
-    fill = guide_legend(ncol = 4)
-  ) +
-  theme(
-    axis.title.y = element_blank(),  # Remove the y-axis title
-    axis.text.y = element_blank(),   # Remove the y-axis labels
-    axis.ticks.y = element_blank()   # Remove the y-axis ticks
+    panel = factor(panel, levels = panel_levels),
   )
 
 
 
-
+# Do the same graph for access to early childcare
+## First estimate the ITT
 Het.ITT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                Outcome = "ECSUseYes",
                                                Heterogeneity = "Educ2",
                                                ITT = TRUE,
                                                Weights = "WeightPS",
                                                clusters = "StrataWave")
+
 Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                             Outcome = "ECSUseYes",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
 
 
+## Estimate the ATT
+Het.ATT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                               Outcome = "ECSUseYes",
+                                               Heterogeneity = "Educ2",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
 
-Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-Het.ITT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-# Définir les niveaux des facteurs pour un ordre personnalisé
+Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                            Outcome = "ECSUseYes",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = FALSE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+# Define the factors
 term_levels <- c("T1-C")
-heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
-panel_levels <- c("Control mean", "ITT Access")
+#heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
+#panel_levels <- c("Control group", "ITT", "ATT")
 
-# Fusionner les données en un seul DataFrame avec les niveaux de facteur appropriés
-DataAccess <- bind_rows(
-  Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Educ2C$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Mig$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Mig$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Info$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Info$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Discount$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Discount$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels)
-) %>%
+# Merge ITTs in one DataFrame with the correct factor levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Educ2C$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Mig$ModelSummary0$tidy %>% mutate(Y = "Access early childcare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Mig$Tidy %>% mutate(Y = "Access early childcare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+  
+)
+
+# Merge ATTs in one DataFrame with the correct factor levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.Use.Educ2C$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.Use.Mig$Tidy %>% mutate(Y = "Access early childcare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels),
+)
+
+# Combine the two DataFrames
+DataPlotUse <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
   mutate(
     term = factor(term, levels = term_levels),
     Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
     panel = factor(panel, levels = panel_levels)
   )
 
+# Plot the graph with ordered factors
 
-# Create a named vector for the x-axis labels
-x_labels <- c(
-  "T1-C!Use early childcare!SES" = "SES",
-  "T1-C!Use early childcare!Migration background" = "Migration \nbackground",
-  "T1-C!Use early childcare!Level of knowledge" = "Level of \nknowledge",
-  "T1-C!Use early childcare!Temporal orientation" = "Temporal \norientation"
-)
-# Tracer le graphique avec les facteurs ordonnés
-DatPlotAccess <- DataAccess  %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
+#### Here is what's new : 
+
+Data.Het.EducMig <- bind_rows(DataPlot,DataPlotUse)
+
+ggplot(Data.Het.EducMig)+
+  geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
+    x=interaction(Het,Heterogeneity,sep="!"),
+    y=estimate,
+    ymin=point.conf.low,
+    ymax=point.conf.high,
+    shape=Group,
+    color=Group),position = position_dodge(.4))+
   geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
+    y = estimate, x = interaction(Het,Heterogeneity,sep="!"),
     fill = Group, ymin = conf.low,
     color = Group, ymax = conf.high
   ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) +  # Adjust the number of legend columns
-  geom_hline(data=DataAccess %>%filter(panel!="Control mean"),
-             aes(yintercept = 0), linetype = c(2)) + 
-  ylab("Estimates") +
-  guides(
-    col  = guide_legend(ncol = 4),
-    fill = guide_legend(ncol = 4)
+  #facet_wrap(~panel,scales="free_x")+
+  facet_grid(rows=vars(fct_rev(Y)),cols=vars(panel),scale="free_x")+
+  # facet_wrap(~Y+panel,scales="free_x")+
+  coord_flip()+
+  geom_hline(data=Data.Het.EducMig %>% filter(panel!="Control group"),
+             aes(yintercept = 0),linetype=c(2))+
+  xlab("")+
+  #scale_vline(aes(Yintercept=0))+
+  scale_x_discrete(guide = guide_axis_nested(delim = "!"))+
+  scale_fill_brewer("Heterogeneity", palette = "Dark2" 
   ) +
-  theme(
-    axis.title.y = element_blank(),  # Remove the y-axis title
-    axis.text.y = element_blank(),   # Remove the y-axis labels
-    axis.ticks.y = element_blank()   # Remove the y-axis ticks
-  )
-# Plots in a panel with ggarrange
-CombineAppAccess <- ggarrange("Application"=DataPlotApp,
-                       "Access"=DatPlotAccess,
-                       common.legend = TRUE,
-                       ncol = 2,#align = "hv",
-                       legend = "bottom"
-                       )
+  scale_color_brewer("Heterogeneity", palette = "Dark2")+
+  scale_shape("Heterogeneity")+
+  labs(
+    caption = paste("Sources:", SourcesStacked,
+                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block level.",
+                    "\nPoints indicate point estimates and the error bars indicate pointwise 95% CI.",
+                    "\nBoxes around estimates indicate simultaneous 95% CI adjusted for multiple testing 
+of pairwise comparisons and subgroups using the Westfall-Young method.",
+                    "\nAll models include block fixed effects")
+  ) +vis_theme
 
-# Annotate figure             
-CombineAppAccess <- annotate_figure(CombineAppAccess,
-                             bottom = text_grob(  label = paste("Sources:", SourcesStacked,
-                                                                "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.",
-                                                                "\nPoint indicates the ITT and the error bars indicate pointwise 95% CI.",
-                                                                "\nBoxes around estimates indicate simultaneous 95% CI accounting for multiple testing.",
-                                                                "\nThe Fixed effect models are estimated with block x subsample fixed effects and inverse probability weighting."),
-                                                hjust = 0, x = 0, size = 10))
 
-CombineAppAccess
+#------------ HetT2table ------------
 
-#------ TableInfoSupportITTATT -------------
 # Heterogeneous effects of the information + support treatment on early childcare applications 
-
+# Only including SES and Migration background dimensions
 
 # Step 1 : estimate the conditional ITTs of interest using the function
-## First etimate the ITT for applications
+## First estimate the ITT for applications
 Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                Outcome = "ECSApp",
                                                Heterogeneity = "Educ2",
@@ -1468,63 +1609,25 @@ Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                             Outcome = "ECSApp",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
 
-
-
-Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSApp",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ITT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSApp",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
 ### Now let's get the models for the use
-
 Het.ITT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                Outcome = "ECSUseYes",
                                                Heterogeneity = "Educ2",
                                                ITT = TRUE,
                                                Weights = "WeightPS",
                                                clusters = "StrataWave")
+
 Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                             Outcome = "ECSUseYes",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = TRUE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
-
-
-Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-Het.ITT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
 
 # We get many results in each function:
 # - ModelSummary0 - prepare a modelsummary table for the control group, basic table : modelsummary(NAME$ModelSummary0,shape=term+Group~model)
@@ -1533,65 +1636,41 @@ Het.ITT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
 # - modelsummary prepare a modelsummary table for the main estimates, basic table : modelsummary(NAME$ModelSummary,shape=term+Group~model)
 # - Tidy : the tidy version with both models
 
-
-#From there, we want to :
-# Keep only one comparison arm (à voir)
-# make a list of 
-# 1) stacked control group means over all pair of heterogeneity dimensions for applications
-# 2) stacked ITTs over all pair of heterogeneity dimensions for use
-# 3) stacked control group means over all pair of heterogeneity dimensions for use
-# 4) stacked ITTs over all pair of heterogeneity dimensions for use
-
-# make a nice modelsummary out of this.
-
-# Stack control for application
+# Stack control for application - only SES and Migration background
 StackedControlApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background"),
-                   Het.ITT.App.Info$ModelSummary0$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.App.Discount$ModelSummary0$tidy) %>% select(-model)%>% mutate(Var="Temporal orientation"),
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.App.Educ2C$ModelSummary0$glance
 )
 class(StackedControlApp) <- "modelsummary_list"   # define the class
 
-
-
-# Stack Itt for application
+# Stack ITT for application - only SES and Migration background
 StackedITTApp <- list(
-  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ITT.App.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.App.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ITT.App.Educ2C$ModelSummary$glance)
-
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ITT.App.Educ2C$ModelSummary$glance
+)
 class(StackedITTApp) <- "modelsummary_list"   # define the class
 
-
-# Stack control for use
+# Stack control for use - only SES and Migration background
 StackedControlUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var="Migration background"),
-                   Het.ITT.Use.Info$ModelSummary0$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.Use.Discount$ModelSummary0$tidy) %>% select(-model)%>% mutate(Var="Temporal orientation"),
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
   glance = Het.ITT.Use.Educ2C$ModelSummary0$glance
 )
 class(StackedControlUse) <- "modelsummary_list"   # define the class
 
-# Stack ITT for use
+# Stack ITT for use - only SES and Migration background
 StackedITTUse <- list(
-  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ITT.Use.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ITT.Use.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ITT.Use.Educ2C$ModelSummary$glance)
-
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ITT.Use.Educ2C$ModelSummary$glance
+)
 class(StackedITTUse) <- "modelsummary_list"   # define the class
 
 
-
-
 # Step 2 : estimate the conditional ATTs of interest using the function
-## First etimate the ITT for applications
+## First estimate the ATT for applications - only SES and Migration background
 Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                Outcome = "ECSApp",
                                                Heterogeneity = "Educ2",
@@ -1599,106 +1678,57 @@ Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                Weights = "WeightPS",
                                                clusters = "StrataWave")
 
-
 Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                             Outcome = "ECSApp",
-                                            Heterogeneity= "FrenchYNBaseline",
+                                            Heterogeneity= "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
 
-
-
-Het.ATT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSApp",
-  Heterogeneity = "InfoBaseline",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ATT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSApp",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-### Now let's get the models for the use
-
+### Now let's get the models for the use - only SES and Migration background
 Het.ATT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                Outcome = "ECSUseYes",
                                                Heterogeneity = "Educ2",
                                                ITT = FALSE,
                                                Weights = "WeightPS",
                                                clusters = "StrataWave")
+
 Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                             Outcome = "ECSUseYes",
-                                            Heterogeneity = "FrenchYNBaseline",
+                                            Heterogeneity = "MigrationBackground",
                                             ITT = FALSE,
                                             Weights = "WeightPS",
                                             clusters = "StrataWave")
 
-
-Het.ATT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "InfoBaseline",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-Het.ATT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2%>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "ECSUseYes",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-
-# Stack Itt for application
+# Stack ATT for application - only SES and Migration background
 StackedATTApp <- list(
-  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ATT.App.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ATT.App.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ATT.App.Educ2C$ModelSummary$glance)
-
+  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ATT.App.Educ2C$ModelSummary$glance
+)
 class(StackedATTApp) <- "modelsummary_list"   # define the class
 
-
-# Stack ITT for use
+# Stack ATT for use - only SES and Migration background
 StackedATTUse <- list(
-  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var="SES"),
-                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Migration background"),
-                   Het.ATT.Use.Info$ModelSummary$tidy %>% select(-model)%>% mutate(Var="Level of knowledge"),
-                   Het.ATT.Use.Discount$ModelSummary$tidy %>% select(-model))%>% mutate(Var="Temporal orientation"),
-  glance =Het.ATT.Use.Educ2C$ModelSummary$glance)
-
+  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ATT.Use.Educ2C$ModelSummary$glance
+)
 class(StackedATTUse) <- "modelsummary_list"   # define the class
 
-
-
-
 # Put that in a list
-TheModelsATT <-   list(StackedControlApp,
-                       StackedITTApp,
-                       StackedATTApp,
-                       StackedControlUse,
-                       StackedITTUse,
-                       StackedATTUse
+TheModelsATT <- list(StackedControlApp,
+                     StackedITTApp,
+                     StackedATTApp,
+                     StackedControlUse,
+                     StackedITTUse,
+                     StackedATTUse
 )
 
 # Define labels
 OutcomeLabel <- c("Early childcare application", "Early childcare access")
 
-# Define the name of the models with it with an underscore to separate them after
+# Define the name of the models with an underscore to separate them after
 names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
                          paste(OutcomeLabel[c(1)],"Conditional ITT",sep="_"),
                          paste(OutcomeLabel[c(1)],"Conditional ATT",sep="_"),
@@ -1706,17 +1736,15 @@ names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
                          paste(OutcomeLabel[c(2)],"Conditional ITT",sep="_"),
                          paste(OutcomeLabel[c(2)],"Conditional ATT",sep="_"))
 
-
-
-# Now T2 angainst C
-cmT2C <- c('T2-C'    = 'Information + support vs control')
+# Now T2 against C
+cmT2C <- c('T2-C' = 'Information + support vs control')
 
 # Title for modelsummary
-TheTitle = "Average gaps and heterogeneous treatment effects"
+TheTitle = "Average gaps and heterogeneous treatment effects by SES and migration background"
 
 # Now the infamous model summary 
 ModelT2C <- modelsummary(TheModelsATT,
-                         shape=Group ~ model,
+                         shape= Variable + Group ~ model,
                          fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
                          estimate = '{estimate}{stars} ({std.error})',
                          statistic = c("conf.int",
@@ -1727,10 +1755,10 @@ ModelT2C <- modelsummary(TheModelsATT,
                          title=TheTitle,
                          notes=paste("Sources:", SourcesStacked,
                                      "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
-Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
+Standard errors are cluster-heteroskedasticity robust adjusted at the block level.
 Models are jointly estimating conditional averages in each pair of treatment arm.
-Adjusted p-value and confidence intervals account for simultaneous inference across treatment arms.
+Adjusted p-values and confidence intervals account for simultaneous inference across treatment arms.
                          " 
                          ),output = 'flextable') %>% 
   theme_booktabs()|>
@@ -1738,249 +1766,26 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=2,part="header")|>
   merge_at(j=1,part="header")|>
-  #merge_v(j=1,part="body")|>
-  italic(i = c(1),  part = "header") %>% 
+  merge_v(j=1,part="body")|>
+  merge_v(j=2,part="body")|>
+  merge_v(j=3,part="body")|>
+    italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
   align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
-  width(j=c(4,5,7, 8),width=2.4,unit = "cm")|>
-  width(j=c(1,2, 3, 6),width=2.2,unit = "cm") %>% 
-  hline(c(3*c(1:8)),c(3:8),part="body") %>% 
-  hline(c(6*c(1:4)),c(1:8),part="body") 
+  width(j=c(4,5,7, 8),width=2.3,unit = "cm")|>
+  width(j=c(1,2, 3,4, 7),width=2.1,unit = "cm") %>% 
+  hline(c(3*c(1:4)),c(3:9),part="body") %>% 
+  hline(c(6*c(1:2)),c(1:9),part="body") 
 #hline(c(3*c(1:24)),part="body")
-
-
-
 
 ModelT2C
 
 
-
-
-
 #------ DaycareApplicationAccessT1Graph ------------
 
-## First estimate the ITT
-Het.ITT.App.Educ2C.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                       Outcome = "AppCreche",
-                                                       Heterogeneity = "Educ2",
-                                                       ITT = TRUE,
-                                                       Weights = "WeightPS",
-                                                       clusters = "StrataWave")
 
-Het.ITT.App.Mig.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                    Outcome = "AppCreche",
-                                                    Heterogeneity = "FrenchYNBaseline",
-                                                    ITT = TRUE,
-                                                    Weights = "WeightPS",
-                                                    clusters = "StrataWave")
-
-Het.ITT.App.Info.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "AppCreche",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ITT.App.Discount.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "AppCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-# Define the factor levels for custom ordering
-term_levels <- c("T1-C")
-heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
-panel_levels <- c("Control mean", "ITT Application")
-
-# Merge the data into one DataFrame with the appropriate factor levels
-DataPlot.Daycare.App <- bind_rows(
-  Het.ITT.App.Educ2C.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare application", panel = "Control mean", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.App.Educ2C.Daycare$Tidy %>% mutate(Y = "Daycare application", panel = "ITT Application", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.App.Mig.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare application", panel = "Control mean", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.App.Mig.Daycare$Tidy %>% mutate(Y = "Daycare application", panel = "ITT Application", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.App.Info.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare application", panel = "Control mean", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
-  Het.ITT.App.Info.Daycare$Tidy %>% mutate(Y = "Daycare application", panel = "ITT Application", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
-  Het.ITT.App.Discount.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare application", panel = "Control mean", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels),
-  Het.ITT.App.Discount.Daycare$Tidy %>% mutate(Y = "Daycare application", panel = "ITT Application", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels)
-) %>%
-  mutate(
-    term = factor(term, levels = term_levels),
-    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
-    panel = factor(panel, levels = panel_levels)
-  )
-
-# Create a named vector for the x-axis labels
-x_labels <- c(
-  "T1-C!Daycare application!SES" = "SES",
-  "T1-C!Daycare application!Migration background" = "Migration \nbackground",
-  "T1-C!Daycare application!Level of knowledge" = "Level of \nknowledge",
-  "T1-C!Daycare application!Temporal orientation" = "Temporal \norientation"
-)
-
-# Plot the graph with the ordered factors
-PlotDaycareApp <- DataPlot.Daycare.App %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
-  geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
-    fill = Group, ymin = conf.low,
-    color = Group, ymax = conf.high
-  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) +  # Adjust the number of legend columns
-  geom_hline(data=DataPlot.Daycare.App %>%filter(panel!="Control mean"),
-             aes(yintercept = 0), linetype = c(2)) + 
-  ylab("Estimates") +
-  guides(
-    col = guide_legend(ncol = 4),
-    fill = guide_legend(ncol = 4)
-  )  +
-  theme(
-    axis.title.y = element_blank(),  # Remove the y-axis title
-    axis.text.y = element_blank(),   # Remove the y-axis labels
-    axis.ticks.y = element_blank()   # Remove the y-axis ticks
-  )
-
-
-## First estimate the ITT
-Het.ITT.Use.Educ2C.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                       Outcome = "UseCreche",
-                                                       Heterogeneity = "Educ2",
-                                                       ITT = TRUE,
-                                                       Weights = "WeightPS",
-                                                       clusters = "StrataWave")
-
-Het.ITT.Use.Mig.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB,
-                                                    Outcome = "UseCreche",
-                                                    Heterogeneity = "FrenchYNBaseline",
-                                                    ITT = TRUE,
-                                                    Weights = "WeightPS",
-                                                    clusters = "StrataWave")
-
-Het.ITT.Use.Info.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
-  Outcome = "UseCreche",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ITT.Use.Discount.Daycare <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
-  Outcome = "UseCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-# Define the factor levels for custom ordering
-term_levels <- c("T1-C")
-heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
-panel_levels <- c("Control mean", "ITT Access")
-
-# Merge the data into one DataFrame with the appropriate factor levels
-Data.Daycare.Access <- bind_rows(
-  Het.ITT.Use.Educ2C.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare access", panel = "Control mean", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Educ2C.Daycare$Tidy %>% mutate(Y = "Daycare access", panel = "ITT Access", Heterogeneity = "SES") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Mig.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare access", panel = "Control mean", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Mig.Daycare$Tidy %>% mutate(Y = "Daycare access", panel = "ITT Access", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Info.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare access", panel = "Control mean", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Info.Daycare$Tidy %>% mutate(Y = "Daycare access", panel = "ITT Access", Heterogeneity = "Level of knowledge") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Discount.Daycare$ModelSummary0$tidy %>% mutate(Y = "Daycare access", panel = "Control mean", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels),
-  Het.ITT.Use.Discount.Daycare$Tidy %>% mutate(Y = "Daycare access", panel = "ITT Access", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels)
-) %>%
-  mutate(
-    term = factor(term, levels = term_levels),
-    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
-    panel = factor(panel, levels = panel_levels)
-  )
-
-# Create a named vector for the x-axis labels
-x_labels <- c(
-  "T1-C!Daycare access!SES" = "SES",
-  "T1-C!Daycare access!Migration background" = "Migration \nbackground",
-  "T1-C!Daycare access!Level of knowledge" = "Level of \nknowledge",
-  "T1-C!Daycare access!Temporal orientation" = "Temporal \norientation"
-)
-
-# Plot the graph with the ordered factors
-PlotDaycareAccess <- Data.Daycare.Access %>%
-  ggplot() +
-  geom_pointrange(aes(
-    x = interaction(term, Y, Heterogeneity, sep = "!"),
-    y = estimate, ymin = point.conf.low,
-    ymax = point.conf.high, color = Group
-  ), position = position_dodge(.6)) +
-  geom_crossbar(aes(
-    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
-    fill = Group, ymin = conf.low,
-    color = Group, ymax = conf.high
-  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
-  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
-  coord_flip() +
-  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
-  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
-  scale_shape_manual("Model:", values = c(4:8)) +
-  guides(col = guide_legend(ncol = 2)) +  # Adjust the number of legend columns
-  geom_hline(data=Data.Daycare.Access %>%filter(panel!="Control mean"),
-             aes(yintercept = 0), linetype = c(2)) + 
- 
-  ylab("Estimates") +
-  guides(
-    col = guide_legend(ncol = 4),
-    fill = guide_legend(ncol = 4)
-  ) +
-  theme(
-    axis.title.y = element_blank(),  # Remove the y-axis title
-    axis.text.y = element_blank(),   # Remove the y-axis labels
-    axis.ticks.y = element_blank()   # Remove the y-axis ticks
-  )
-
-
-
-
-# Plots in a panel with ggarrange
-CombineAppAccessDaycare <- ggarrange("Application"=DataPlotApp,
-                              "Access"=DatPlotAccess,
-                              common.legend = TRUE,
-                              ncol = 2,#align = "hv",
-                              legend = "bottom"
-)
-
-# Annotate figure             
-CombineAppAccessDaycare <- annotate_figure(CombineAppAccessDaycare,
-                                    bottom = text_grob(  label = paste("Sources:", SourcesStacked,
-                                                                       "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.",
-                                                                       "\nPoint indicates the ITT and the error bars indicate pointwise 95% CI.",
-                                                                       "\nBoxes around estimates indicate simultaneous 95% CI accounting for multiple testing.",
-                                                                       "\nThe Fixed effect models are estimated with block x subsample fixed effects and inverse probability weighting."),
-                                                         hjust = 0, x = 0, size = 10))
-
-CombineAppAccessDaycare
-
-
-#------ DaycareTableInfoSupportITTATT -------------
-# Heterogeneous effects of the information + support treatment on daycare applications and access 
-
-# Step 1: estimate the conditional ITTs for Daycare applications
-
-## First estimate the ITT for daycare applications
+## First etimate the ITT
 Het.ITT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                      Outcome = "AppCreche",
                                                      Heterogeneity = "Educ2",
@@ -1988,30 +1793,61 @@ Het.ITT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                      Weights = "WeightPS",
                                                      clusters = "StrataWave")
 
+
 Het.ITT.AppCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                   Outcome = "AppCreche",
-                                                  Heterogeneity = "FrenchYNBaseline",
+                                                  Heterogeneity= "MigrationBackground",
                                                   ITT = TRUE,
                                                   Weights = "WeightPS",
                                                   clusters = "StrataWave")
 
-Het.ITT.AppCreche.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline = ifelse(LevelInfoSubExPost == "Aucun ou très bas", "Low knowledge", "High knowledge")),
-  Outcome = "AppCreche",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+## Estimate the ATT
+Het.ATT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                     Outcome = "AppCreche",
+                                                     Heterogeneity = "Educ2",
+                                                     ITT = FALSE,
+                                                     Weights = "WeightPS",
+                                                     clusters = "StrataWave")
+Het.ATT.AppCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                                  Outcome = "AppCreche",
+                                                  Heterogeneity = "MigrationBackground",
+                                                  ITT = FALSE,
+                                                  Weights = "WeightPS",
+                                                  clusters = "StrataWave")
 
-Het.ITT.AppCreche.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  Discount501or0 = ifelse(Discount501or0 == 1, "Present Orientated", "Future Orientated")),
-  Outcome = "AppCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
 
-### Now let's get the models for the use (daycare access)
+
+# Define the factors
+term_levels <- c("T1-C")
+heterogeneity_levels <- c("SES", "Migration \nbackground")
+panel_levels <- c("Control group", "ITT", "ATT")
+
+# Merge ITTs in one DataFrame with the correct fator levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.AppCreche.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Apply for daycare", panel = "Control group", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.AppCreche.Educ2C$Tidy %>% mutate(Y = "Apply for daycare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.AppCreche.Mig$ModelSummary0$tidy %>% mutate(Y = "Apply for daycare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.AppCreche.Mig$Tidy %>% mutate(Y = "Apply for daycare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+)
+
+# Merge ATTs in one DataFrame with the correct fator levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.AppCreche.Educ2C$Tidy %>% mutate(Y = "Apply for daycare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.AppCreche.Mig$Tidy %>% mutate(Y = "Apply for daycare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels)
+)
+
+# Combine both data frames
+DataPlot <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels),
+  )
+
+
+
+# Do the same graph for access to early childcare
+## First estimate the ITT
 Het.ITT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                      Outcome = "UseCreche",
                                                      Heterogeneity = "Educ2",
@@ -2021,63 +1857,13 @@ Het.ITT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
 
 Het.ITT.UseCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
                                                   Outcome = "UseCreche",
-                                                  Heterogeneity = "FrenchYNBaseline",
+                                                  Heterogeneity= "MigrationBackground",
                                                   ITT = TRUE,
                                                   Weights = "WeightPS",
                                                   clusters = "StrataWave")
 
-Het.ITT.UseCreche.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  InfoBaseline = ifelse(LevelInfoSubExPost == "Aucun ou très bas", "Low knowledge", "High knowledge")),
-  Outcome = "UseCreche",
-  Heterogeneity = "InfoBaseline",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
 
-Het.ITT.UseCreche.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
-  Discount501or0 = ifelse(Discount501or0 == 1, "Present Orientated", "Future Orientated")),
-  Outcome = "UseCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = TRUE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-
-
-# Step 2: estimate the conditional ATTs for Daycare applications
-
-## First estimate the ATT for daycare applications
-Het.ATT.AppCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                                     Outcome = "AppCreche",
-                                                     Heterogeneity = "Educ2",
-                                                     ITT = FALSE,
-                                                     Weights = "WeightPS",
-                                                     clusters = "StrataWave")
-
-Het.ATT.AppCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
-                                                  Outcome = "AppCreche",
-                                                  Heterogeneity = "FrenchYNBaseline",
-                                                  ITT = FALSE,
-                                                  Weights = "WeightPS",
-                                                  clusters = "StrataWave")
-
-Het.ATT.AppCreche.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline = ifelse(LevelInfoSubExPost == "Aucun ou très bas", "Low knowledge", "High knowledge")),
-  Outcome = "AppCreche",
-  Heterogeneity = "InfoBaseline",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-Het.ATT.AppCreche.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  Discount501or0 = ifelse(Discount501or0 == 1, "Present Orientated", "Future Orientated")),
-  Outcome = "AppCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
-
-### Now let's get the models for daycare access
+## Estimate the ATT
 Het.ATT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                      Outcome = "UseCreche",
                                                      Heterogeneity = "Educ2",
@@ -2087,27 +1873,118 @@ Het.ATT.UseCreche.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
 
 Het.ATT.UseCreche.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
                                                   Outcome = "UseCreche",
-                                                  Heterogeneity = "FrenchYNBaseline",
+                                                  Heterogeneity = "MigrationBackground",
                                                   ITT = FALSE,
                                                   Weights = "WeightPS",
                                                   clusters = "StrataWave")
+# Define the factors
+term_levels <- c("T1-C")
+#heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
+#panel_levels <- c("Control group", "ITT", "ATT")
 
-Het.ATT.UseCreche.Info <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  InfoBaseline = ifelse(LevelInfoSubExPost == "Aucun ou très bas", "Low knowledge", "High knowledge")),
-  Outcome = "UseCreche",
-  Heterogeneity = "InfoBaseline",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+# Merge ITTs in one DataFrame with the correct factor levels
+DataPlot_ITT <- bind_rows(
+  Het.ITT.UseCreche.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Access daycare", panel = "Control group", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.UseCreche.Educ2C$Tidy %>% mutate(Y = "Access daycare", panel = "ITT", Heterogeneity = "SES", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.UseCreche.Mig$ModelSummary0$tidy %>% mutate(Y = "Access daycare", panel = "Control group", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+  Het.ITT.UseCreche.Mig$Tidy %>% mutate(Y = "Access daycare", panel = "ITT", Heterogeneity = "Migration \nbackground", Type = "ITT") %>% filter(term %in% term_levels),
+  
+)
 
-Het.ATT.UseCreche.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
-  Discount501or0 = ifelse(Discount501or0 == 1, "Present Orientated", "Future Orientated")),
-  Outcome = "UseCreche",
-  Heterogeneity = "Discount501or0",
-  ITT = FALSE,
-  Weights = "WeightPS",
-  clusters = "StrataWave")
+# Merge ATTs in one DataFrame with the correct factor levels
+DataPlot_ATT <- bind_rows(
+  Het.ATT.UseCreche.Educ2C$Tidy %>% mutate(Y = "Access daycare", panel = "ATT", Heterogeneity = "SES", Type = "ATT") %>% filter(term %in% term_levels),
+  Het.ATT.UseCreche.Mig$Tidy %>% mutate(Y = "Access daycare", panel = "ATT", Heterogeneity = "Migration \nbackground", Type = "ATT") %>% filter(term %in% term_levels),
+)
 
+# Combine the two DataFrames
+DataPlotUse <- bind_rows(DataPlot_ITT, DataPlot_ATT) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels)
+  )
+
+# Plot the graph with ordered factors
+
+#### Here is what's new : 
+
+Data.Het.Daycare.EducMig <- bind_rows(DataPlot,DataPlotUse)
+
+ggplot(Data.Het.Daycare.EducMig)+
+  geom_pointrange(aes(#x=interaction(Y,Het,Heterogeneity,sep="!"),
+    x=interaction(Het,Heterogeneity,sep="!"),
+    y=estimate,
+    ymin=point.conf.low,
+    ymax=point.conf.high,
+    shape=Group,
+    color=Group),position = position_dodge(.4))+
+  geom_crossbar(aes(
+    y = estimate, x = interaction(Het,Heterogeneity,sep="!"),
+    fill = Group, ymin = conf.low,
+    color = Group, ymax = conf.high
+  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
+  #facet_wrap(~panel,scales="free_x")+
+  facet_grid(rows=vars(fct_rev(Y)),cols=vars(panel),scale="free_x")+
+  # facet_wrap(~Y+panel,scales="free_x")+
+  coord_flip()+
+  geom_hline(data=Data.Het.Daycare.EducMig %>% filter( panel!="Control group"),
+             aes(yintercept = 0),linetype=c(2))+
+  xlab("")+
+  #scale_vline(aes(Yintercept=0))+
+  scale_x_discrete(guide = guide_axis_nested(delim = "!"))+
+  scale_fill_brewer("Heterogeneity", palette = "Dark2" 
+  ) +
+  scale_color_brewer("Heterogeneity", palette = "Dark2")+
+  scale_shape("Heterogeneity")+
+  labs(
+    caption = paste("Sources:", SourcesStacked,
+                    "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block level.",
+                    "\nPoints indicate point estimates and the error bars indicate pointwise 95% CI.",
+                    "\nBoxes around estimates indicate simultaneous 95% CI adjusted for multiple testing 
+of pairwise comparisons and subgroups using the Westfall-Young method.",
+                    "\nAll models include block x wave fixed effects")
+  )+vis_theme
+
+
+
+
+#------------ HetT2tableDaycare ------------
+
+# Heterogeneous effects of the information + support treatment on daycare applications 
+# Only including SES and Migration background dimensions
+
+# Step 1 : estimate the conditional ITTs of interest using the function
+## First estimate the ITT for applications
+Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                               Outcome = "AppCreche",
+                                               Heterogeneity = "Educ2",
+                                               ITT = TRUE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+
+Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "AppCreche",
+                                            Heterogeneity= "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+### Now let's get the models for the use
+Het.ITT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                               Outcome = "UseCreche",
+                                               Heterogeneity = "Educ2",
+                                               ITT = TRUE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "UseCreche",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
 
 # We get many results in each function:
 # - ModelSummary0 - prepare a modelsummary table for the control group, basic table : modelsummary(NAME$ModelSummary0,shape=term+Group~model)
@@ -2116,117 +1993,116 @@ Het.ATT.UseCreche.Discount <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(
 # - modelsummary prepare a modelsummary table for the main estimates, basic table : modelsummary(NAME$ModelSummary,shape=term+Group~model)
 # - Tidy : the tidy version with both models
 
-
-#From there, we want to :
-# Keep only one comparison arm (à voir)
-# make a list of 
-# 1) stacked control group means over all pair of heterogeneity dimensions for applications
-# 2) stacked ITTs over all pair of heterogeneity dimensions for use
-# 3) stacked control group means over all pair of heterogeneity dimensions for use
-# 4) stacked ITTs over all pair of heterogeneity dimensions for use
-
-# make a nice modelsummary out of this.
-
-
-# Stack control for daycare application
+# Stack control for application - only SES and Migration background
 StackedControlApp <- list(
-  tidy = bind_rows(Het.ITT.AppCreche.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "SES"),
-                   Het.ITT.AppCreche.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "Migration background"),
-                   Het.ITT.AppCreche.Info$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "Level of knowledge"),
-                   Het.ITT.AppCreche.Discount$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "Temporal orientation")),
-  glance = Het.ITT.AppCreche.Educ2C$ModelSummary0$glance
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ITT.App.Educ2C$ModelSummary0$glance
 )
+class(StackedControlApp) <- "modelsummary_list"   # define the class
 
-class(StackedControlApp) <- "modelsummary_list"
-
-# Stack ITT for daycare application
+# Stack ITT for application - only SES and Migration background
 StackedITTApp <- list(
-  tidy = bind_rows(Het.ITT.AppCreche.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "SES"),
-                   Het.ITT.AppCreche.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Migration background"),
-                   Het.ITT.AppCreche.Info$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Level of knowledge"),
-                   Het.ITT.AppCreche.Discount$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Temporal orientation")),
-  glance = Het.ITT.AppCreche.Educ2C$ModelSummary$glance
+  tidy = bind_rows(Het.ITT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ITT.App.Educ2C$ModelSummary$glance
 )
+class(StackedITTApp) <- "modelsummary_list"   # define the class
 
-class(StackedITTApp) <- "modelsummary_list"
-
-# Stack control for daycare access
+# Stack control for use - only SES and Migration background
 StackedControlUse <- list(
-  tidy = bind_rows(Het.ITT.UseCreche.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "SES"),
-                   Het.ITT.UseCreche.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "Migration background"),
-                   Het.ITT.UseCreche.Info$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "Level of knowledge"),
-                   Het.ITT.UseCreche.Discount$ModelSummary0$tidy %>% select(-model) %>% mutate(Var = "Temporal orientation")),
-  glance = Het.ITT.UseCreche.Educ2C$ModelSummary0$glance
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary0$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ITT.Use.Educ2C$ModelSummary0$glance
 )
+class(StackedControlUse) <- "modelsummary_list"   # define the class
 
-class(StackedControlUse) <- "modelsummary_list"
-
-# Stack ITT for daycare access
+# Stack ITT for use - only SES and Migration background
 StackedITTUse <- list(
-  tidy = bind_rows(Het.ITT.UseCreche.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "SES"),
-                   Het.ITT.UseCreche.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Migration background"),
-                   Het.ITT.UseCreche.Info$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Level of knowledge"),
-                   Het.ITT.UseCreche.Discount$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Temporal orientation")),
-  glance = Het.ITT.UseCreche.Educ2C$ModelSummary$glance
+  tidy = bind_rows(Het.ITT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ITT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ITT.Use.Educ2C$ModelSummary$glance
 )
+class(StackedITTUse) <- "modelsummary_list"   # define the class
 
-class(StackedITTUse) <- "modelsummary_list"
 
-# Stack ATT for daycare application
+# Step 2 : estimate the conditional ATTs of interest using the function
+## First estimate the ATT for applications - only SES and Migration background
+Het.ATT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                               Outcome = "AppCreche",
+                                               Heterogeneity = "Educ2",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+Het.ATT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                            Outcome = "AppCreche",
+                                            Heterogeneity= "MigrationBackground",
+                                            ITT = FALSE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+### Now let's get the models for the use - only SES and Migration background
+Het.ATT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                               Outcome = "UseCreche",
+                                               Heterogeneity = "Educ2",
+                                               ITT = FALSE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+Het.ATT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDBT2,
+                                            Outcome = "UseCreche",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = FALSE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+# Stack ATT for application - only SES and Migration background
 StackedATTApp <- list(
-  tidy = bind_rows(Het.ATT.AppCreche.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "SES"),
-                   Het.ATT.AppCreche.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Migration background"),
-                   Het.ATT.AppCreche.Info$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Level of knowledge"),
-                   Het.ATT.AppCreche.Discount$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Temporal orientation")),
-  glance = Het.ATT.AppCreche.Educ2C$ModelSummary$glance
+  tidy = bind_rows(Het.ATT.App.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.App.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ATT.App.Educ2C$ModelSummary$glance
 )
+class(StackedATTApp) <- "modelsummary_list"   # define the class
 
-class(StackedATTApp) <- "modelsummary_list"
-
-# Stack ATT for daycare access
+# Stack ATT for use - only SES and Migration background
 StackedATTUse <- list(
-  tidy = bind_rows(Het.ATT.UseCreche.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "SES"),
-                   Het.ATT.UseCreche.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Migration background"),
-                   Het.ATT.UseCreche.Info$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Level of knowledge"),
-                   Het.ATT.UseCreche.Discount$ModelSummary$tidy %>% select(-model) %>% mutate(Var = "Temporal orientation")),
-  glance = Het.ATT.UseCreche.Educ2C$ModelSummary$glance
+  tidy = bind_rows(Het.ATT.Use.Educ2C$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="SES"),
+                   Het.ATT.Use.Mig$ModelSummary$tidy %>% select(-model) %>% mutate(Variable="Migration background")),
+  glance = Het.ATT.Use.Educ2C$ModelSummary$glance
 )
-
-class(StackedATTUse) <- "modelsummary_list"
-
-
+class(StackedATTUse) <- "modelsummary_list"   # define the class
 
 # Put that in a list
-TheModelsATTDaycare <-   list(StackedControlApp,
-                       StackedITTApp,
-                       StackedATTApp,
-                       StackedControlUse,
-                       StackedITTUse,
-                       StackedATTUse
+TheModelsATT <- list(StackedControlApp,
+                     StackedITTApp,
+                     StackedATTApp,
+                     StackedControlUse,
+                     StackedITTUse,
+                     StackedATTUse
 )
 
 # Define labels
-OutcomeLabelDaycare <- c("Daycare application", "Daycare access")
+OutcomeLabel <- c("Daycare application", "Daycare access")
 
-# Define the name of the models with it with an underscore to separate them after
-names(TheModelsATTDaycare) <- c(paste(OutcomeLabelDaycare[c(1)],"Avg. control",sep="_"),
-                         paste(OutcomeLabelDaycare[c(1)],"Conditional ITT",sep="_"),
-                         paste(OutcomeLabelDaycare[c(1)],"Conditional ATT",sep="_"),
-                         paste(OutcomeLabelDaycare[c(2)],"Avg. control",sep="_"),
-                         paste(OutcomeLabelDaycare[c(2)],"Conditional ITT",sep="_"),
-                         paste(OutcomeLabelDaycare[c(2)],"Conditional ATT",sep="_"))
+# Define the name of the models with an underscore to separate them after
+names(TheModelsATT) <- c(paste(OutcomeLabel[c(1)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(1)],"Conditional ATT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Avg. control",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ITT",sep="_"),
+                         paste(OutcomeLabel[c(2)],"Conditional ATT",sep="_"))
 
-
-
-# Now T2 angainst C
-cmT2C <- c('T2-C'    = 'Information + support vs control')
+# Now T2 against C
+cmT2C <- c('T2-C' = 'Information + support vs control')
 
 # Title for modelsummary
-TheTitle = "Average gaps and heterogeneous treatment effects"
+TheTitle = "Average gaps and heterogeneous treatment effects by SES and migration background (Yes = Migration background, No = Without migration background)"
+
 
 # Now the infamous model summary 
-ModelT2CDaycare <- modelsummary(TheModelsATTDaycare,
-                         shape=Group ~ model,
+ModelT2C <- modelsummary(TheModelsATT,
+                         shape= Variable + Group ~ model,
                          fmt=fmt_statistic(estimate=2, adj.p.value=3,std.error=2,conf.int=2),
                          estimate = '{estimate}{stars} ({std.error})',
                          statistic = c("conf.int",
@@ -2237,7 +2113,7 @@ ModelT2CDaycare <- modelsummary(TheModelsATTDaycare,
                          title=TheTitle,
                          notes=paste("Sources:", SourcesStacked,
                                      "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
 Models are jointly estimating conditional averages in each pair of treatment arm.
 Adjusted p-value and confidence intervals account for simultaneous inference across treatment arms.
@@ -2248,25 +2124,20 @@ Adjusted p-value and confidence intervals account for simultaneous inference acr
   bold(i=1,  part = "header") %>%                # Variable labels bold
   merge_at(j=2,part="header")|>
   merge_at(j=1,part="header")|>
-  #merge_v(j=1,part="body")|>
+  merge_v(j=1,part="body")|>
+  merge_v(j=2,part="body")|>
+  merge_v(j=3,part="body")|>
   italic(i = c(1),  part = "header") %>% 
   italic(j = c(1),  part = "body") %>% fontsize(size=9,part="footer")%>% fontsize(size=10,part="body") %>% 
   align(part = "header", align = "center")|>                # center
   align(part = "body", align = "center")|>                # center   width(j=1,width=3.5,unit = "cm")|>
-  width(j=c(4,5,7, 8),width=2.4,unit = "cm")|>
-  width(j=c(1,2, 3, 6),width=2.2,unit = "cm") %>% 
-  hline(c(3*c(1:8)),c(3:8),part="body") %>% 
-  hline(c(6*c(1:4)),c(1:8),part="body") 
+  width(j=c(4,5,7, 8),width=2.3,unit = "cm")|>
+  width(j=c(1,2, 3,4, 7),width=2.1,unit = "cm") %>% 
+  hline(c(3*c(1:4)),c(3:9),part="body") %>% 
+  hline(c(6*c(1:2)),c(1:9),part="body") 
 #hline(c(3*c(1:24)),part="body")
 
-
-
-
-ModelT2CDaycare
-
-
-
-
+ModelT2C
 
 #------ ActivityReduction ------------
 
@@ -2315,7 +2186,7 @@ modelsummary(list("Reduced their activity_Control mean"  =activity.ITT$ModelSumm
              title="Average effects of the information + support treatment on the probability that the mother reduces her activity by SES",
              notes=paste("Sources:", SourcesStacked,
                          "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
 Adjusted p-value and confidence intervals account for simultaneous inference. 
 Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
@@ -2434,7 +2305,7 @@ modelsummary(list("Early childcare application_Control mean"  =Het.ITT.App.Use$M
              title="Average effects on application and access to early childcare by past early childcare usage",
              notes=paste("Sources:", SourcesStacked,
                          "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
 Adjusted p-value and confidence intervals account for simultaneous inference. 
 Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
@@ -2482,7 +2353,7 @@ modelsummary(list("Daycare application_Control mean"     =Het.ITT.App.Use.Daycar
              title="Average effects on application and access to daycare by past early childcare usage",
              notes=paste("Sources:", SourcesStacked,
                          "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
 Adjusted p-value and confidence intervals account for simultaneous inference. 
 Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
@@ -2506,7 +2377,7 @@ Joint significance test of null effect using Chi-2 test and p-value are reported
 #------ MechanismsActivexSES------------
 
 # to trick the function into making intersection treatment effects, you can simply create the interaction in the database entry you have there and then everything should work nicely.
-# Update model and variable names from FrenchYNBaseline to ActiveSES and from FrenchEduc to ActiveEduc
+# Update model and variable names from MigrationBackground to ActiveSES and from FrenchEduc to ActiveEduc
 
 # Create interaction variable and estimate the models for ActiveSES
 Het.ITT.AppCreche.ActiveSES <- GroupHeterogeneityFnCTRL(DB = PostDBT2 %>% mutate(ActiveEduc = interaction(ActiveBaseline, Educ2)),
@@ -2582,7 +2453,7 @@ modelsummary(list("Daycare application_Control mean"  = Het.ITT.AppCreche.Active
              title = "Average effects on application and access to daycare by SES and mothers' activity at baseline",
              notes = paste("Sources:", SourcesStacked,
                            "
-*= p<.1, **= p<.05, ***= p<.01 based on point-wise p-value.
+*= p<.1, **= p<.05, ***= p<.01 based on pointwise p-value.
 Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
 Adjusted p-value and confidence intervals account for simultaneous inference using the method. 
 Joint significance test of null effect using Chi-2 test and p-value are reported at the bottom of the table."),
@@ -2689,7 +2560,7 @@ modelsummary(list("Reference \nmean"=AttritionControlMeans,"Differential \nAttri
              gof_map = c("Covariates","Fixed effects","Chi 2","P-value",
                          "nobs", "r.squared","adj.r.squared"),
              title="Model of the probability of responding to the follow-up survey",
-             notes="* p <  0.1, ** p <  0.05,*** p < 0.01 using point-wise p-value. Adjusted p-value and confidence intervals account for simultaneous inference using the Holm–Bonferroni correction. Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
+             notes="* p <  0.1, ** p <  0.05,*** p < 0.01 using pointwise p-value. Adjusted p-value and confidence intervals account for simultaneous inference using the Holm–Bonferroni correction. Standard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.
 Notes: ",
              output = 'flextable') %>% 
   theme_booktabs()|>
@@ -2720,7 +2591,7 @@ CompareSamples <- bind_rows(MainDB %>% mutate(Sample = "Baseline"),
     AgeSup321or0 = ifelse(AgeSup32 == "Yes", 1, 0),
     Active1or0 = ifelse(Act3 == "Active", 1, 0),
     Educ1or0  = ifelse(Educ == "Sup", 1, 0),
-    BornFr1or0  = ifelse(FrenchYNBaseline == "France", 1, 0),
+    BornFr1or0  = ifelse(MigrationBackground == "France", 1, 0),
     EverUsedECS1or0  = ifelse(UsedECEC == "Oui", 1, 0),
     PlanToUseECS1or0 = ifelse(ECSPlanToBaseline == TRUE, 1, 0),
     ComputerYes1or0 = ifelse(ComputerYN == "Oui", 1, 0),
@@ -2778,7 +2649,7 @@ summary_baseline_variables_endline <- CompareSamples %>%
   ) %>%
   add_overall() %>%
   add_p(pvalue_fun = ~ style_pvalue(.x, digits = 3)) %>% 
-  add_q(method = "fdr", pvalue_fun = ~ style_pvalue(.x, digits = 3)) %>% 
+  add_q(method = "BY", pvalue_fun = ~ style_pvalue(.x, digits = 3)) %>% 
   add_significance_stars(thresholds = c(0.01, 0.05, 0.1)) %>%
   modify_header(label ~ "**Variable**", stat_0 ~ "Overall", stat_1 ~ "Baseline", stat_2 ~ "Endline") %>%
   modify_spanning_header(c("stat_1", "stat_2") ~ "**Sample**")
@@ -2798,3 +2669,230 @@ summary_baseline_variables_endline %>%
     Q-value control for the false discovery rate using FDR correction."
   ) %>%
   fontsize(i = 1, size = 10, part = "footer")
+
+
+
+#------ JUNKT1AccessApplicationGraph ------------
+## First etimate the ITT
+Het.ITT.App.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                               Outcome = "ECSApp",
+                                               Heterogeneity = "Educ2",
+                                               ITT = TRUE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+
+
+Het.ITT.App.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "ECSApp",
+                                            Heterogeneity= "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+
+
+Het.ITT.App.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+  Outcome = "ECSApp",
+  Heterogeneity = "InfoBaseline",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+
+Het.ITT.App.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
+  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
+  Outcome = "ECSApp",
+  Heterogeneity = "Discount501or0",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+# Définir les niveaux des facteurs pour un ordre personnalisé
+term_levels <- c("T1-C")
+heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
+panel_levels <- c("Control mean", "ITT Application")
+
+# Fusionner les données en un seul DataFrame avec les niveaux de facteur appropriés
+DataApp <- bind_rows(
+  Het.ITT.App.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "SES") %>% filter(term %in% term_levels),
+  Het.ITT.App.Educ2C$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "SES") %>% filter(term %in% term_levels),
+  Het.ITT.App.Mig$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
+  Het.ITT.App.Mig$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
+  Het.ITT.App.Info$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
+  Het.ITT.App.Info$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
+  Het.ITT.App.Discount$ModelSummary0$tidy %>% mutate(Y = "Early childcare application", panel = "Control mean", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels),
+  Het.ITT.App.Discount$Tidy %>% mutate(Y = "Early childcare application", panel = "ITT Application", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels)
+) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels)
+  )
+
+
+# Créer un vecteur nommé pour les étiquettes de l'axe x
+x_labels <- c(
+  "T1-C!Early childcare application!SES" = "SES",
+  "T1-C!Early childcare application!Migration background" = "Migration \nbackground",
+  "T1-C!Early childcare application!Level of knowledge" = "Level of \nknowledge",
+  "T1-C!Early childcare application!Temporal orientation" = "Temporal \norientation"
+)
+
+# Tracer le graphique avec les facteurs ordonnés
+DataPlotApp <- DataApp %>%
+  ggplot() +
+  geom_pointrange(aes(
+    x = interaction(term, Y, Heterogeneity, sep = "!"),
+    y = estimate, ymin = point.conf.low,
+    ymax = point.conf.high, color = Group
+  ), position = position_dodge(.6)) +
+  geom_crossbar(aes(
+    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
+    fill = Group, ymin = conf.low,
+    color = Group, ymax = conf.high
+  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
+  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
+  coord_flip() +
+  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
+  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
+  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
+  scale_shape_manual("Model:", values = c(4:8)) +
+  guides(col = guide_legend(ncol = 2)) +  # Adjust the number of legend columns
+  geom_hline(data=DataApp %>%filter(panel!="Control mean"),
+             aes(yintercept = 0), linetype = c(2)) + # Ligne pointillée pour la date de randomisation
+  ylab("Estimates") +
+  guides(
+    col = guide_legend(ncol = 4),
+    fill = guide_legend(ncol = 4)
+  ) +
+  theme(
+    axis.title.y = element_blank(),  # Remove the y-axis title
+    axis.text.y = element_blank(),   # Remove the y-axis labels
+    axis.ticks.y = element_blank()   # Remove the y-axis ticks
+  )
+
+
+
+
+Het.ITT.Use.Educ2C <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                               Outcome = "ECSUseYes",
+                                               Heterogeneity = "Educ2",
+                                               ITT = TRUE,
+                                               Weights = "WeightPS",
+                                               clusters = "StrataWave")
+Het.ITT.Use.Mig <- GroupHeterogeneityFnCTRL(DB = PostDB,
+                                            Outcome = "ECSUseYes",
+                                            Heterogeneity = "MigrationBackground",
+                                            ITT = TRUE,
+                                            Weights = "WeightPS",
+                                            clusters = "StrataWave")
+
+
+
+Het.ITT.Use.Info <- GroupHeterogeneityFnCTRL(DB = PostDB %>% mutate(
+  InfoBaseline=ifelse(LevelInfoSubExPost == "Aucun ou très bas","Low knowledge","High knowledge")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "InfoBaseline",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+
+Het.ITT.Use.Discount <- GroupHeterogeneityFnCTRL(DB = PostDB%>% mutate(
+  Discount501or0=ifelse(Discount501or0 == 1,"Present Orientated","Future Orientated")),
+  Outcome = "ECSUseYes",
+  Heterogeneity = "Discount501or0",
+  ITT = TRUE,
+  Weights = "WeightPS",
+  clusters = "StrataWave")
+
+
+# Définir les niveaux des facteurs pour un ordre personnalisé
+term_levels <- c("T1-C")
+heterogeneity_levels <- c("SES", "Migration \nbackground", "Level of \nknowledge", "Temporal \norientation")
+panel_levels <- c("Control mean", "ITT Access")
+
+# Fusionner les données en un seul DataFrame avec les niveaux de facteur appropriés
+DataAccess <- bind_rows(
+  Het.ITT.Use.Educ2C$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "SES") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Educ2C$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "SES") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Mig$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Mig$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "Migration \nbackground") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Info$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Info$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "Level of \nknowledge") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Discount$ModelSummary0$tidy %>% mutate(Y = "Use early childcare", panel = "Control mean", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels),
+  Het.ITT.Use.Discount$Tidy %>% mutate(Y = "Use early childcare", panel = "ITT Access", Heterogeneity = "Temporal \norientation") %>% filter(term %in% term_levels)
+) %>%
+  mutate(
+    term = factor(term, levels = term_levels),
+    Heterogeneity = factor(Heterogeneity, levels = heterogeneity_levels),
+    panel = factor(panel, levels = panel_levels)
+  )
+
+
+# Create a named vector for the x-axis labels
+x_labels <- c(
+  "T1-C!Use early childcare!SES" = "SES",
+  "T1-C!Use early childcare!Migration background" = "Migration \nbackground",
+  "T1-C!Use early childcare!Level of knowledge" = "Level of \nknowledge",
+  "T1-C!Use early childcare!Temporal orientation" = "Temporal \norientation"
+)
+# Tracer le graphique avec les facteurs ordonnés
+DatPlotAccess <- DataAccess  %>%
+  ggplot() +
+  geom_pointrange(aes(
+    x = interaction(term, Y, Heterogeneity, sep = "!"),
+    y = estimate, ymin = point.conf.low,
+    ymax = point.conf.high, color = Group
+  ), position = position_dodge(.6)) +
+  geom_crossbar(aes(
+    y = estimate, x = interaction(term, Y, Heterogeneity, sep = "!"),
+    fill = Group, ymin = conf.low,
+    color = Group, ymax = conf.high
+  ), position = position_dodge(.6), alpha = .2, fatten = 2, width = .4) +
+  scale_x_discrete(labels = x_labels, name = "Heterogeneity") +
+  coord_flip() +
+  facet_grid(Heterogeneity ~ panel, scales = "free", space = "free_y") +
+  scale_fill_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
+  scale_color_brewer("Heterogeneity", palette = "Dark2", limits = c("High-SES", "Low-SES", "France", "Abroad", "Low knowledge", "High knowledge", "Present Orientated", "Future Orientated")) +
+  scale_shape_manual("Model:", values = c(4:8)) +
+  guides(col = guide_legend(ncol = 2)) +  # Adjust the number of legend columns
+  geom_hline(data=DataAccess %>%filter(panel!="Control mean"),
+             aes(yintercept = 0), linetype = c(2)) + 
+  ylab("Estimates") +
+  guides(
+    col  = guide_legend(ncol = 4),
+    fill = guide_legend(ncol = 4)
+  ) +
+  theme(
+    axis.title.y = element_blank(),  # Remove the y-axis title
+    axis.text.y = element_blank(),   # Remove the y-axis labels
+    axis.ticks.y = element_blank()   # Remove the y-axis ticks
+  )
+# Plots in a panel with ggarrange
+CombineAppAccess <- ggarrange("Application"=DataPlotApp,
+                              "Access"=DatPlotAccess,
+                              common.legend = TRUE,
+                              ncol = 2,#align = "hv",
+                              legend = "bottom"
+)
+
+# Annotate figure             
+CombineAppAccess <- annotate_figure(CombineAppAccess,
+                                    bottom = text_grob(  label = paste("Sources:", SourcesStacked,
+                                                                       "\nStandard errors are cluster-heteroskedasticity robust adjusted at the block x wave level.",
+                                                                       "\nPoint indicates the ITT and the error bars indicate pointwise 95% CI.",
+                                                                       "\nBoxes around estimates indicate simultaneous 95% CI accounting for multiple testing.",
+                                                                       "\nThe Fixed effect models are estimated with block x subsample fixed effects and inverse probability weighting."),
+                                                         hjust = 0, x = 0, size = 10))
+
+CombineAppAccess
+
+
+
+
+

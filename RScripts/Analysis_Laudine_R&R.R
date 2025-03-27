@@ -13,7 +13,7 @@ tabDes_temp <- MainDB  %>%
     HighECSCov = as.factor(ifelse(HighLowECECBaseline == "High ECEC covering", "Yes", "No")),
     DepParis = as.factor(ifelse(Dep == "75", "Yes", "No")),
     WorkPlanTo = as.factor(ifelse(WorkPlanTo == TRUE, "Yes", "No")),
-    BabyFemale = as.factor(ifelse(BabyFemale == TRUE, "Yes", "No")),
+    #BabyFemale = as.factor(ifelse(BabyFemale == TRUE, "Yes", "No")),
     Primipare = as.factor(ifelse(Primipare == TRUE, "Yes", "No")),
     ComputerAccess = as.factor(ifelse(ComputerYN == "Oui", "Yes", "No")),
     Age = Age,  # Garde numérique
@@ -35,7 +35,7 @@ tabDes_temp <- MainDB  %>%
     FmilyEarnLessThan2500, Discount50, InfoBaseline, Active,
     WorkPlanTo, EverUsedECS, PlanToUseECS, ComputerAccess,
     LikertReturnHK, TrustCreche, DescriptiveNorms, NormsOpposedYes,
-    DepParis, HighECSCov, BabyFemale, ECSApp, AppCreche,
+    DepParis, HighECSCov, GenderChild, ECSApp, AppCreche,
     ECSUseYes, UseCreche
   )
 
@@ -63,10 +63,10 @@ tbl_summary <- tabDes_temp  %>%
       NumberOfChildren ~ "Number of children in the household",
       BornFr ~ "The mother has a migration background",
       FmilyEarnLessThan2500 ~ "The household earns less than €2,500 per month",
-      Discount50 ~ "The mother is present orientated",
-      InfoBaseline ~ "The mother has low knowledge about early childcare",
-      Active ~ "The mother is active at baseline",
-      WorkPlanTo ~ "The mother wants to work after maternity leaves",
+      Discount50 ~ "The mother is present biased",
+      InfoBaseline ~ "Mother's knowledge about early childcare",
+      Active ~ "The mother is active at the baseline",
+      WorkPlanTo ~ "The mother wants to work after the maternity leave",
       EverUsedECS ~ "The household already accessed early childcare in the past",
       PlanToUseECS ~ "The mother wants to use early childcare",
       ComputerAccess ~ "The household has access to a computer",
@@ -75,8 +75,8 @@ tbl_summary <- tabDes_temp  %>%
       DescriptiveNorms ~ "The majority of friends and relatives use early childcare",
       NormsOpposedYes ~ "The mother perceives social approval for using early childcare",
       DepParis ~ "The mother lives in Paris",
-      HighECSCov ~ "Early childcare coverage is high",
-      BabyFemale ~ "Child is a girl",
+      HighECSCov ~ "Early childcare coverage in the area of residence",
+      GenderChild ~ "Gender of the child",
       ECSApp ~ "Applied to any early childcare facility at endline",
       AppCreche ~ "Applied to any daycare center at endline",
       ECSUseYes ~ "Accessed any early childcare facility at endline",
@@ -113,7 +113,6 @@ tabVarEduc <- MainDB  %>%
     DepParis1or0  = ifelse(Dep == "75", 1, 0),
     KnowsCrecheOnly1or0  = ifelse(KnowsCrecheOnly == TRUE, 1, 0),
     WorkPlanTo1or0 = ifelse(WorkPlanTo == TRUE, 1, 0), 
-    BabyFemale = ifelse(BabyFemale == TRUE, 1, 0), 
     Primipare1or0 = ifelse(Primipare == TRUE, 1, 0), 
     ComputerYes1or0 = ifelse(ComputerYN == "Oui", 1, 0), 
     NumberOfChildren = as.numeric(NumberChildren), 
@@ -129,10 +128,10 @@ tabVarEduc <- MainDB  %>%
    # "The mother has a post-secondary education (high-SES)" = Educ1or0,  # Strata: Educ: ≤ Bac or higher
     #  "The mothers is not born in MENAnorAsia" = BirthNotAsiaMENA1or0,
     "The household earns less than €2,500 per month" = FmilyEarnLessThan2500,
-    "The mother is present orientated" = Discount501or0,
-    "The mother has low knowledge about early childcare" =InfoBaseline1or0,
-    "The mother is active at baseline" = Active1or0,
-    "The mother wants to work after maternity leaves" = WorkPlanTo1or0,
+    "The mother is present biased" = Discount501or0,
+    "Mother's knowledge about early childcare" =InfoBaseline1or0,
+    "The mother is active at the baseline" = Active1or0,
+    "The mother wants to work after the maternity leave" = WorkPlanTo1or0,
     #"The mother did not smoke" = DidNotSmoke1or0,
     #"The mother wants to breastfeed" = BreastFeedIntend1or0, 
     "The household has ever used early childcare" = EverUsedECS1or0,                  # Used: yes/no/ don't wanna answer
@@ -145,8 +144,8 @@ tabVarEduc <- MainDB  %>%
     #"Believe in returns to early childcare" = LikertReturnHK1or0,
     #"The mother trusts early childcare" = TrustCreche1or0,
     "The mother lives in Paris" = DepParis1or0,
-    "Early childcare coverage is high" = HighECSCov1or0,
-    "Child is a girl" = BabyFemale,
+    "Early childcare coverage in the area of residence" = HighECSCov1or0,
+    "Gender of the child" = GenderChild,
     #  StrataWave
    "Applied to any early childcare facility at endline" = ECSApp, 
    "Applied to any daycare center at endline" = AppCreche,
@@ -181,7 +180,7 @@ summary_baseline_variables_SES %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:5), unit = "cm", width=2) %>%
-  set_caption(caption = "Differences by socio-economic status") %>% 
+  set_caption(caption = "Differences by SES across the variables used in this study") %>% 
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.") 
@@ -214,7 +213,7 @@ summary_baseline_variables_Migration %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:5), unit = "cm", width=2) %>%
-  set_caption(caption = "Differences by migration background") %>%  # 
+  set_caption(caption = "Differences by migration background across the variables used in this study") %>%  # 
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
@@ -224,7 +223,7 @@ We report averages and standard deviations in parentheses for continuous variabl
 
 summary_baseline_variables_Info <- tabVarEduc %>%
   tbl_summary(
-    by = "The mother has low knowledge about early childcare",  # 
+    by = "Mother's knowledge about early childcare",  # 
     statistic = list(
       all_continuous() ~ "{mean} ({sd})",
       all_categorical() ~ "{p}% ({n})"),
@@ -248,7 +247,7 @@ summary_baseline_variables_Info %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:5), unit = "cm", width=2) %>%
-  set_caption(caption = "Differences by initial level of knowledge") %>%  # Changé ici
+  set_caption(caption = "Differences by level of baseline knowledge across the variables used in this study") %>%  # Changé ici
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
@@ -256,7 +255,7 @@ We report averages and standard deviations in parentheses for continuous variabl
 #---------------------- DiffPresentBias --------------------
 summary_baseline_variables_TimeOrientation <- tabVarEduc %>%
   tbl_summary(
-    by = "The mother is present orientated",  # Changé ici
+    by = "The mother is present biased",  # Changé ici
     statistic = list(
       all_continuous() ~ "{mean} ({sd})",
       all_categorical() ~ "{p}% ({n})"),
@@ -267,8 +266,8 @@ summary_baseline_variables_TimeOrientation <- tabVarEduc %>%
   add_difference() %>%
   modify_header(label ~ "**Variable**",
                 stat_0 ~ "Overall",
-                stat_1 ~ "Future orientated",  # Changé ici
-                stat_2 ~ "Present orientated") %>%  # Changé ici
+                stat_1 ~ "Not present biased",  # Changé ici
+                stat_2 ~ "Present biased") %>%  # Changé ici
   modify_spanning_header(c("stat_1", "stat_2") ~ "**Temporal Orientation**") %>%  # Changé ici
   add_significance_stars(thresholds = c(0.01, 0.05, 0.1))
 
@@ -280,7 +279,7 @@ summary_baseline_variables_TimeOrientation %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:5), unit = "cm", width=2) %>%
-  set_caption(caption = "Differences by temporal orientation") %>%  # Changé ici
+  set_caption(caption = "Differences by present bias across the variables used in this study") %>%  # Changé ici
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
@@ -314,7 +313,7 @@ summary_baseline_variables_PreviousUse %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:5), unit = "cm", width=2) %>%
-  set_caption(caption = "Differences by previous childcare usage") %>%  # Changé ici
+  set_caption(caption = "Differences by previous childcare usage across the variables used in this study") %>%  # Changé ici
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
@@ -323,7 +322,7 @@ We report averages and standard deviations in parentheses for continuous variabl
 
 summary_baseline_variables_Activity <- tabVarEduc %>%
   tbl_summary(
-    by = "The mother is active at baseline",  # Changé ici
+    by = "The mother is active at the baseline",  # Changé ici
     statistic = list(
       all_continuous() ~ "{mean} ({sd})",
       all_categorical() ~ "{p}% ({n})"),
@@ -347,7 +346,7 @@ summary_baseline_variables_Activity %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:5), unit = "cm", width=2) %>%
-  set_caption(caption = "Differences by activity status") %>%  # Changé ici
+  set_caption(caption = "Differences by baseline activity status across the variables used in this study") %>%  # Changé ici
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
@@ -366,7 +365,6 @@ tabVarDep <- MainDB  %>%
     DepParis1or0  = ifelse(Dep == "75", 1, 0),
     KnowsCrecheOnly1or0  = ifelse(KnowsCrecheOnly == TRUE, 1, 0),
     WorkPlanTo1or0 = ifelse(WorkPlanTo == TRUE, 1, 0), 
-    BabyFemale = ifelse(BabyFemale == TRUE, 1, 0), 
     Primipare1or0 = ifelse(Primipare == TRUE, 1, 0), 
     ComputerYes1or0 = ifelse(ComputerYN == "Oui", 1, 0), 
     NumberOfChildren = as.numeric(NumberChildren), 
@@ -382,10 +380,10 @@ tabVarDep <- MainDB  %>%
          # "The mother has a post-secondary education (high-SES)" = Educ1or0,  # Strata: Educ: ≤ Bac or higher
          #  "The mothers is not born in MENAnorAsia" = BirthNotAsiaMENA1or0,
          "The household earns less than €2,500 per month" = FmilyEarnLessThan2500,
-         "The mother is present orientated" = Discount501or0,
-         "The mother has low knowledge about early childcare" =InfoBaseline1or0,
-         "The mother is active at baseline" = Active1or0,
-         "The mother wants to work after maternity leaves" = WorkPlanTo1or0,
+         "The mother is present biased" = Discount501or0,
+         "Mother's knowledge about early childcare" =InfoBaseline1or0,
+         "The mother is active at the baseline" = Active1or0,
+         "The mother wants to work after the maternity leave" = WorkPlanTo1or0,
          #"The mother did not smoke" = DidNotSmoke1or0,
          #"The mother wants to breastfeed" = BreastFeedIntend1or0, 
          "The household has ever used early childcare" = EverUsedECS1or0,                  # Used: yes/no/ don't wanna answer
@@ -398,8 +396,8 @@ tabVarDep <- MainDB  %>%
          #"Believe in returns to early childcare" = LikertReturnHK1or0,
          #"The mother trusts early childcare" = TrustCreche1or0,
          "The mother lives in Paris" = DepParis1or0,
-         "Early childcare coverage is high" = HighECSCov1or0,
-         "Child is a girl" = BabyFemale,
+         "Early childcare coverage in the area of residence" = HighECSCov1or0,
+         "Gender of the child" = GenderChild,
          #  StrataWave
          "Applied to any early childcare facility at endline" = ECSApp, 
          "Applied to any daycare center at endline" = AppCreche,
@@ -435,7 +433,7 @@ summary_baseline_variables_District_Paris %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:5), unit = "cm", width=2) %>%
-  set_caption(caption = "Differences by district") %>%  # Changé ici
+  set_caption(caption = "Differences by district across the variables used in this study") %>%  # Changé ici
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
@@ -473,7 +471,7 @@ summary_baseline_variables_District_SSD %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:6), unit = "cm", width=2) %>%  # Modifié pour inclure une colonne supplémentaire
-  set_caption(caption = "Differences by district") %>%  # Changé ici
+  set_caption(caption = "Differences by district across the variables used in this study") %>%  # Changé ici
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
@@ -511,7 +509,7 @@ summary_baseline_variables_District_VDM %>%
   italic(j=1, part="body") %>%
   width(j=c(1), unit = "cm", width=3) %>%
   width(j=c(2:6), unit = "cm", width=2) %>%  # Modifié pour inclure une colonne supplémentaire
-  set_caption(caption = "Differences by district") %>%  # Changé ici
+  set_caption(caption = "Differences by district across the variables used in this study") %>%  # Changé ici
   add_footer_lines(
     "Sources: Baseline database. Proportions and number of observations in parentheses for categorical and dichotomous variables and Pearson's Chi-squared test.
 We report averages and standard deviations in parentheses for continuous variables and use a Kruskal-Wallis rank sum test.")
