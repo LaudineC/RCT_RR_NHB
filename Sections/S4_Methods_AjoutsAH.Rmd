@@ -1,0 +1,203 @@
+## Analysis plan 
+
+### Randomisation protocol
+
+To improve precision and ensure balance on a set of characteristics likely to affect our main outcomes, we used block-random assignment based on the cross product of: i) Education of the mother (“tertiary”/“secondary or lower”), ii) Intention to use early childcare (“no”/“yes but has never used early childcare before”/“yes and already has used early childcare before”), and iii) Supply (early childcare coverage rate higher/lower than the average in the department).  
+
+We collected data over a three-month period during which we defined "waves" as two-week intervals for the implementation of the assignment procedure. Ultimately, our design comprised six randomisation waves, each containing three assignment conditions across the 12 blocks of each lottery, resulting in a total of 72 block-wave fixed effects, hereinafter referred to as “blocks”.
+
+<!-- We collected data over a three-month period and defined “waves” of two-weeks periods over which we performed the assignment procedure. Ultimately, our design was built on 6 randomisation waves with three assignment conditions in the 12 blocks of each lottery so there are 72 design variables. -->
+<!-- let $b_w \in B_w \subset B$ index blocks in all waves $w$ and $\symbfup{B}$ the matrix of block $\times$ waves. -->
+
+<!-- Let $s \in S$ index subsets of the data that partition the sample into comparison pairs and, optionally, additional covariates.  Each $s$ corresponds to a grouping rule that defines a subset of observations which allow flexible and tidy notations of treatment effects. -->
+
+### Assignment probabilities
+
+Each household from the baseline sample had a 1/3 probability of being assigned to one of three groups: control, information-only, or information + support. We employed a single-blind experimental design, ensuring that no participant was aware of their treatment status or the alternative treatments. Since our analyses compared pairs of assignment conditions (e.g. information-only vs. control), our analyses relied on conditional assignment probabilities that exclude one treatment arm. However, some blocks had a small or odd number of observations, potentially resulting in slight variations in assignment probabilities across groups. To account for this, we followed Hirano et al. (2003) and estimated a probit model of assignment on block-fixed effects in subsamples of pairwise comparisons. We then used the predicted probabilities from these models as propensity scores, denoted as as $p_{ibs}$ , where subscripts $ibs$ denote the household $i$ of block $b$ in sub-sample of pairwise comparison $s$. With these, we define inverse propensity score weights $w_{ibs}=\frac{Z_{ibs}}{p_{ibs}}+\frac{(1-Z_{ibs})}{(1-p_{ibs})}$ and centred assignment $\tilde{Z}_{ibs}=Z_{ibs}-p_{ibs}$ where $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block $b$ has been assigned to the treatment group in sub-sample $s$.
+
+
+<!-- Each individual from the baseline sample had a 1/3 probability of being assigned to one of three groups: control, information-only, or information + support. Since our analyses compared pairs of assignment conditions (e.g. information-only vs. control), our analyses relied on conditional assignment probabilities that exclude one treatment arm. However, some blocks had a small or odd number of observations, potentially resulting in slight variations in assignment probabilities across groups. To account for this, we estimated a probit model of assignment based on block-fixed effects in subsamples of pairwise comparisons. We then used the predicted probabilities from these models as propensity scores, denoted as $p_{ibs}$ , where subscripts $ibs$ denote the household $i$ of block $b$ in sub-sample of pairwise comparison $s$. With these, we define inverse propensity score weights $w_{ibs}=\frac{Z_{ibs}}{p_{ibs}}+\frac{(1-Z_{ibs})}{(1-p_{ibs})}$ and centred assignment $\tilde{Z}_{ibs}=Z_{ibs}-p_{ibs}$ where $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block $b$ has been assigned to the treatment group in sub-sample $s$. -->
+
+
+<!-- AJOUT ARTHUR -->
+
+<!-- ## Intention to action gaps -->
+
+<!-- We analyse the intention-to-action gap between different social groups (High/low SES, migration background) ($\mathbf{X}$) and subjective attributes (Information, temporal orientation) ($\mathbf{K}$). -->
+
+<!-- Formally, the gap between two sets of values of covariates $\mathbf{x}$ $\mathbf{x^\prime}$ in intention to use at baseline is: -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(W_i) = E\left(W_i|\mathbf{X}=\mathbf{x}\right)-E\left(W_i|\mathbf{X}=\mathbf{x^\prime}\right) -->
+<!-- \end{equation} -->
+
+<!-- The application gap is : -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(\tilde{Y}_i) = E\left(\tilde{Y}_i|\mathbf{X}=\mathbf{x})-E\left(\tilde{Y}_i|\mathbf{X}=\mathbf{x^\prime}) -->
+<!-- \end{equation} -->
+
+<!-- Denoting $\tilde{Y^*}$ the variable for access to formal childcare, The access gap is : -->
+
+<!-- \begin{equation} -->
+<!-- \Delta_{x,x'}(\tilde{Y*}_i) = E\left(\tilde{Y^*}_i|\mathbf{X}=\mathbf{x})-E\left(\tilde{Y^*}_i|\mathbf{X}=\mathbf{x^\prime}}) -->
+<!-- \end{equation} -->
+
+<!-- In our setting, the covariates are discrete and we estimate them with data from the control group using OLS on group dummies and heterokedasticity robust standard errors. -->
+
+
+
+<!-- FIN AJOUT ARTHUR -->
+
+## Intention to treat : main average effects
+
+Because we have two treatment arms, we followed Goldsmith-Pickham (2024) and used stacked regressions to estimate the average difference between each pair of assignment conditions. Formally, we estimated the following equation using OLS with inverse propensity score weighting  for double-robustness:
+
+$$
+Y_{ibs}=\sum_s\sum_b \gamma_{bs} B_{ib}+\sum_s\beta_sZ_{ibs}+\varepsilon_{ibs}
+$$
+
+Where Y denotes the outcome of individual $i$ of block $b$ in sub-sample $s$ (information-only vs. control; information + support vs. control; information-only vs. information + support) ; $B_{ibs}$ denotes block-wave dummies and $\gamma_{bs}$ the associated coefficient in each sub-sample. $Z_{ibs}$ is a dummy that equals 1 when the household $i$ of block $b$ has been assigned to the treatment group in sub-sample $s$. The estimates of $\beta_s$ correspond to the average intention to treat effect [@AtheyImbens2017]. Following Chaisemartin-Ramirez (2022) and  Abadie Et. Al. (2022), we used cluster-heterosckedasticity-robust standard errors adjusted at the block level [@deChaisemartinRamirez-Cuellar2020;@AbadieEtAl2022]. With many clusters (blocking variables) and few units per cluster, this adjustment is conservative, as shown by Athey Et. Al. (2022), and inference most likely under-reject the null [@AbadieEtAl2022].
+
+
+### Robustness checks
+
+As pre-registered, we assessed the robustness of our results using a data-driven selection of potential confounders with post-lasso i.e. 1) tuning lasso regressions of the outcome on the full set of demeaned covariates and their interactions using 10 fold cross-validation, 2) running a lasso regression with the cross-validated penalty parameter, 3) collect covariates with non-zero coefficients and 4) estimating treatment effect models with these covariates in the right hand side.  For that, we estimate the so called “pooled regression”:
+
+$$
+Y_{ibs}=\sum_b \gamma_{bs} B_{ibs}+\beta_sZ_{ibs}+\mathbf{\dot{X}^\prime}\rho_s+\upsilon_{ibs}
+$$
+Where $\mathbf{\dot{X}^\prime}$ denotes  the transposed matrix of demeaned covariates selected by the lasso method. Lasso selection and estimations were performed separately for each comparison pair and inference was based on point-wise standard errors clustered at the block-level. As the recent work of Negi and Wooldridge (2021) emphasised[@NegiWooldridge2021], adding the variables $\mathbf{\dot{X}^\prime}$ do not change the probability limit given random assignment. Therefore, pooled regressions are not meant to correct bias or improve consistency but to improve efficiency. 
+
+We also reproduced our main analyses using a linear probability model with one dummy for each treatment arm and strata fixed effects, and logistic regressions.
+
+
+## Local average treatment effect of administrative support 
+
+Out of the households that were offered the support, 52% opted for it on average (See Extended Data Table 2). Thus, assuming that offering support has no effect on outcomes but through the provided support (exclusion restriction), using assignment to the information + support treatment as an instrument for compliance with support can retrieve the Local average treatment effect (LATE) of this treatment [@ImbensAngrist1994]. Besides, administrative support was only offered to those assigned to the information + support treatment, making non-compliance one-sided. Therefore, the monotonicity assumption holds, thereby allowing an “average treatment effect on the treated” (ATT) interpretation of the instrumental variable estimand [@FrolichMelly2013].
+
+Denoting $D_{ibs}=1(\text{received support})$ the compliance status, we estimated the average treatment effect on the treated through the following system of equations using weighted TSLS:
+
+$$
+TSLS~\left\{ \begin{array}{ll}
+Y_{ibs}=&\sum_b \alpha_{bs}B_{ibs}+\delta_s D_{is}+\mu_{is}\\
+D_{ibs}=& \sum_b \eta_{bs}B_{ibs}+\pi_s\tilde{Z}_{is}+\epsilon_{is}\\
+\end{array} \right. 
+$$
+
+Where the instrument $\tilde{Z}$ was the dummy for being in the information + support group demeaned within block using the estimated instrument propensity score. The coefficient $\pi_s$ as the average first stage effect. 
+As Borusyak Et Al (2024) showed, this model retrieved a weighted average of block-specific treatment effects [@BorusyakEtAl2024]. We used cluster robust standard errors adjusted at the block level. The coefficient $\delta_s$ retrieves the ATT under the exclusion restriction. 
+
+## Average potential outcome of untreated compliers
+
+We estimated the average potential outcomes of untreated compliers using results from Abadie (2003) and Frölich and Melly (2013). Under the same set of hypotheses, the average potential outcome for untreated compliers $Y(0)$ is identified, and so is any measurable function $g(\cdot)$ of that potential outcome, as long as $g(\cdot)$ has finite first moment  [@FrolichMelly2013a]. Formally:
+
+$$
+E\left(g\big(Y(0)\big)|D=1\right)=\frac{\int E(g\big(Y(0)\big)|\mathbf{B}=b,Z=0)dF_B(b)-E(g\big(Y(0)\big)\times(1-D))}{Pr(D=1)}
+$$
+Thus, To compute the probability that untreated compliers - parents who would have accepted administrative support had it been offered to them -  applied to any childcare, we define $g(\cdot)=(1-D_i)Y_i$ and run a TSLS of $(1-D_i)Y_i$ on $(1-D_i)$ instrumented by $Z_i$, with block fixed effects. 
+
+
+## Conditional average treatment effects
+
+As pre-registered, we conducted subgroup analyses to uncover underlying mechanisms by assessing whether different populations respond to the treatment in ways that align with our theoretical framework. We estimated average treatment effects for pre-specified subgroups using the same estimation strategy as that employed in the main models presented above. We obtained conditional average effects by utilising fully saturated stacked regressions, which involved interacting all right-hand side variables with subgroup dummy variables (Goldsmith-Pinkham et al., 2022). In the two-stage least squares models, we estimated a first stage for each subgroup. While these estimations are widely used in the literature, they cannot be interpreted as causal effects due to the non-random manipulation of the subgroups. Rather,  they provide valuable insights into potential mechanisms.
+
+## Inference and tests
+
+In the main analyses, we jointly estimated the differences in the three pairwise differences of treatment arms for each outcome and associated cluster-heteroskedasticity robust standard errors adjusted at the block level to account for the correlation in potential outcomes within blocks. We adjust p-values and confidence intervals to account for the Family-wise error rates (FWER) using the Young-Westfall method implemented by the R package *multcomp* [@BretzEtAl2010]. For each outcome, our multiple testing procedure adjusted the p-values and confidence intervals for simultaneous inference on the three comparisons (information-only vs. control, information + support vs. control, information-only vs. information + support).
+
+We also ran Chi-2 tests (also called Wald tests) with the Null hypothesis that there was no association between treatment assignment and outcomes against at least one significant difference and reported the test statistics and associated p-value at the bottom of regression tables$^{83,84}. The Chi-2 is slightly more conservative than the F-test (which converges to the Chi-2 test in large samples).
+
+In the heterogeneous treatment effect analysis, we also adjusted p-values and confidence intervals using the same method, by outcome, for simultaneous inference on all conditional treatment effects. 
+In the balance check, we do not control for the FWER, but for the false discovery rate (FDR) using the Benjamini & Yekutieli method (Benjamini & Yekutieli, 2001). 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!-- In our setting, administrative support was only offered to those assigned to the information + support treatment group, making non-compliance one-sided. Out of the households that were offered the support, 52% opted for it on average (See Extended Data Table 2). Thus, under exclusion restriction, an instrumental variable strategy using assignment to the information + support treatment group to predict compliance with support can retrieve the Local average treatment effect (LATE), which can have, an “average treatment effect on the treated” interpretation [@FrolichMelly2013;@ImbensAngrist1994].In this setting, there were two pairs of comparison: Information + support $vs$ control or Information + support $vs$ information only. The former identifies the treatment effects of  -->
+<!-- Denoting $D_{ibs}=1(\text{received support})$ the compliance status, we estimated the average treatment effect on the treated through the following system of equations using weighted TSLS: -->
+
+<!-- $$ -->
+<!-- TSLS~\left\{ \begin{array}{ll} -->
+<!-- Y_{ibs}=&\sum_b \alpha_{bs}B_{ibs}+\delta_s D_{is}+\mu_{is}\\ -->
+<!-- D_{ibs}=& \sum_b \gamma_{bs}B_{ibs}+\pi_s\tilde{Z}_{is}+\epsilon_{is}\\ -->
+<!-- \end{array} \right.  -->
+<!-- $$ -->
+
+
+
+<!-- As pre-registered, we assessed the robustness of our results using a data-driven selection of potential confounders with post-lasso and estimated both pooled and fully-interacted regressions following Negi Wooldrige (2021) and Lin (2013), allowing heterogeneous treatment effects within blocks[@NegiWooldridge2021;@Lin2013]. The pooled regression use OLS to estimate the following equation: -->
+
+<!-- $$ -->
+<!-- Y_{ibs}=\sum_b \gamma_{bs} B_{ibs}+\beta_sZ_{ibs}+\mathbf{\dot{X}^\prime}\rho_s+\upsilon_{ibs} -->
+<!-- $$ -->
+<!-- And Lin regressions: -->
+<!-- $$ -->
+<!-- Y_{ib}=Z_{ibs}+\mathbf{\dot{X}^\prime}\rho_s+ \mathbf{\dot{X}^\prime}Z_{ibs}\tau_s+\upsilon_{ibs} -->
+<!-- $$ -->
+
+
+<!-- With $\mathbf{\dot{X}}$, the matrix of covariates selected by the lasso method and previously centred. -->
+
+<!-- Lasso selection and estimations were performed separately for each comparison pair and inference was based on point-wise standard errors clustered at the block-level. -->
+
+<!-- We also reproduced our main analyses using a linear probability model with one dummy for each treatment arm and strata fixed effects, and logistic regressions. -->
+
+<!-- ## Local average treatment effect of administrative support -->
+
+<!-- In our setting, administrative support was only offered to those assigned to the information + support treatment group, making non-compliance one-sided. Out of the households that were offered the support, 52% opted for it on average (See Extended Data Table 2). Thus, under exclusion restriction, an instrumental variable strategy using assignment to the information + support treatment group to predict compliance with support can retrieve the Local average treatment effect (LATE), which can have, an “average treatment effect on the treated” interpretation [@FrolichMelly2013;@ImbensAngrist1994].In this setting, there were two pairs of comparison: Information + support $vs$ control or Information + support $vs$ information only. The former identifies the treatment effects of  -->
+<!-- Denoting $D_{ibs}=1(\text{received support})$ the compliance status, we estimated the average treatment effect on the treated through the following system of equations using weighted TSLS: -->
+
+<!-- $$ -->
+<!-- TSLS~\left\{ \begin{array}{ll} -->
+<!-- Y_{ibs}=&\sum_b \alpha_{bs}B_{ibs}+\delta_s D_{is}+\mu_{is}\\ -->
+<!-- D_{ibs}=& \sum_b \gamma_{bs}B_{ibs}+\pi_s\tilde{Z}_{is}+\epsilon_{is}\\ -->
+<!-- \end{array} \right.  -->
+<!-- $$ -->
+
+<!-- The instrument $\tilde{Z}$ was the dummy for being in the information + support group demeaned within block using the estimated instrument propensity score. We interpreted the coefficient $\pi_s$ as the average first stage effect.  -->
+<!-- As Borusyak Et Al (2024) showed, this model retrieved a weighted average of block-specific treatment effects[@BorusyakEtAl2024]. We used cluster robust standard errors adjusted at the block level. -->
+
+
+<!-- the same set of hypotheses, the average missing potential outcome for the treated is identified and, in fact, so is any measurable function $g(\cdot)$ of that potential outcome, as long as $g(\cdot)$ has finite first moment  [@FrolichMelly2013a]. Formally: -->
+
+<!-- $$ -->
+<!-- E\left(g\big(Y^k(0)\big)|D=1\right)=\frac{\int E(g\big(Y(0)\big)|\mathbf{B}=b,Z=0)dF_B(b)-E(g\big(Y^k(0)\big)\times(1-D))}{Pr(D=1)} -->
+<!-- $$ -->
+<!-- Thus, To compute the probability that untreated compliers - parents who would have accepted administrative support had it been offered to them -  applied to any childcare, we define $g(\cdot)=(1-D_i)\one{Y_i\leq \varepsilon}$ with $\varepsilon\rightarrow 0$ and run a TSLS on $(1-D_i)$ instrumented by $Z_i$, with block fixed effects.  -->
+<!-- Yibs= bsbBib+sDib+ibs -->
+
+<!-- Dib= bsbBib+sZib+ibs -->
+
+<!-- ## Conditional average treatment effects -->
+
+<!-- Our strategy was to use subgroup analysis to see whether different populations respond to the treatment differently in accordance with our theories. However, these differences in conditional average treatment effects could only be interpreted as a descriptive measure of association between the group and the treatment effect, but would not represent the causal effect of a change in the group value on the ATE since the group is not randomly manipulated. -->
+<!-- We estimated average treatment effects by pre-specified subgroups following the same estimation strategy as the main models presented above. We retrieved conditional average effects using fully saturated stacked regressions interacting all right hand side variables with subgroup dummies (see Goldsmith-Pinkham et Al. (2022))[@Goldsmith2022]. In the two stage least squares models, we estimated one first stage for each sub-group.  -->
+
+<!-- # Inference and tests -->
+
+<!-- We adjusted p-values and confidence intervals to account for the Family-wise error rates using the Young-Westfall method using the R package multcomp . -->
+<!-- Our multiple testing procedure adjusted, for each outcome, the p-values and confidence intervals for simultaneous inference on the 3 comparisons (information - control, information + support - control, information + support - information only). -->
+
+<!-- All analyses were performed using R 4.3.0 and R studio 2023.12.1. -->

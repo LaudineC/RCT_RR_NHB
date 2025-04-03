@@ -1,0 +1,443 @@
+---
+title: "Power computation RCT R&R NHB"
+author: "Arthur Heim"
+date: "March 2025"
+output: html_document
+editor_options: 
+  chunk_output_type: console
+---
+
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE,message=FALSE, warning=FALSE,fig.width = 8,fig.height = 5,fig.pos = "H" #, 
+#cache.lazy = FALSE)
+)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+library(pacman)
+p_load(here)
+p_load(officedown)
+p_load(DesignLibrary)
+
+```
+
+
+
+```{r LoadLibraries, include=FALSE}
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+# What was pre-registred
+
+- Sample size: 1687 families minimum. 
+
+This is based on power calculations using the Powerup software with the following parameters: 
+
+a) minimum detectable effect size for the main effect: 0.15; 
+b) randomization procedure as described above; 
+c) R2=40% owing mainly to baseline information on intention to apply for ECS; 
+d) T1=33%, T2=33% C=34%; 
+e) blocks: 9; 
+f) two-tailed alpha level: 5%; 
+g) statistical power: 80%; 
+h) attrition at the endline: 25%.
+
+# Comments and replication 
+
+I couldn't exactly replicate that on the shiny of Powerup! (https://powerupr.shinyapps.io/index/) so I redo some simple power calculation and make them more and more sophisticated.
+I assume the the .15 effect is a Cohen D $i.e.$ $\frac{\beta}{\sigma_{y|X}}$ so, with a binary variable such as "application" with an average of .8, the variance is $p(1-p)=$ `r .8*.2` and $SD=\left(p(1-p)\right)^{\frac{1}{2}}=$ `r sqrt(.8*.2)`. Thus, the equivalent treatment effect that was pre-registered is $.15\times SD=$ `r .15*sqrt(.8*.2)`pp.
+
+First, I use the R package `pwrss` with simple and convenient functions. I use a 30% R2 which is closer to those we have in our paper. I also use the actual sample size and therefore assume random missing data (like we do in the paper, implicitly).
+
+```{r, include=FALSE,results='hide'}
+p_load(pwrss)
+
+p <- 0.50
+M.0 <- .75
+Sample.Size = nrow(MainDB %>% filter(Responded==1 & Assignment!="T1"))
+# 
+# powerbasic <- pwrss.t.reg(beta1 = 0.05, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 9, r2 = 0.40, 
+#             power = .80, alpha = 0.05, alternative = "not equal") 
+# 
+# 
+powerbasic6 <- pwrss.t.reg(beta1 = 0.06, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 12*6, r2 = 0.40, 
+            n = Sample.Size, alpha = 0.05, alternative = "not equal") 
+
+tidy.power6 <- unlist(powerbasic6) %>%  t() %>%  as.data.frame()
+
+powerbasic5 <- pwrss.t.reg(beta1 = 0.05, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 12*6, r2 = 0.40, 
+            n = Sample.Size, alpha = 0.05, alternative = "not equal") 
+
+tidy.power5 <- unlist(powerbasic5) %>%  t() %>%  as.data.frame()
+
+powerbasic5b <- pwrss.t.reg(beta1 = 0.05, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 12*6, r2 = 0.50, 
+            n = Sample.Size, alpha = 0.05, alternative = "not equal") 
+
+tidy.power5b <- unlist(powerbasic5b) %>%  t() %>%  as.data.frame()
+
+
+
+```
+
+We start with a simple power calculation for comparing a pair of treatment arms for "applied for childcare". For that we need the mean in the control group: Say $M.0$= `r M.0`, the sample size $N=$ `r Sample.Size`, the number of covariates or fixed effects in the regression (Here, 12 blocks $\times$ 6 randomisation waves = `r 12*6`), an $R^2$ and minimal detectable effect $\beta_z$.
+
+```{r eval=F}
+powerbasic6 <- pwrss.t.reg(beta1 = 0.06, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 12*6, r2 = 0.30, 
+            n = Sample.Size, alpha = 0.05, alternative = "not equal") 
+```
+
+The simple student test for $H_0:\beta=0\quad; \quad H_a:\beta\neq0$ has `r round(as.numeric(tidy.power6$power)*100,0)`% power for a 5% first type risk and a 6pp MDE.
+However, power for an MDE of 5 pp is `r round(as.numeric(tidy.power5$power)*100,0)`%. 
+
+Therefore, a single t-test (i.e. without multiple testing correction, heteroskedasticity and cluster robust SE) has not enough power for the effect size we have. However, we may have enough power with post-lasso regression if the $R^2$ is about 50% (in Which case, the power becomes `r round(as.numeric(tidy.power5b$power)*100,0)`%). 
+This is what we could have guess ex-ante.
+
+## What to do once we know more about the actual variation
+
+Computing power ex-post is usually a bad idea, but computing the minimal detectable effect using conditional variance estimates from the control group is still valid. There are two basic ways of doing that. 1) we can gauge power by simply comparing the estimates with 2.8$\times SE(\hat{\beta})$ or 2) estimate the model $Y_{ib}=\alpha_b+\epsilon_{ib}$ in the control group to get an estimate of $\sigma_{Y|B}$ and plug it with the actual sample size in the MDE formula. For instance, the SE for T2-C in the main estimation is $.021$ so the MDE is `r 2.8*.021`. 
+
+Then, there is a more sophisticated way where we simulate a data generating process that closely mimic our data, 
+generate potential outcomes with some target average treatment effects. We then use Monte-Carlo simulations of both data and assignments to estimate treatment effects exactly like in the paper a large number of times. The distribution of estimated treatment effects and simulated "true" treatment effects can be used to estimate power, biais and other metrics.
+
+## Which parameters do we need ?
+
+Let's do that one time, see if it matches the experiment and then build a function for simulation.
+We simulate fewer blocks for simplicity. We take the cross product of education and intention to use.
+
+```{r, echo=TRUE}
+#Sample Size
+N <- nrow(MainDB %>% filter(Responded==1))
+
+# Let's get the share of HighSES and intention to use from the baseline sample
+HighSES <- feols(HighEduc~1,MainDB)
+
+intention <- feols(Intend~0+Educ2,MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0)))
+
+
+
+```
+
+
+High SES represent `r round(HighSES$coefficients*100)`% of the population, `r round(intention$coefficients[1]*100)`% of them intend to use childcare, while only `r round(intention$coefficients[2]*100)`% of low SES do.
+Using data from the control group, we can estimate the conditional means of the outcome for these subgroups:
+```{r, echo=TRUE}
+# 
+# Average outcome in the control group
+C.means <- feols(ECSApp~0+i(Intend,Educ2),MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0)) %>% filter(Assignment=="Control"),se="hetero")
+
+# Average participation in T2 to model take-up (not done yet)
+D.means <- feols(Suivi_administratif1_0~0+i(Intend,Educ2),MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0)) %>% filter(Assignment=="T2"),se="hetero")
+
+
+# We take average applications in these 4 subgroups.
+
+Low.NoIntend <- C.means$coefficients["Intend::0:Educ2::Low-SES"]
+High.NoIntend <- C.means$coefficients["Intend::0:Educ2::High-SES"]
+Low.Intend <- C.means$coefficients["Intend::1:Educ2::Low-SES"]
+High.Intend <- C.means$coefficients["Intend::1:Educ2::High-SES"]
+
+
+
+```
+
+```{r}
+
+modelsummary(list("Application"=C.means,"Use administrative support"=D.means),gof_map = c("r.squared","rmse","nobs"))
+```
+
+## Simulation : a first trial
+
+
+Let's generate a first sample and potential outcome without intervention. We assume that our sample is *iid* and we first draw an education variable from a Bernoulli trial with probability given by the share of High SES in the sample. The realisation of education generates intention from a Bernoulli trial with probability depending on SES status.
+
+
+
+```{r echo=TRUE}
+# Set seed for reproducibility
+set.seed(666)
+# Define binary variable for education with average probability given from the HighSES regression coefficient
+Educ2 = rbinom(N, size = 1, prob = HighSES$coefficients[1])
+
+#Define intention to use as a binary variable with conditional probability different by education, drawn from the regression tables
+Intend = rbinom(N,size=1,
+                prob=Educ2*intention$coefficients["Educ2High-SES"]+
+                  (1-Educ2)*intention$coefficients["Educ2Low-SES"])
+
+#define Blocks with the intersection of the two variables
+
+block=case_when(
+                (Educ2==0 & Intend==0)~0,
+                (Educ2==0 & Intend==1)~1,
+                (Educ2==1 & Intend==0)~2,
+                (Educ2==1 & Intend==1)~3
+              )
+
+# We can define the potential outcome in the absence of the program similarly:
+
+Y0.star =
+             case_when(
+              (Educ2==1 & Intend==1) ~ rnorm( N, High.Intend,  C.means$se["Intend::1:Educ2::High-SES"]),
+              (Educ2==0 & Intend==1) ~ rnorm( N, Low.Intend,   C.means$se["Intend::1:Educ2::Low-SES"]),
+              (Educ2==1 & Intend==0) ~ rnorm( N, High.NoIntend,C.means$se["Intend::0:Educ2::High-SES"]),
+              (Educ2==0 & Intend==0) ~ rnorm( N, Low.NoIntend, C.means$se["Intend::0:Educ2::Low-SES"])
+)
+
+Y0=rbinom(N,size=1,prob=Y0.star)
+
+
+db0 <- data.frame(Y0,Intend,Educ2,block)
+
+# Linear probability model of application by intention and education:
+modelsummary(list("Simulated"=feols(Y0~0+i(Educ2,factor(Intend)),db0,se="hetero"),
+                  "Observed"=feols(ECSApp~0+i(Educ2,factor(Intend)),MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0),
+                                                                                      Educ2=ifelse(Educ2=="High-SES",1,0)
+                                                                                      ),se="hetero")),gof_map = c("r.squared","rmse","nobs"))
+
+```
+
+Comparing the simulated outcome and actual data shows that our simulation works well. Everything match our data, from the coefficients to the standard errors, R2 and RMSE.
+
+Now, let's introduce our treatment with exactly the same process we used. We generate a constant treatment effect of 0 for T1 and .05 for T2 as a benchmark.
+
+```{r echo=TRUE}
+p_load(randomizr)
+# We use block random assignment
+Z = block_ra(blocks=block, prob_each = c(.34,.33,.33), conditions = c("0", "1", "2"))
+
+# Like in our results, let's simulate a null effect of T1 and a 5PP itt of T2
+# 
+
+Y1 = rbinom(N,
+           size=1,
+           prob=Y0.star+0)
+
+
+
+Y2 = rbinom(N,
+           size=1,
+           prob=Y0.star+.05)
+
+
+Y.obs=case_when(Z==0~Y0,Z==1~Y1,Z==2~Y2)
+
+
+db0 <- data.frame(db0,Y.obs,Y1,Y2,Z)%>% mutate(TE.21=Y2-Y1,TE.10=Y1-Y0,TE.20=Y2-Y0)
+
+# like in our analysis, we build pair of comparison
+db0 <- db0 %>% mutate(id=cur_group_rows()) 
+
+T2T1 <- db0 %>% filter(Z %in% c(1,2)) %>% mutate(SubSample="T2-T1",Z1=ifelse(Z==2,1,0))
+T2T0 <- db0 %>% filter(Z %in% c(0,2)) %>% mutate(SubSample="T2-C",Z1=ifelse(Z==2,1,0))
+T1T0 <- db0 %>% filter(Z %in% c(0,1)) %>% mutate(SubSample="T1-C",Z1=ifelse(Z==1,1,0))
+
+StackedDBSim <- bind_rows(T2T1,T2T0,T1T0) %>% mutate(SubSampleStrata=interaction(SubSample,block),
+                                                  StrataWave=block,
+                                                  weights=1
+                                                  )
+
+
+# Run the model on simulated data
+test <- ITTSimultaneous(Y="Y.obs",treat = "Z1",DB=StackedDBSim,weights = "weights")
+
+# Run the model from the actual data
+real <- ITTSimultaneous(Y="ECSApp")
+
+
+# compare the two.
+modelsummary(list("Simulation"=test$ModelSummary,"Real estimates"=real$ModelSummary),gof_map = c("r.squared","rmse","nobs"))
+
+```
+
+There again, this simulation works well. we have a slightly lower $R^2$ because we don't use other blocks in the simulation and the Standard errors are therefore much wider in the simulated model than what we have in the data. Therefore, these simulations are still rather conservatives. 
+
+Now we are ready to create a bootstrap function and simulate this experiment many time.
+
+## Function for monte-carlo simulations
+
+The following function essentially redoes the previous simulation in a parallel loop and retrieves all treatment effects estimates.
+
+```{r echo=TRUE}
+
+BootConstantITT <- function(ATE1=0,ATE2=.05,nboot=500,N=1850,seed=666){
+  
+  results <- c()
+  N = {{N}}
+
+  set.seed({{seed}},kind = "L'Ecuyer-CMRG") # this kind of seed ensures the same root in all cores.
+  foreach(n.boot= 1:{{nboot}},.combine=rbind) %dopar% {
+ 
+    Educ2 = rbinom(N, size = 1, prob = HighSES$coefficients[1])
+
+#Define intention to use as a binary variable with conditional probability different by education, drawn from the regression tables
+Intend = rbinom(N,size=1,
+                prob=Educ2*intention$coefficients["Educ2High-SES"]+
+                  (1-Educ2)*intention$coefficients["Educ2Low-SES"])
+
+#define Blocks with the intersection of the two variables
+
+block=case_when(
+                (Educ2==0 & Intend==0)~0,
+                (Educ2==0 & Intend==1)~1,
+                (Educ2==1 & Intend==0)~2,
+                (Educ2==1 & Intend==1)~3
+              )
+
+# We can define the potential outcome in the absence of the program similarly:
+
+Y0.star =
+             case_when(
+              (Educ2==1 & Intend==1) ~ rnorm( N, High.Intend,  C.means$se["Intend::1:Educ2::High-SES"]),
+              (Educ2==0 & Intend==1) ~ rnorm( N, Low.Intend,   C.means$se["Intend::1:Educ2::Low-SES"]),
+              (Educ2==1 & Intend==0) ~ rnorm( N, High.NoIntend,C.means$se["Intend::0:Educ2::High-SES"]),
+              (Educ2==0 & Intend==0) ~ rnorm( N, Low.NoIntend, C.means$se["Intend::0:Educ2::Low-SES"])
+)
+
+Y0=rbinom(N,size=1,prob=Y0.star)
+
+# We use block random assignment
+Z = block_ra(blocks=block, prob_each = c(.34,.33,.33), conditions = c("0", "1", "2"))
+
+# Like in our results, let's simulate a null effect of T1 and a 5PP itt of T2
+# 
+
+# prob could also be defined with a random effect around the ATEs
+Y1 = rbinom(N,
+           size=1,
+           #prob=Y0.star+rnorm(N,0+{{ATE1}},sd=.02)
+           prob=Y0.star+{{ATE1}}
+           )
+
+
+
+Y2 = rbinom(N,
+           size=1,
+           #prob=Y0.star+rnorm(N,0+{{ATE2}},sd=.02)
+           prob=Y0.star+{{ATE2}}
+           )
+
+
+
+Y.obs=case_when(Z==0~Y0,Z==1~Y1,Z==2~Y2)
+
+
+db0 <- data.frame(Educ2,Intend,block,Y.obs,Y1,Y2,Z,Y0,Y0.star) %>% mutate(TE.21=Y2-Y1,TE.10=Y1-Y0,TE.20=Y2-Y0)
+
+# like in our analysis, we build pair of comparison
+db0 <- db0 %>% mutate(id=cur_group_rows()) 
+
+T2T1 <- db0 %>% filter(Z %in% c(1,2)) %>% mutate(SubSample="T2-T1",Z1=ifelse(Z==2,1,0))
+T2T0 <- db0 %>% filter(Z %in% c(0,2)) %>% mutate(SubSample="T2-C",Z1=ifelse(Z==2,1,0))
+T1T0 <- db0 %>% filter(Z %in% c(0,1)) %>% mutate(SubSample="T1-C",Z1=ifelse(Z==1,1,0))
+
+StackedDB <- bind_rows(T2T1,T2T0,T1T0) %>% mutate(SubSampleStrata=interaction(SubSample,block),
+                                                  StrataWave=block,
+                                                  weights=1
+                                                  )
+
+
+estimates <- ITTSimultaneous(Y="Y.obs",treat = "Z1",DB=StackedDB,weights = "weights")
+
+results <- estimates$Tidy %>% mutate(Boot={{n.boot}})
+
+estimand <- StackedDB %>% group_by(SubSample) %>% summarise(TE.21=mean(TE.21,na.rm=T),TE.20=mean(TE.20,na.rm=T),TE.10=mean(TE.10,na.rm=T))
+
+results <- results %>% left_join(estimand,by=c("term"="SubSample"))
+
+
+  } -> All.results
+  
+  return(All.results)
+
+}
+
+```
+
+
+Let's run this simulation 500 times with ATE1 with .02 TE and ATE2 with .06. (This function use parallel computing to fasten the process. Make sure you use as many core as you can, but not all or your computer may freeze).
+
+## Simulations of the experiment
+
+```{r}
+
+p_load(foreach)
+p_load(doParallel)
+
+
+s.size <- nrow(MainDB)
+
+# get number of cores
+numCores <- parallel::detectCores() # Requires library(parallel)
+
+#print(numCores)
+registerDoParallel(numCores-2)
+
+
+
+
+testBoot <- BootConstantITT(nboot = 500,ATE1 = .02,ATE2=.06,N=nrow(MainDB),seed = 1312)
+
+```
+
+
+## Diagnosing our modeling strategy and computing power
+
+
+
+We can plot the estimates of the simulation of this design. The filled densities are the estimates, the line are the distribution of the simulated estimand.
+
+
+```{r}
+#ggplot(testBoot)+geom_density(aes(x=estimate,fill=term),alpha=.2)
+testBoot <- testBoot%>% mutate(estimand=case_when(term=="T2-T1"~TE.21,
+                                                           term=="T2-C"~TE.20,
+                                                           term=="T1-C"~TE.10))
+ggdensity(data=testBoot,x="estimate",fill="term",rug=TRUE)+geom_density(aes(x=estimand,color=term))
+
+```
+
+These distribution shows that the estimates are unbiased (their mean is the same than the true mean) but with wider variance than the true distribution. This means that our model will usually over-reject the null.
+
+To get more aggregated parameter, we can then simply compute power using the share of adjusted p-value below 5%. We can also measure the coverage rate using the adjusted confidence intervals.
+
+```{r}
+summary.Boot <- testBoot %>% group_by(term) %>% mutate(estimand=case_when(term=="T2-T1"~TE.21,
+                                                           term=="T2-C"~TE.20,
+                                                           term=="T1-C"~TE.10)) %>% 
+                                  summarise(bias=mean(estimate-estimand),
+                                            rmse=sqrt(mean((estimate - estimand)^2)),
+                                            power  = mean(adj.p.value<=.05),
+                                            coverage = mean(estimand <= conf.high & estimand >= conf.low),
+                                          ) 
+
+summary.Boot%>% flextable()
+
+```
+
+In a constant treatment effect framework and simpler but very similar data generating process, we have `r round(summary.Boot$power[summary.Boot$term=="T1-C"]*100)`% power for 2pp in one arm and `r round(summary.Boot$power[summary.Boot$term=="T2-C"]*100)`% for 6pp in T2. The coverage rate is good although it tends to be too conservative for comparisons with T2 (which is what we expected and explained in the methodology section. Cluster robust SE are too conservatives w.r.t. design-based variations). However, we do have a "close-to 80%" power for T2 against C with FWER adjustments for a model with constant ITT. 
+
+# Conclusions
+
+I think we should present the basic results with "80% power" of one arm comparison which was used $ex-ante$ to be transparent, while acknowledging that this is quite far from the true design and is a bit restrictive. Then, we should present the table from the simulation and add a supporting document with the details of these simulations. These power simulations using data from baseline and the control group rather support the claim that we may be slightly underpowered but not much. Moreover, we can also argue that these simulations include fewer blocks and that we have higher $R^2$ in the actual experiment than in these simulations. I think this would show that we carefully thought about power, had tight budget constraints and that all results are consistent.
+
+
+## proposition for the main text: 
+
+### Power calculations
+
+We conducted ex-ante power calculations using estimates based on the literature and the the PowerUp software. Based on that, we required a minimal sample size of 1687 household for a Minimum Detectable Effect Size (MDES) of d=.15, 5% first-type error, 80% power and 25% attrition.  This MDES corresponded to a 6 percentage points increase in application. However, we were able to randomise more participants than expected (N = 1849), and experienced lower attrition rate (21%). We, therefore, ended up with an average sample size per treatment arm that was twice as large as Hermes et al. (2021), while having comparable effect sizes. 
+Howver, these simple power computations were neglecting some design features and we ran more realistic power calculation using estimates from the baseline sample and control groups. We simulated realistic data, potential outcomes, assignment and treatment effects. We estimated the same models with simulated data 500 times. Using an average treatment effects of .02 for the information only arm and .06 for information and administrative support, our estimated power is slightly lower than .8, accounting for simultaneous inference and within-block cluster effects. 
+However, these simulations include fewer blocks and its $R^2$ is lower than in the actual sample.
+Overall, this indicates that our study was reasonably powered to detect effects of our treatments.
+
+
+
+
