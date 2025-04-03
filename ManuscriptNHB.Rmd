@@ -88,10 +88,10 @@ knitr::read_chunk(here("RScripts","MainAnalyses.R"))
 
 
 **Data availability** 
-This study used primary outcome data collected through surveys. The data will be anonymised and made available for replication on OSF.
+This study used primary outcome data collected through surveys. The data is anonymised and made available for replication on OSF.
 
 **Code availability**
-The code to replicate analysis and tables will be made publicly available on OSF.
+The code to replicate analysis and tables is publicly available on OSF.
 
 \newpage
 
