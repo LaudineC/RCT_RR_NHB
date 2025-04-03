@@ -1,0 +1,906 @@
+---
+title: "Investigating how administrative burden and search costs affect social inequalities
+  in early childcare access, a randomised controlled trial"
+author: "Supplementary Information for the manuscript  submitted to Nature Human Behaviour"
+date: "2024-10-07"
+bibliography: NHB.bib
+csl: nature.csl
+always_allow_html: true
+language:
+  label:
+    fig: 'Figure '
+    tab: 'Table '
+    eq: 'Equation '
+output: 
+    bookdown::word_document2: 
+      reference_docx: FormatRefWordFinal.docx
+      fig_caption: yes
+      toc: no
+    officedown::rdocx_document:
+editor_options: 
+  chunk_output_type: console
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE,fig.width = 8,fig.height = 5,fig.pos = "H" #, 
+#cache.lazy = FALSE)
+)
+doc.type <- knitr::opts_knit$get('rmarkdown.pandoc.to')
+
+library(pacman)
+p_load(here)
+p_load(officedown)
+p_load(DesignLibrary)
+
+
+```
+
+
+
+```{r LoadLibraries, include=FALSE}
+source(here("RScripts","LoadInstallPackages.R"), local = knitr::knit_global())
+```
+
+```{r LoadData, include=FALSE}
+source(here("RScripts","LoadAllData.R"), local = knitr::knit_global())
+```
+
+```{r ImportAllFunctions, include=FALSE}
+source(here("RScripts","AllFunctions.R"), local = knitr::knit_global())
+```
+
+
+```{r, include=FALSE, cache=FALSE}
+knitr::read_chunk(here("RScripts","Appendix.R"))
+```
+
+
+# Part 1: Early childcare in France and in our supply in the areas
+
+The average coverage rate in our sample is `r round(mean(MainDB$Taux.de.couv.global_2021, na.rm = TRUE),1)` slots for 100 children aged 0-3 years. The average coverage rate in each district, including only the cities included in our sample, is shown in Table \@ref(tab:DescriptiveAvgCoverageRate). The coverage rate is the number of available slots in a given area for 100 children aged 0-3 years.
+The highest coverage rate is found in Paris, with 71.6 slots in 2021, and the lowest in Seine-Saint-Denis, with 38.5 slots. The average coverage rate in France in 2021 is 59.1 slots per 100 children aged 0-3 years.
+In each district, the coverage rate is higher for daycare than for private childminders, with varying proportions in each district. 
+
+
+```{r DescriptiveAvgCoverageRate,echo=FALSE,results='asis', cache=TRUE, out.width='100%'}
+```
+
+This data can be compared to the average coverage rate in the whole districts in 2021 (i.e. including cities in which none of the households in our sample lived, but are in the same districts) in Table \@ref(tab:DescriptiveCoverageRateDaycareChildmindersDept). The results are about the same. The highest coverage rate is found in Paris, with 80.1 slots, and the lowest in Seine-Saint-Denis, with 34.5 slots. 
+
+```{r DescriptiveCoverageRateDaycareChildmindersDept,echo=FALSE,results='asis', cache=TRUE,out.width='100%'}
+```
+
+The average coverage rate in our sample is `r round(mean(MainDB$Taux.de.couv.global_2021, na.rm = TRUE),1)` slots for 100 children aged 0-3 years, which is slightly lower than the national rate, displayed in Table \@ref(tab:DescriptiveCoverageRateDaycareChildmindersFrance). The national coverage rates in daycare and private childminders can also be found in Table \@ref(tab:DescriptiveCoverageRateDaycareChildmindersFrance). Our districts have a higher coverage rate in daycare than the national average, but a lower coverage rate in private childminders. Unlike in the districts included in our sample, the most available early childcare option in France is private childminders, with 27.3 slots per 100 children aged 0-3 years in 2021, compared to 26 slots in daycare. 
+
+
+```{r DescriptiveCoverageRateDaycareChildmindersFrance,echo=FALSE,results='asis', cache=TRUE}
+```
+
+
+# Part 2: Descriptive statistics 
+
+## Descriptive tables of the main variables 
+
+#### Distribution of the variables
+```{r Descriptive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Distribution of all variables by SES 
+```{r DiffEduc, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Distribution of all variables by migration background
+```{r DiffMig, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by baseline knowledge
+```{r DiffInfo, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by temporal orientation
+```{r DiffPresentBias, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by previous childcare usage
+```{r DiffUse, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by activity status
+```{r DiffActive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by district
+To perform the equality tests, we break down the comparison across districts in three parts: Paris vs. other districts, Seine-Saint-Denis vs. other districts, and Val de Marne. 
+
+##### Paris vs. other districts
+
+```{r DiffParis, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Seine-Saint-Denis
+
+```{r DiffSSD, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Val de Marne
+
+```{r DiffVDM, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Distribution of all variables by compliance to the support treatment
+
+```{r TakeUPT2, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+## Correlation matrix between the main variables
+
+This plot shows the tetrachoric correlation coefficients of the different variables used in the article. 
+
+```{r correlation, echo=FALSE,out.width='100%', cache=TRUE}
+```
+
+## Descriptive results on intention, application and access to early childcare by SES in the control group 
+
+```{r IntentionActionSES, echo=FALSE,out.width='100%', cache=TRUE}
+```
+
+## Descriptive results on intention, application and access to early childcare by migration background in the control group 
+
+```{r IntentionActionMig, echo=FALSE,out.width='100%', cache=TRUE}
+```
+
+# Part 3: Main results
+
+
+## Heterogeneous effects of the information-only treatment on early childcare applications and access
+
+```{r EarlyChildcareHetTableInformationOnly,echo=FALSE,out.width='120%', results='asis', cache=TRUE, out.width='100%',fig.cap="Heterogeneous effects of the information-only treatment on early childcare applications and access - Intention-to-treat estimates (ITT) estimates."}
+```
+
+
+
+## Heterogeneous effects of the information-only treatment on daycare applications and access
+
+```{r DaycareTableInformationOnly,echo=FALSE,out.width='120%', results='asis', cache=TRUE, out.width='100%',fig.cap="Heterogeneous effects of the information-only treatment on early childcare applications and access - Intention-to-treat estimates (ITT) estimates."}
+```
+
+# Part 4: Mechanisms
+
+## Information Costs 
+
+### Heterogeneous effects of the treatments by main dimensions of information costs presented in the manuscript
+
+#### Application and access to early childcare
+
+```{r MechanismsInformationCosts,echo=FALSE,out.width='120%', results='asis', cache=TRUE}
+```
+
+#### Application and access to daycare
+
+```{r MechanismsInformationCostsDaycare,echo=FALSE,out.width='120%', results='asis', cache=TRUE}
+```
+
+
+### Heterogeneous effects of the treatments on generic knowledge of the early childcare system (pre-registered intermediary outcomes)
+#### Number of early childcare types known
+
+```{r MechanismsGenericKnowledgeECTypes,echo=FALSE,out.width='120%', results='asis', cache=TRUE}
+```
+
+#### Knowledge that early childcare is subsidised
+
+```{r MechanismsGenericKnowledgeSubsidies,echo=FALSE,out.width='120%', results='asis', cache=TRUE}
+```
+
+
+## Psychological and social costs
+
+### Heterogeneous effects of the treatments by main dimensions of psychological costs presented in the manuscript
+
+#### Application and access to early childcare
+
+```{r MechanismPsychologicalCosts,echo=FALSE,out.width='120%', results='asis', cache=TRUE}
+```
+
+#### Application and access to daycare
+
+```{r MechanismPsychologicalCostsDaycare,echo=FALSE,out.width='120%', results='asis', cache=TRUE}
+```
+
+
+### Interaction effects Active X SES 
+
+```{r InteractionSESActive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+### Attitudes & SES 
+
+#### More on trust in early childcare facilities
+
+##### Interaction SES and trust
+
+As shown in Table \@ref(tab:InteractionSESTrust), the effects on access among low-trust individuals are concentrated in the low-SES subgroup. In this group, where access was nearly non-existent in the control group, the treatment increased the probability of obtaining a spot by 68 percentage points ; average counterfactual = 0.04; ß = 0.68; SE = 0.23; 95% SCI, (0.17, 1.18); adjusted p-value = 0.006).
+
+```{r InteractionSESTrust, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Beliefs about the benefits of early childcare
+
+Following Steinberg & Leinhart (2022), we inestigated heterogeneous effects according to parents' beliefs about the benefits of early childcare for children’s development.
+Overall, our findings suggest that beliefs about the developmental benefits of early childcare are not a major driver of the observed inequalities in application and access. In the control group, there is less than a 10-percentage point difference in both application and access probabilities between those who believed in the benefits of early childcare and those who did not (see Table \@ref(tab:LikertReturnHK1or0)). Furthermore, we did not find evidence of differential treatment effects of the information + support treatment on application and access by beliefs in general, which aligns with this interpretation
+
+##### Early childcare application and access
+
+```{r LikertReturnHK1or0, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Daycare application and access
+
+As shown in Table \@ref(tab:BeliefsReturnDaycare), for daycare specifically, this treatment led to a 16-percentage point increase in probability that those who believe in the benefits of early childcare apply. Yet, we found similar point estimates among those who do not believe in these benefits, although the effects were not statistically significant, potentially due to limited statistical power. We found no effect on access.
+
+
+```{r BeliefsReturnDaycare, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Interaction SES and beliefs
+
+This lack of significance likely arise frome considerable heterogeneity within this latter group, as shown in Table \@ref(tab:InteractionSESBeliefs). When examining the interaction between SES and beliefs, we found that the effects of the information + support treatment are concentrated among low-SES households who do not initially believe in the benefits of early childcare for their child. Specifically, for compliers, the treatment increased by 78% probability of applying (average counterfactual Low-SES & no belief in benefits = 0.46; ß = 0.36 SE = 0.1; 95% SCI, (0.01, 0.71); adjusted p-value = 0.042), which translated into a 40-percentage point increase in access, therefore nearly doubling their probability of accessing a spot compared to the control group (average counterfactual Low-SES & no belief in benefits = 0.24; ß = 0.40 SE = 0.15; 95% SCI, (0.08, 0.72);  adjusted p-value = 0.011).
+
+```{r InteractionSESBeliefs, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+
+### More on Norms
+
+#### Descriptive norms
+
+##### Effects of the Information-only treatment on early childcare application and access
+
+```{r NormsDecriptiveT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Effects of the Information + Support treatment on early childcare application and access 
+
+```{r NormsDecriptive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Effects of the Information-only treatment on daycare application and access
+
+```{r DescriptiveDaycareT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Effects of the Information + Support treatment on daycare application and access
+
+```{r NormsDaycareDescriptive, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+##### Interaction SES Descriptive Norms
+
+```{r InteractionSESDescriptiveNorms, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Prescriptive norms
+Following Steinberg & Kleinert (2021), we relied on a measure that assessed whether parents anticipated disapproval from friends and relatives if they used early childcare. Overall, our analyses suggest that the expectation of disapproval is not a significant determinant of observed disparities by SES and migration background, as shown in Table \@ref(tab:Norms) and \@ref(tab:NormsDaycare). Firstly, in the control group, we observed only small differences in the application and access to early childcare – never exceeding 6 percentage points – between households that expected social disapproval and those that did not. Secondly, we found no heterogeneous treatment effect of our interventions in relation to prescriptive norms, at least for early childcare as a whole.
+
+#### Effects of the Information-only treatment on early childcare application and access
+
+```{r NormsT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Effects of the Information + Support treatment on early childcare application and access 
+
+```{r Norms, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Effects of the Information-only treatment on daycare application and access
+
+```{r NormsDaycareT1, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+##### Effects of the Information + Support treatment on daycare application and access 
+
+```{r NormsDaycare, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+The observation that our intervention influenced daycare application and access, but not early childcare, indicates that our treatment facilitated households with favorable prescriptive norms in selecting their preferred type of early childcare facility, rather than merely enhancing access to any form of early childcare. 
+
+##### Interaction SES Prescriptive Norms
+```{r InteractionSESNorms, echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+## Structural barriers
+
+Overall, our findings indicated that accessibility barriers, particularly shortages of available slots, represented the primary obstacle encountered by households. As shown in Figure \@ref(fig:GraphReasonsNoECS), the majority of households that applied yet did not use any early childcare reported that their applications were either rejected (47%), that they are still awaiting a response (23.4%), or that they are on a waiting list (14.8%). This suggests the presence of accessibility barriers. However, the reasons for their rejection on the supply-side remain unknown, presenting an opportunity for further investigation in future studies.
+
+```{r GraphReasonsNoECS, echo=FALSE,out.width='100%', results='asis', cache=TRUE, fig.cap="Households' perceived reasons for failing to secure an early childcare slot
+"}
+```
+
+Results for a second item in the endline questionnaire, which tackled the reasons why households did not use they preferred mode of childcare, are displayed in Figure \@ref(fig:GraphReasonIdealSES) and Figure \@ref(fig:GraphReasonIdealMigration) below. We split answers by SES and migration background:
+
+```{r GraphReasonIdealSES, message=FALSE, warning=FALSE,echo=FALSE,out.width='100%', results='asis', cache=TRUE, fig.cap= "Main reasons why households did not use they preferred mode of childcare, by SES"} 
+```
+
+```{r GraphReasonIdealMigration, message=FALSE, warning=FALSE,echo=FALSE,out.width='100%', results='asis', cache=TRUE, fig.cap= "Main reasons why households did not use they preferred mode of childcare, by migration background"} 
+```
+
+### Average effects of the information + support treatment on early childcare and daycare application and access by district
+
+The effectiveness of our interventions varies substantially according to the local context. On the one hand, all effects on applications for low-SES households are concentrated outside of Paris, which could be consistent with a ceiling effect. In Paris, where the supply of early childcare in general and daycare specifically are the highest in France, inequalities were found to be very low in our sample and thus we found no effects of our intervention on application. On the other hand, all effects on daycare access for high-SES households were concentrated in Paris
+
+#### Early childcare
+```{r HetCoverageRateEarlyChildcare,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+
+#### Daycare
+```{r HetCoverageRateDaycare,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+# Part 5: Robustness checks
+
+## Sensitivity analysis of the main results: SES measurment
+To ensure the robustness of the findings, we tested alternative definitions of socioeconomic status. Specifically, we considered mother's occupation using the International Socio-Economic Index of Occupational Status (ISEI) and a composite SES score that accounts for the highest occupation score and the highest education level in the household. As depicted below, the patterns of results remain constant with these definitions of SES.
+
+### Information-only treatment
+
+#### Heterogeneous effects of the information-only treatment on early childcare applications
+
+```{r RobustnessHTESESGraphsT1EarlyChildcareApp,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Heterogeneous effects of the information-only treatment on early childcare access
+
+```{r RobustnessHTESESGraphsT1EarlyChildcareAccess,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Heterogeneous effects of the information-only treatment on daycare applications
+
+```{r RobustnessHTESESGraphsT1DaycareApp,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+
+#### Heterogeneous effects of the information-only treatment on daycare access
+
+```{r RobustnessHTESESGraphsT1DaycareAccess,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Table: Heterogeneous effects of the information-only treatment on early childcare and daycare applications and access by SES as measured by the occupation status of the mother (ISEI)
+
+
+```{r RobustnessHTESESsTableT1ISEIMother,echo=FALSE, results='asis', cache=TRUE,out.width='100%',}
+```
+
+#### Table: Heterogeneous effects of the information-only treatment on early childcare and daycare applications and access by SES as measured by the composite index of SES
+
+
+```{r RobustnessHTESESsTableT1CompositeSES,echo=FALSE, results='asis', cache=TRUE, out.width='100%',}
+```
+
+
+### Information + support treatment
+
+#### Heterogeneous effects of the information + support treatment on early childcare applications
+
+```{r RobustnessHTESESGraphsT2EarlychildcareApp,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Heterogeneous effects of the information + support treatment on early childcare access
+
+```{r RobustnessHTESESGraphsT2EarlychildcareAccess,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Table: heterogenous effects of the information + support treatment on early childcare applications and access using the occupation status of the mother (ISEI)
+
+```{r RobustnessHTESESTableT2ECISEIMotherEC,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+#### Table: heterogenous effects of the information + support treatment on early childcare applications and access using the composite index of SES
+
+```{r RobustnessHTESESTableT2ECSES,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+
+
+#### Heterogeneous effects of the information + support treatment on daycare applications
+
+```{r RobustnessHTESESGraphsT2DaycareApp,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Heterogeneous effects of the information + support treatment on daycare access
+
+```{r RobustnessHTESESGraphsT2DaycareAccess,echo=FALSE,out.width='100%', results='asis', cache=TRUE}
+```
+
+#### Table: heterogenous effects of the information + support treatment on daycare applications and access using the occupation status of the mother (ISEI)
+
+```{r RobustnessHTESESsTableT2DaycareISEIMother,echo=FALSE, results='asis', cache=TRUE}
+```
+
+#### Table: heterogenous effects of the information + support treatment on daycare applications and access using the composite index of SES
+
+```{r RobustnessHTESESsTableT2DaycareCompositeSES,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+## Sensitivity analysis of the main results: migration background measurment
+
+### Information-only treatment
+
+#### Heterogeneous effects of the information-only treatment on early childcare applications and access
+
+```{r MigTablesEarlyChilcareInfoOnly,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+#### Heterogeneous effects of the information-only treatment on daycare applications and access
+
+```{r MigTablesDaycareInfoOnly,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+#### Heterogeneous effects of the information + support treatment on early childcare applications and access
+
+```{r MigTablesEarlyChilcare,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+#### Heterogeneous effects of the information + support treatment on daycare applications and access
+
+
+```{r MigTablesDaycare,echo=FALSE, results='asis', cache=TRUE, out.width='100%'}
+```
+
+
+## Sensitivity analysis of the main results: models
+
+### Classical Ordinary-Least-Squares (OLS) models
+
+We reproduce our results using classical OLS models instead of stacked regressions. The former are more common to analyse RCT results. However, they can introduce contamination bias in the estimates (Goldsmith-Pickham, 2024).
+
+#### Main effects
+```{r RobustnessClassicalOLS,echo=FALSE, results='asis', cache=TRUE}
+```
+
+#### HTE 
+
+```{r RobustnessOLSHTE,echo=FALSE, results='asis', cache=TRUE}
+```
+
+### Logit models
+
+We reproduce our results using logit models. Note that logit models remove fixed effects with homogeneous outcomes (only 0 or only 1) from the analysis, which reduces power.
+
+#### Main effects
+
+```{r RobustnessLogitMainTable,echo=FALSE, results='asis', cache=TRUE}
+```
+
+#### HTE
+
+```{r RobustnessLogitHTE,echo=FALSE, results='asis', cache=TRUE}
+```
+
+
+# Part 6: Power analyses
+
+# Supplementary power analyses
+
+## Basic power calculations, preregistered in 2022
+
+
+- Sample size: 1687 families minimum. 
+
+This was based on power calculations using the PowerUp software with the following parameters: 
+
+a) minimum detectable effect size for the main effect: 0.15; 
+b) randomisation procedure as implemented; 
+c) R2=40%, owing mainly to baseline information on intention to apply for early childcare; 
+d) T1=33%, T2=33% C=34%; 
+e) blocks: 9; 
+f) two-tailed alpha level: 5%; 
+g) statistical power: 80%; 
+h) attrition at endline: 25%.
+
+
+```{r, include=FALSE,results='hide'}
+p_load(pwrss)
+
+p <- 0.5
+M.0 <- .75
+Sample.Size = nrow(MainDB %>% filter(Responded==1 & Assignment!="T1"))
+# 
+# powerbasic <- pwrss.t.reg(beta1 = 0.05, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 9, r2 = 0.40, 
+#             power = .80, alpha = 0.05, alternative = "not equal") 
+# 
+# 
+powerbasic6 <- pwrss.t.reg(beta1 = 0.06, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 12*6, r2 = 0.40, 
+            n = Sample.Size, alpha = 0.05, alternative = "not equal") 
+
+tidy.power6 <- unlist(powerbasic6) %>%  t() %>%  as.data.frame()
+
+powerbasic5 <- pwrss.t.reg(beta1 = 0.05, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 12*6, r2 = 0.40, 
+            n = Sample.Size, alpha = 0.05, alternative = "not equal") 
+
+tidy.power5 <- unlist(powerbasic5) %>%  t() %>%  as.data.frame()
+
+powerbasic5b <- pwrss.t.reg(beta1 = 0.05, sdy = sqrt(M.0*(1-M.0)), sdx = sqrt(p*(1-p)), k = 12*6, r2 = 0.50, 
+            n = Sample.Size, alpha = 0.05, alternative = "not equal") 
+
+tidy.power5b <- unlist(powerbasic5b) %>%  t() %>%  as.data.frame()
+
+
+
+```
+
+In the original preregistration, we assumed a .15 effect size (*Cohen D*) *i.e.*, $\frac{\beta}{\sigma_{y|X}}$ with "applied to any childcare" as the main outcome. We anticipated 75% rate of application, thus a variance $p(1-p)=$ `r .75*.25` and a sample size of 1687 families with 25% attrition at endline. This would allow us to detect a equivalent minimum treatment effect of $.15\times SD \approx$ `r round(.15*sqrt(.75*.25)*100)`pp increase in application rate.
+
+However, we were able to randomise more participants than expected (`r 1859-1687` extra households) and experienced a lower attrition rate. 
+
+## Power through simulation with realistic parameters
+
+Given our design, we ran extra power simulations to better understand the minimum detectable effect size that we can detect. Computing power ex-post is usually a bad idea, but computing the minimal detectable effect using conditional variance estimates from the control group is still a valid approach. To do so, we simulated a data-generating process that closely mimics our data, with heterogeneous baseline intentions by education and heterogeneous application rates. We used Monte Carlo simulations of data and assignments multiple times to estimate treatment effects, precisely as described in the paper. We used the distribution of estimated treatment effects and simulated “true” treatment effects to calculate power, bias and other metrics.
+
+```{r, echo=F}
+#Sample Size
+N <- nrow(MainDB %>% filter(Responded==1))
+
+# Let's get the share of HighSES and intention to use from the baseline sample
+HighSES <- feols(HighEduc~1,MainDB)
+
+intention <- feols(Intend~0+Educ2,MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0)))
+
+
+
+```
+
+
+High-SES households represent `r round(HighSES$coefficients*100)`% of the population, and `r round(intention$coefficients[1]*100)`% of them intend to use childcare, while only `r round(intention$coefficients[2]*100)`% of low-SES households do.
+Using data from the control group, we can estimate the conditional means of the outcome for these subgroups:
+```{r, echo=F}
+# 
+# Average outcome in the control group
+C.means <- feols(ECSApp~0+i(Intend,Educ2),MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0)) %>% filter(Assignment=="Control"),se="hetero")
+
+# Average participation in T2 to model take-up (not done yet)
+D.means <- feols(Suivi_administratif1_0~0+i(Intend,Educ2),MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0)) %>% filter(Assignment=="T2"),se="hetero")
+
+
+# We take average applications in these 4 subgroups.
+
+Low.NoIntend <- C.means$coefficients["Intend::0:Educ2::Low-SES"]
+High.NoIntend <- C.means$coefficients["Intend::0:Educ2::High-SES"]
+Low.Intend <- C.means$coefficients["Intend::1:Educ2::Low-SES"]
+High.Intend <- C.means$coefficients["Intend::1:Educ2::High-SES"]
+
+
+
+```
+
+```{r sim0, tab.cap='Conditional means and standard errors estimated in the control group'}
+
+modelsummary(list("Application"=C.means),gof_map = c("r.squared","rmse","nobs"))
+```
+
+
+### Simulation parameters
+
+We drew an education variable from Bernoulli trials with probability given by the share of High SES in the sample. The realisation of education generated an intention from a Bernoulli trial with a probability depending on SES status. Lastly, potential outcomes without treatment are generated from Bernoulli trials with probabilities given by the conditional means in the control group and their standard errors. We then generated blocks based on intention and SES status and used the same assignment mechanisms as in the paper. We generated potential outcomes for each treatment, adding a constant treatment effect for simplicity. As an illustration, we reported a single simulation and compared the estimates with those using actual data. Table \@ref(tab:SimuCA) shows that the conditional average outcomes in simulated and actual data are very close.
+Table \@ref(tab:SimuATE) shows that our models on simulated data closely mimic the actual data.
+
+```{r SimuCA, echo=FALSE,out.width='120%', results='asis', cache=TRUE, tab.cap="Comparison of conditional average outcomes in simulated and actual data"}
+# Set seed for reproducibility
+set.seed(6666)
+# Define binary variable for education with average probability given from the HighSES regression coefficient
+Educ2 = rbinom(N, size = 1, prob = HighSES$coefficients[1])
+
+#Define intention to use as a binary variable with conditional probability different by education, drawn from the regression tables
+Intend = rbinom(N,size=1,
+                prob=Educ2*intention$coefficients["Educ2High-SES"]+
+                  (1-Educ2)*intention$coefficients["Educ2Low-SES"])
+
+#define Blocks with the intersection of the two variables
+
+block=case_when(
+                (Educ2==0 & Intend==0)~0,
+                (Educ2==0 & Intend==1)~1,
+                (Educ2==1 & Intend==0)~2,
+                (Educ2==1 & Intend==1)~3
+              )
+
+# We can define the potential outcome in the absence of the program similarly:
+
+Y0.star =
+             case_when(
+              (Educ2==1 & Intend==1) ~ rnorm( N, High.Intend,  C.means$se["Intend::1:Educ2::High-SES"]),
+              (Educ2==0 & Intend==1) ~ rnorm( N, Low.Intend,   C.means$se["Intend::1:Educ2::Low-SES"]),
+              (Educ2==1 & Intend==0) ~ rnorm( N, High.NoIntend,C.means$se["Intend::0:Educ2::High-SES"]),
+              (Educ2==0 & Intend==0) ~ rnorm( N, Low.NoIntend, C.means$se["Intend::0:Educ2::Low-SES"])
+)
+
+Y0=rbinom(N,size=1,prob=Y0.star)
+
+
+db0 <- data.frame(Y0,Intend,Educ2,block)
+
+# Linear probability model of application by intention and education:
+modelsummary(list("Simulated"=feols(Y0~0+i(Educ2,factor(Intend)),db0,se="hetero"),
+                  "Observed"=feols(ECSApp~0+i(Educ2,factor(Intend)),MainDB %>% mutate(Intend=ifelse(IntendUse!="Else",1,0),
+                                                                                      Educ2=ifelse(Educ2=="High-SES",1,0)
+                                                                                      ),se="hetero")),gof_map = c("r.squared","rmse","nobs"),title="Comparison of conditional average outcomes in simulated and actual data")
+
+```
+
+
+```{r SimuATE, cho=FALSE,out.width='120%', results='asis', cache=TRUE, tab.cap="Comparison of average treatment effects estimates between simulated and actual data"}
+
+# We use block random assignment
+set.seed(6666)
+Z = block_ra(blocks=block, prob_each = c(.34,.33,.33), conditions = c("0", "1", "2"))
+
+# Like in our results, let's simulate a null effect of T1 and a 5PP itt of T2
+# 
+
+Y1 = rbinom(N,
+           size=1,
+           prob=Y0.star+0.02)
+
+
+
+Y2 = rbinom(N,
+           size=1,
+           prob=Y0.star+.06)
+
+
+Y.obs=case_when(Z==0~Y0,Z==1~Y1,Z==2~Y2)
+
+
+db0 <- data.frame(db0,Y.obs,Y1,Y2,Z)%>% mutate(TE.21=Y2-Y1,TE.10=Y1-Y0,TE.20=Y2-Y0)
+
+# like in our analysis, we build pair of comparison
+db0 <- db0 %>% mutate(id=cur_group_rows()) 
+
+T2T1 <- db0 %>% filter(Z %in% c(1,2)) %>% mutate(SubSample="T2-T1",Z1=ifelse(Z==2,1,0))
+T2T0 <- db0 %>% filter(Z %in% c(0,2)) %>% mutate(SubSample="T2-C",Z1=ifelse(Z==2,1,0))
+T1T0 <- db0 %>% filter(Z %in% c(0,1)) %>% mutate(SubSample="T1-C",Z1=ifelse(Z==1,1,0))
+
+StackedDBSim <- bind_rows(T2T1,T2T0,T1T0) %>% mutate(SubSampleStrata=interaction(SubSample,block),
+                                                  StrataWave=block,
+                                                  weights=1
+                                                  )
+
+
+# Run the model on simulated data
+test <- ITTSimultaneous(Y="Y.obs",treat = "Z1",DB=StackedDBSim,weights = "weights")
+
+# Run the model from the actual data
+real <- ITTSimultaneous(Y="ECSApp")
+
+
+# compare the two.
+modelsummary(list("Simulation"=test$ModelSummary,"Real estimates"=real$ModelSummary),gof_map = c("r.squared","rmse","nobs"),title="Comparison of average treatment effects estimates between simulated and actual data")
+
+```
+
+
+```{r bootFunc, echo=FALSE, message=FALSE, warning=FALSE}
+BootConstantITT <- function(ATE1=0, ATE2=.05, nboot=500, N=1850, seed=666,
+                            HighSES_coef, intention_HighSES, intention_LowSES,
+                            High_Intend, Low_Intend, High_NoIntend, Low_NoIntend,
+                            C_means_se, ITTSimultaneous_fn) {
+  
+  results <- c()
+  set.seed(seed, kind = "L'Ecuyer-CMRG") # ce type de graine assure la même racine dans tous les cœurs
+  
+  # Exportation explicite des packages vers les nœuds parallèles
+  foreach(n.boot = 1:nboot, .combine = rbind,
+          .packages = c("tidyverse", "tidyr", "randomizr", "fixest", "multcomp", "broom", "modelsummary")) %dopar% {
+    
+    # Définir la variable d'éducation avec probabilité moyenne
+    Educ2 = rbinom(N, size = 1, prob = HighSES_coef)
+    
+    # Définir l'intention d'utilisation comme variable binaire avec probabilité conditionnelle 
+    Intend = rbinom(N, size = 1,
+                    prob = Educ2 * intention_HighSES +
+                      (1 - Educ2) * intention_LowSES)
+    
+    # Définir les blocs avec l'intersection des deux variables
+    block = case_when(
+      (Educ2 == 0 & Intend == 0) ~ 0,
+      (Educ2 == 0 & Intend == 1) ~ 1,
+      (Educ2 == 1 & Intend == 0) ~ 2,
+      (Educ2 == 1 & Intend == 1) ~ 3
+    )
+    
+    # Définir le résultat potentiel en l'absence du programme
+    Y0.star = case_when(
+      (Educ2 == 1 & Intend == 1) ~ rnorm(N, High_Intend, C_means_se["Intend::1:Educ2::High-SES"]),
+      (Educ2 == 0 & Intend == 1) ~ rnorm(N, Low_Intend, C_means_se["Intend::1:Educ2::Low-SES"]),
+      (Educ2 == 1 & Intend == 0) ~ rnorm(N, High_NoIntend, C_means_se["Intend::0:Educ2::High-SES"]),
+      (Educ2 == 0 & Intend == 0) ~ rnorm(N, Low_NoIntend, C_means_se["Intend::0:Educ2::Low-SES"])
+    )
+    
+    Y0 = rbinom(N, size = 1, prob = Y0.star)
+    
+    # Utiliser l'assignation aléatoire par bloc
+    Z = block_ra(blocks = block, prob_each = c(.34, .33, .33), conditions = c("0", "1", "2"))
+    
+    # Simuler les effets de traitement
+    Y1 = rbinom(N, size = 1, prob = Y0.star + ATE1)
+    Y2 = rbinom(N, size = 1, prob = Y0.star + ATE2)
+    
+    Y.obs = case_when(Z == "0" ~ Y0, Z == "1" ~ Y1, Z == "2" ~ Y2)
+    
+    # Créer le dataframe de base
+    db0 <- data.frame(
+      Educ2 = Educ2,
+      Intend = Intend,
+      block = block,
+      Y.obs = Y.obs,
+      Y1 = Y1,
+      Y2 = Y2,
+      Z = Z,
+      Y0 = Y0,
+      Y0.star = Y0.star
+    ) %>% 
+      mutate(TE.21 = Y2 - Y1, 
+             TE.10 = Y1 - Y0, 
+             TE.20 = Y2 - Y0,
+             id = row_number())
+    
+    # Construire les paires de comparaison
+    T2T1 <- db0 %>% 
+      filter(Z %in% c("1", "2")) %>% 
+      mutate(SubSample = "T2-T1", Z1 = ifelse(Z == "2", 1, 0))
+    
+    T2T0 <- db0 %>% 
+      filter(Z %in% c("0", "2")) %>% 
+      mutate(SubSample = "T2-C", Z1 = ifelse(Z == "2", 1, 0))
+    
+    T1T0 <- db0 %>% 
+      filter(Z %in% c("0", "1")) %>% 
+      mutate(SubSample = "T1-C", Z1 = ifelse(Z == "1", 1, 0))
+    
+    # Combiner les sous-échantillons
+    StackedDB <- bind_rows(T2T1, T2T0, T1T0) %>% 
+      mutate(SubSampleStrata = interaction(SubSample, block),
+             StrataWave = block,
+             weights = 1)
+    
+    # Utiliser la fonction ITTSimultaneous passée en paramètre
+    estimates <- ITTSimultaneous_fn(Y = "Y.obs", treat = "Z1", DB = StackedDB, weights = "weights")
+    
+    # Préparer les résultats
+    results <- estimates$Tidy %>% 
+      mutate(Boot = n.boot)
+    
+    # Calculer les estimands par groupe
+    estimand <- StackedDB %>% 
+      group_by(SubSample) %>% 
+      summarise(TE.21 = mean(TE.21, na.rm = TRUE),
+                TE.20 = mean(TE.20, na.rm = TRUE),
+                TE.10 = mean(TE.10, na.rm = TRUE))
+    
+    # Joindre résultats et estimands
+    results %>% 
+      left_join(estimand, by = c("term" = "SubSample"))
+  } -> All.results
+  
+  return(All.results)
+}
+```
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+
+p_load(foreach)
+p_load(doParallel)
+p_load(dplyr)
+p_load(tidyr)
+p_load(randomizr)
+
+# Définir la fonction BootConstantITT
+# [Copiez ici le code de la fonction définie ci-dessus]
+
+# Obtenir le nombre de cœurs et configurer le parallélisme
+numCores <- parallel::detectCores()
+registerDoParallel(numCores - 2)  # Utiliser tous les cœurs sauf 2
+
+# Préparation des paramètres à partir des objets existants
+HighSES_coef <- HighSES$coefficients[1]
+intention_HighSES <- intention$coefficients["Educ2High-SES"]
+intention_LowSES <- intention$coefficients["Educ2Low-SES"]
+
+# Moyennes conditionnelles
+High_Intend <- C.means$coefficients["Intend::1:Educ2::High-SES"]
+Low_Intend <- C.means$coefficients["Intend::1:Educ2::Low-SES"]
+High_NoIntend <- C.means$coefficients["Intend::0:Educ2::High-SES"]
+Low_NoIntend <- C.means$coefficients["Intend::0:Educ2::Low-SES"]
+
+# Erreurs standard
+C_means_se <- C.means$se
+
+# Exécuter le bootstrap
+testBoot <- BootConstantITT(
+  ATE1 = .02,           # Effet traitement pour T1
+  ATE2 = .06,           # Effet traitement pour T2
+  N = nrow(MainDB),     # Taille de l'échantillon
+  seed = 1312,          # Graine pour la reproductibilité
+  nboot = 500,          # Nombre de bootstraps
+  HighSES_coef = HighSES_coef,
+  intention_HighSES = intention_HighSES,
+  intention_LowSES = intention_LowSES,
+  High_Intend = High_Intend,
+  Low_Intend = Low_Intend,
+  High_NoIntend = High_NoIntend,
+  Low_NoIntend = Low_NoIntend,
+  C_means_se = C_means_se,
+  ITTSimultaneous_fn = ITTSimultaneous
+)
+
+
+
+# Résumé des résultats
+summary_Boot <- testBoot %>% 
+  group_by(term) %>% 
+  mutate(estimand = case_when(
+    term == "T2-T1" ~ TE.21,
+    term == "T2-C" ~ TE.20,
+    term == "T1-C" ~ TE.10
+  )) %>% 
+  summarise(
+    bias = round(mean(estimate - estimand), 4),
+    rmse = round(sqrt(mean((estimate - estimand)^2)), 4),
+    power = mean(adj.p.value <= .05),
+    coverage = mean(estimand <= conf.high & estimand >= conf.low)
+  )
+
+```
+
+
+
+Our simulations ran 500 times, with an ATE for information only of 0.02 and an ATE for information plus offer support of 0.06. 
+As a first diagnosis, we plotted the density of each treatment effect estimate from the 500 simulations. The filled densities represent the estimates, while the line represents the distribution of the simulated estimand.
+
+```{r}
+#ggplot(testBoot)+geom_density(aes(x=estimate,fill=term),alpha=.2)
+testBoot <- testBoot%>% mutate(estimand=case_when(term=="T2-T1"~TE.21,
+                                                           term=="T2-C"~TE.20,
+                                                           term=="T1-C"~TE.10))
+
+ggdensity(data=testBoot,x="estimate",fill="term",rug=TRUE,alpha=.4)+geom_density(aes(x=estimand,color=term))+
+  scale_color_manual("True density",values=ColorD2)+scale_fill_manual("Estimates",values=ColorD2)+
+  labs(caption="Simulations of treatment effects using 500 bootstraps.
+Filled density indicates estimated treatment effects while empty ones show the density
+of the true average treatment effects.")
+
+```
+
+These distributions indicated that the estimates were unbiased but with a broader variance than the true distribution.
+To obtain a more aggregated parameter, we computed power using the share of adjusted p-values below 5%. We also measured the coverage rate using the adjusted confidence intervals.
+
+
+```{r}
+summary.Boot <- testBoot %>% group_by(term) %>% mutate(estimand=case_when(term=="T2-T1"~TE.21,
+                                                           term=="T2-C"~TE.20,
+                                                           term=="T1-C"~TE.10)) %>% 
+                                  summarise(bias=round(mean(estimate-estimand),4),
+                                            rmse=round(sqrt(mean((estimate - estimand)^2)),4),
+                                            power  = mean(adj.p.value<=.05),
+                                            coverage = mean(estimand <= conf.high & estimand >= conf.low),
+                                          ) 
+
+summary.Boot%>% flextable()
+
+```
+
+In a constant treatment effect framework and a more straightforward, yet similar, data-generating process, we have `r round(summary.Boot$power[summary.Boot$term=="T1-C"]*100)`% power for 2pp in one arm and `r round(summary.Boot$power[summary.Boot$term=="T2-C"]*100)`% for 6pp in the information + support arm The coverage rate is good, although it tends to be too conservative for comparisons with the information + support arm (which is what we expected and explained in the methodology section). Cluster-robust SE are also too conservative concerning design-based variations. Despite all this, we have a power of approximately 80% for the information + support vs. control comparison with FWER adjustments for a model with a constant ITT. Using data from the baseline and control groups, these power simulations indicate that we may be slightly underpowered but not significantly so. However, these simulations are conservative because they included fewer blocks and that we have higher $R^2$ in the actual experiment than in these simulations. Therefore, overall, this indicates that our study was reasonably powered to detect the effects of our treatments.
+
+
+
+
+
